@@ -1,0 +1,15 @@
+package ch.unisg.edpofactory;
+
+import org.camunda.bpm.spring.boot.starter.annotation.EnableProcessApplication;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+@EnableProcessApplication("application")
+public class EdpofactoryApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(EdpofactoryApplication.class, args);
+	}
+
+}
