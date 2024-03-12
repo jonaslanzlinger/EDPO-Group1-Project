@@ -1,0 +1,11 @@
+server:
+  port: 8081
+
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      auto-offset-reset: earliest
+
+
+
