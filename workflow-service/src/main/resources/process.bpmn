@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_06ys69n" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.20.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+  <bpmn:process id="Process_0h9714p" name="FactoryEDPO" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:sequenceFlow id="Flow_02qqk26" sourceRef="StartEvent_1" targetRef="Activity_0mdi1ow" />
+    <bpmn:endEvent id="Event_0yb499w" name="finish Order">
+      <bpmn:incoming>Flow_1x4bi66</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1x4bi66" sourceRef="Activity_0777ah4" targetRef="Event_0yb499w" />
+    <bpmn:startEvent id="StartEvent_1" name="create Order">
+      <bpmn:outgoing>Flow_02qqk26</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_039nbos" messageRef="Message_03rv1gp" />
+    </bpmn:startEvent>
+    <bpmn:userTask id="Activity_0777ah4" name="Delivery">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="test" label="test" type="boolean">
+            <camunda:validation />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_02juc34</bpmn:incoming>
+      <bpmn:outgoing>Flow_1x4bi66</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0jitjck" sourceRef="Activity_0mdi1ow" targetRef="Activity_1i7vxig" />
+    <bpmn:task id="Activity_1i7vxig" name="Grabber">
+      <bpmn:incoming>Flow_0jitjck</bpmn:incoming>
+      <bpmn:outgoing>Flow_02juc34</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_02juc34" sourceRef="Activity_1i7vxig" targetRef="Activity_0777ah4" />
+    <bpmn:serviceTask id="Activity_0mdi1ow" name="Warehouse" camunda:type="external" camunda:topic="warehouse">
+      <bpmn:incoming>Flow_02qqk26</bpmn:incoming>
+      <bpmn:outgoing>Flow_0jitjck</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmn:message id="Message_03rv1gp" name="EDPOFactory" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0h9714p">
+      <bpmndi:BPMNShape id="Event_1ew0wbr_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="172" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="158" y="105" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0yb499w_di" bpmnElement="Event_0yb499w">
+        <dc:Bounds x="772" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="761" y="105" width="58" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_12cm06j_di" bpmnElement="Activity_0777ah4">
+        <dc:Bounds x="620" y="40" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1i7vxig_di" bpmnElement="Activity_1i7vxig">
+        <dc:Bounds x="450" y="40" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0e5k1w5_di" bpmnElement="Activity_0mdi1ow">
+        <dc:Bounds x="280" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_02qqk26_di" bpmnElement="Flow_02qqk26">
+        <di:waypoint x="208" y="80" />
+        <di:waypoint x="280" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1x4bi66_di" bpmnElement="Flow_1x4bi66">
+        <di:waypoint x="720" y="80" />
+        <di:waypoint x="772" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jitjck_di" bpmnElement="Flow_0jitjck">
+        <di:waypoint x="380" y="80" />
+        <di:waypoint x="450" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02juc34_di" bpmnElement="Flow_02juc34">
+        <di:waypoint x="550" y="80" />
+        <di:waypoint x="620" y="80" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

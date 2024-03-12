@@ -9,12 +9,9 @@ camunda.bpm:
     properties:
       historyTimeToLive: P1D
 
-# Kafka
-#flowing-retail.topic-name=flowing-retail
-spring:
-  kafka:
-    bootstrap-servers: kafka:9092
-    consumer:
-      auto-offset-reset: earliest
+kafka:
+    bootstrap-address: kafka:9092
+    group-id: EDPOFactory
+    trusted-packages: ch.unisg.edpofactory.dto
 
 #server.port = 8091
