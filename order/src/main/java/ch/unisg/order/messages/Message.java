@@ -17,7 +17,7 @@ public class Message<T> {
   // Cloud Events attributes (https://github.com/cloudevents/spec/blob/v1.0/spec.md)
   private String type;
   private String id = UUID.randomUUID().toString(); // unique id of this message
-  private String source = "Order";
+  private String source = "order";
   @JsonFormat(shape = JsonFormat.Shape.STRING) // ISO-8601 compliant format  
   private Instant time = Instant.now();
   private T data;

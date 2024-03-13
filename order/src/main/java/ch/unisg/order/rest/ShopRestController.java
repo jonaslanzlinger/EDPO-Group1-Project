@@ -17,13 +17,12 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 public class ShopRestController {
 
     private final MessageService messageService;
-    private final static String MESSAGE_START = "Order";
+    private final static String MESSAGE_START = "order";
 
     @RequestMapping(path = "/api/order", method = PUT)
     public String placeOrder() {
 
         Order order = new Order();
-        order.setOrderId("firstOrder");
 
         CamundaMessageDto message = VariablesUtil.buildCamundaMessageDto(order.getOrderId(), order);
         messageService.correlateMessage(message, MESSAGE_START);

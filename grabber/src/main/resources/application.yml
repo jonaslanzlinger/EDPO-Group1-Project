@@ -1,0 +1,10 @@
+camunda.bpm.client:
+  base-url: http://order:8080/engine-rest
+  worker-id: grabber
+  basic-auth:
+    username: demo
+    password: demo
+    subscriptions:
+      grabber: # topic name of the External Service Task
+        variable-names: []
+        process-definition-key: grabber # only filter for External Tasks with this process definition key

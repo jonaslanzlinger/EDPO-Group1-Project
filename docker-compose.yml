@@ -37,6 +37,18 @@ services:
     networks:
       - edpo
 
+  grabber:
+    hostname: grabber
+    build:
+      context: grabber/
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8082
+    depends_on:
+      - kafka
+    networks:
+      - edpo
+
 #  factorysimulation:
 #    build:
 #      context: projectTest/

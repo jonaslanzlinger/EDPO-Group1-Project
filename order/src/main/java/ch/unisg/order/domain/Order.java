@@ -6,14 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-
+import java.util.UUID;
 
 
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class Order implements Serializable {
   private String orderId;
+
+    public Order() {
+      this.orderId = UUID.randomUUID().toString();
+    }
 }
 

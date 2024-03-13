@@ -1,6 +1,6 @@
-package com.example.worker;
+package ch.unisg.warehouse.worker;
 
-import com.example.utils.WorkflowLogger;
+import ch.unisg.warehouse.utils.WorkflowLogger;
 import org.camunda.bpm.client.spring.annotation.ExternalTaskSubscription;
 import org.camunda.bpm.client.task.ExternalTask;
 import org.camunda.bpm.client.task.ExternalTaskHandler;

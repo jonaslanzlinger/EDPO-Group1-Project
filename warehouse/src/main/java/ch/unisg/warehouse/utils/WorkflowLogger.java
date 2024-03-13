@@ -1,4 +1,4 @@
-package com.example.utils;
+package ch.unisg.warehouse.utils;
 
 import org.slf4j.Logger;
 
