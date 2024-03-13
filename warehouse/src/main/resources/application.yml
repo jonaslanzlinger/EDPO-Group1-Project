@@ -1,5 +1,5 @@
 camunda.bpm.client:
-  base-url: http://edpofactory:8080/engine-rest
+  base-url: http://order:8080/engine-rest
   worker-id: warehouse
   basic-auth:
     username: demo

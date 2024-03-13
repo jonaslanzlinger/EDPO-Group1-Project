@@ -8,7 +8,7 @@
     <bpmn:sequenceFlow id="Flow_1x4bi66" sourceRef="Activity_0777ah4" targetRef="Event_0yb499w" />
     <bpmn:startEvent id="StartEvent_1" name="create Order">
       <bpmn:outgoing>Flow_02qqk26</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_039nbos" messageRef="Message_03rv1gp" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_039nbos" messageRef="Message_202kqql" />
     </bpmn:startEvent>
     <bpmn:userTask id="Activity_0777ah4" name="Delivery">
       <bpmn:extensionElements>
@@ -33,18 +33,19 @@
     </bpmn:serviceTask>
   </bpmn:process>
   <bpmn:message id="Message_03rv1gp" name="EDPOFactory" />
+  <bpmn:message id="Message_202kqql" name="Order" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0h9714p">
-      <bpmndi:BPMNShape id="Event_1ew0wbr_di" bpmnElement="StartEvent_1">
-        <dc:Bounds x="172" y="62" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="158" y="105" width="64" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0yb499w_di" bpmnElement="Event_0yb499w">
         <dc:Bounds x="772" y="62" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="761" y="105" width="58" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ew0wbr_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="172" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="158" y="105" width="64" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_12cm06j_di" bpmnElement="Activity_0777ah4">

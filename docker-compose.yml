@@ -1,8 +1,9 @@
 services:
-  edpofactory:
-    hostname: edpofactory
+
+  order:
+    hostname: order
     build:
-      context: workflow-service/
+      context: order/
       dockerfile: Dockerfile
     ports:
       - 8080:8080
@@ -10,6 +11,18 @@ services:
       - kafka
     networks:
       - edpo
+
+#  edpofactory:
+#    hostname: edpofactory
+#    build:
+#      context: edpofactory/
+#      dockerfile: Dockerfile
+#    ports:
+#      - 8080:8080
+#    depends_on:
+#      - kafka
+#    networks:
+#      - edpo
 
   warehouse:
     hostname: warehouse
@@ -20,19 +33,20 @@ services:
       - 8081:8081
     depends_on:
       - kafka
+      - order
     networks:
       - edpo
 
-  factorysimulation:
-    build:
-      context: projectTest/
-      dockerfile: Dockerfile
-    ports:
-      - 8082:8082
-    depends_on:
-      - kafka
-    networks:
-      - edpo
+#  factorysimulation:
+#    build:
+#      context: projectTest/
+#      dockerfile: Dockerfile
+#    ports:
+#      - 8082:8082
+#    depends_on:
+#      - kafka
+#    networks:
+#      - edpo
 
   zookeeper:
     image: "bitnami/zookeeper:latest"

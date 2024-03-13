@@ -17,7 +17,9 @@ public class WarehouseTaskHandler implements ExternalTaskHandler {
 
     @Override
     public void execute(ExternalTask externalTask, ExternalTaskService externalTaskService) {
-        WorkflowLogger.info(logger, "createCustomer","Customer added to ERP");
+        WorkflowLogger.info(logger, "WarehouseTaskHandler", "Received task from Camunda: " + externalTask.getActivityId());
+        WorkflowLogger.info(logger, "WarehouseTaskHandler", "Completed task to Camunda: " + externalTask.getActivityId());
+
         externalTaskService.complete(externalTask);
     }
 }
