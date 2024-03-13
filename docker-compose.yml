@@ -46,6 +46,20 @@ services:
       - 8082:8082
     depends_on:
       - kafka
+      - order
+    networks:
+      - edpo
+
+  delivery:
+    hostname: delivery
+    build:
+      context: delivery/
+      dockerfile: Dockerfile
+    ports:
+      - 8083:8083
+    depends_on:
+      - kafka
+      - order
     networks:
       - edpo
 

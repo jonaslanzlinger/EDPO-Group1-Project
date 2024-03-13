@@ -4,24 +4,13 @@
     <bpmn:sequenceFlow id="Flow_02qqk26" sourceRef="CreateOrder_1" targetRef="Warehouse_1" />
     <bpmn:endEvent id="FinishOrder_1" name="FinishOrder">
       <bpmn:extensionElements />
-      <bpmn:incoming>Flow_1x4bi66</bpmn:incoming>
+      <bpmn:incoming>Flow_09cv893</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1x4bi66" sourceRef="Delivery_1" targetRef="FinishOrder_1" />
+    <bpmn:sequenceFlow id="Flow_1x4bi66" sourceRef="Delivery_1" targetRef="Pickup_1" />
     <bpmn:startEvent id="CreateOrder_1" name="CreateOrder">
       <bpmn:outgoing>Flow_02qqk26</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_039nbos" messageRef="Message_202kqql" />
     </bpmn:startEvent>
-    <bpmn:userTask id="Delivery_1" name="Delivery">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="test" label="test" type="boolean">
-            <camunda:validation />
-          </camunda:formField>
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_02juc34</bpmn:incoming>
-      <bpmn:outgoing>Flow_1x4bi66</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0jitjck" sourceRef="Warehouse_1" targetRef="Grabber_1" />
     <bpmn:sequenceFlow id="Flow_02juc34" sourceRef="Grabber_1" targetRef="Delivery_1" />
     <bpmn:serviceTask id="Warehouse_1" name="Warehouse" camunda:type="external" camunda:topic="warehouse">
@@ -32,48 +21,68 @@
       <bpmn:incoming>Flow_0jitjck</bpmn:incoming>
       <bpmn:outgoing>Flow_02juc34</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:userTask id="Pickup_1" name="Pickup">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="pickedUp" label="Picked up" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1x4bi66</bpmn:incoming>
+      <bpmn:outgoing>Flow_09cv893</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Delivery_1" name="Delivery" camunda:type="external" camunda:topic="delivery">
+      <bpmn:incoming>Flow_02juc34</bpmn:incoming>
+      <bpmn:outgoing>Flow_1x4bi66</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_09cv893" sourceRef="Pickup_1" targetRef="FinishOrder_1" />
   </bpmn:process>
   <bpmn:message id="Message_03rv1gp" name="EDPOFactory" />
   <bpmn:message id="Message_202kqql" name="order" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
-      <bpmndi:BPMNShape id="Event_0yb499w_di" bpmnElement="FinishOrder_1">
-        <dc:Bounds x="772" y="62" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="761" y="105" width="58" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Activity_0sehs5t_di" bpmnElement="Pickup_1">
+        <dc:Bounds x="700" y="40" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ew0wbr_di" bpmnElement="CreateOrder_1">
-        <dc:Bounds x="172" y="62" width="36" height="36" />
+        <dc:Bounds x="132" y="62" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="160" y="105" width="62" height="14" />
+          <dc:Bounds x="120" y="105" width="62" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_12cm06j_di" bpmnElement="Delivery_1">
-        <dc:Bounds x="620" y="40" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0e5k1w5_di" bpmnElement="Warehouse_1">
-        <dc:Bounds x="280" y="40" width="100" height="80" />
+        <dc:Bounds x="220" y="40" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0btyz6q_di" bpmnElement="Grabber_1">
-        <dc:Bounds x="450" y="40" width="100" height="80" />
+        <dc:Bounds x="380" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0likj7r_di" bpmnElement="Delivery_1">
+        <dc:Bounds x="540" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0yb499w_di" bpmnElement="FinishOrder_1">
+        <dc:Bounds x="852" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="841" y="105" width="58" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_02qqk26_di" bpmnElement="Flow_02qqk26">
-        <di:waypoint x="208" y="80" />
-        <di:waypoint x="280" y="80" />
+        <di:waypoint x="168" y="80" />
+        <di:waypoint x="220" y="80" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1x4bi66_di" bpmnElement="Flow_1x4bi66">
-        <di:waypoint x="720" y="80" />
-        <di:waypoint x="772" y="80" />
+        <di:waypoint x="640" y="80" />
+        <di:waypoint x="700" y="80" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0jitjck_di" bpmnElement="Flow_0jitjck">
+        <di:waypoint x="320" y="80" />
         <di:waypoint x="380" y="80" />
-        <di:waypoint x="450" y="80" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_02juc34_di" bpmnElement="Flow_02juc34">
-        <di:waypoint x="550" y="80" />
-        <di:waypoint x="620" y="80" />
+        <di:waypoint x="480" y="80" />
+        <di:waypoint x="540" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09cv893_di" bpmnElement="Flow_09cv893">
+        <di:waypoint x="800" y="80" />
+        <di:waypoint x="852" y="80" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
