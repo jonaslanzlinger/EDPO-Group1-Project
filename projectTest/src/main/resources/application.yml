@@ -8,4 +8,7 @@ spring:
       auto-offset-reset: earliest
 
 
-
+mqtt:
+  broker: tcp://broker.hivemq.com
+  topics:
+    factory: ch/unisg/edpo/group1/factory
