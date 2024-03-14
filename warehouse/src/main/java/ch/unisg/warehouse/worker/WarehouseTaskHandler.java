@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Random;
+
 @Component
 @ExternalTaskSubscription(topicName = "warehouse")
 public class WarehouseTaskHandler implements ExternalTaskHandler {
@@ -20,6 +22,10 @@ public class WarehouseTaskHandler implements ExternalTaskHandler {
         WorkflowLogger.info(logger, "WarehouseTaskHandler", "Received task from Camunda: " + externalTask.getActivityId());
         WorkflowLogger.info(logger, "WarehouseTaskHandler", "Completed task to Camunda: " + externalTask.getActivityId());
 
+        if (new Random().nextInt(0,10) < 1) {
+            externalTaskService.handleBpmnError(externalTask, "empty");
+            return;
+        }
         externalTaskService.complete(externalTask);
     }
 }

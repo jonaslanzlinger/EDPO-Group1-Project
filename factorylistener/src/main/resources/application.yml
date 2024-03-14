@@ -1,0 +1,15 @@
+server:
+  port: 8084
+
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    group-id: factorylistener
+    consumer:
+      auto-offset-reset: earliest
+
+
+mqtt:
+  broker: tcp://mqtt:1883
+  topics:
+    factory: ch/unisg/edpo/group1/factory

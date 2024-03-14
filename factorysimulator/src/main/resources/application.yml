@@ -1,0 +1,8 @@
+server:
+  port: 8085
+
+
+mqtt:
+  broker: tcp://mqtt:1883
+  topics:
+    factory: ch/unisg/edpo/group1/factory

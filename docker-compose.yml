@@ -12,18 +12,6 @@ services:
     networks:
       - edpo
 
-#  edpofactory:
-#    hostname: edpofactory
-#    build:
-#      context: edpofactory/
-#      dockerfile: Dockerfile
-#    ports:
-#      - 8080:8080
-#    depends_on:
-#      - kafka
-#    networks:
-#      - edpo
-
   warehouse:
     hostname: warehouse
     build:
@@ -63,16 +51,27 @@ services:
     networks:
       - edpo
 
-#  factorysimulation:
-#    build:
-#      context: projectTest/
-#      dockerfile: Dockerfile
-#    ports:
-#      - 8082:8082
-#    depends_on:
-#      - kafka
-#    networks:
-#      - edpo
+  factorylistener:
+    build:
+      context: factorylistener/
+      dockerfile: Dockerfile
+    ports:
+      - 8084:8084
+    depends_on:
+      - kafka
+    networks:
+      - edpo
+
+  factorysimulator:
+    build:
+      context: factorysimulator/
+      dockerfile: Dockerfile
+    ports:
+      - 8085:8085
+    depends_on:
+      - kafka
+    networks:
+      - edpo
 
   zookeeper:
     image: "bitnami/zookeeper:latest"
@@ -104,6 +103,22 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
+
+
+  mqtt:
+    image: eclipse-mosquitto
+    hostname: mqtt
+    ports:
+      - "1883:1883" #default mqtt port
+      - "9001:9001" #default mqtt port for websockets
+    restart: unless-stopped
+    volumes:
+      - ./MqttConfig:/mosquitto/config
+    networks:
+      - edpo
+
+
+
 
 networks:
   edpo:

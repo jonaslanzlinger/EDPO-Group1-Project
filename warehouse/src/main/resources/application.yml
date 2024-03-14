@@ -8,3 +8,9 @@ camunda.bpm.client:
       warehouse: # topic name of the External Service Task
         variable-names: []
         process-definition-key: warehouse # only filter for External Tasks with this process definition key
+
+
+kafka:
+  bootstrap-address: kafka:9092
+  group-id: warehouse
+  trusted-packages: ch.unisg.warehouse.dto
