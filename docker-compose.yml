@@ -1,0 +1,125 @@
+services:
+
+  order:
+    hostname: order
+    build:
+      context: order/
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - kafka
+    networks:
+      - edpo
+
+  warehouse:
+    hostname: warehouse
+    build:
+      context: warehouse/
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    depends_on:
+      - kafka
+      - order
+    networks:
+      - edpo
+
+  grabber:
+    hostname: grabber
+    build:
+      context: grabber/
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8082
+    depends_on:
+      - kafka
+      - order
+    networks:
+      - edpo
+
+  delivery:
+    hostname: delivery
+    build:
+      context: delivery/
+      dockerfile: Dockerfile
+    ports:
+      - 8083:8083
+    depends_on:
+      - kafka
+      - order
+    networks:
+      - edpo
+
+  factorylistener:
+    build:
+      context: factorylistener/
+      dockerfile: Dockerfile
+    ports:
+      - 8084:8084
+    depends_on:
+      - kafka
+    networks:
+      - edpo
+
+  factorysimulator:
+    build:
+      context: factorysimulator/
+      dockerfile: Dockerfile
+    ports:
+      - 8085:8085
+    depends_on:
+      - kafka
+    networks:
+      - edpo
+
+  zookeeper:
+    image: "bitnami/zookeeper:latest"
+    hostname: zookeeper
+    networks:
+      - edpo
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ALLOW_ANONYMOUS_LOGIN: 'yes'
+
+  kafka:
+    image: "bitnami/kafka:latest"
+    hostname: kafka
+    networks:
+      - edpo
+    ports:
+      - 9092:9092
+      - 7203:7203
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ADVERTISED_HOST_NAME: 192.168.0.12
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+
+  mqtt:
+    image: eclipse-mosquitto
+    hostname: mqtt
+    ports:
+      - "1883:1883" #default mqtt port
+      - "9001:9001" #default mqtt port for websockets
+    restart: unless-stopped
+    volumes:
+      - ./MqttConfig:/mosquitto/config
+    networks:
+      - edpo
+
+
+
+
+networks:
+  edpo:
+    driver: bridge
