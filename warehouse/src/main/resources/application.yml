@@ -1,14 +1,13 @@
-camunda.bpm.client:
-  base-url: http://order:8080/engine-rest
-  worker-id: warehouse
-  basic-auth:
-    username: demo
-    password: demo
-    subscriptions:
-      warehouse: # topic name of the External Service Task
-        variable-names: []
-        process-definition-key: warehouse # only filter for External Tasks with this process definition key
+spring.datasource.url: jdbc:h2:file:./camunda-h2-database
 
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+  filter.create: All Tasks
+  generic-properties:
+    properties:
+      historyTimeToLive: P1D
 
 kafka:
   bootstrap-address: kafka:9092

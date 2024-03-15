@@ -8,3 +8,8 @@ camunda.bpm:
   generic-properties:
     properties:
       historyTimeToLive: P1D
+
+kafka:
+  bootstrap-address: kafka:9092
+  group-id: order
+#  trusted-packages: ch.unisg.warehouse.dto
