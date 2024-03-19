@@ -11,10 +11,10 @@
       <bpmn:outgoing>Flow_02qqk26</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_039nbos" messageRef="Message_202kqql" />
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_0jitjck" sourceRef="Warehouse_1" targetRef="Warehouse_done" />
+    <bpmn:sequenceFlow id="Flow_0jitjck" sourceRef="Warehouse_1" targetRef="Activity_1v2j3xl" />
     <bpmn:sequenceFlow id="Flow_02juc34" sourceRef="Grabber_1" targetRef="Delivery_1" />
     <bpmn:serviceTask id="Grabber_1" name="Grabber" camunda:type="external" camunda:topic="grabber">
-      <bpmn:incoming>Flow_0933p2v</bpmn:incoming>
+      <bpmn:incoming>Flow_1bc1vgl</bpmn:incoming>
       <bpmn:outgoing>Flow_02juc34</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="Pickup_1" name="Pickup">
@@ -31,51 +31,59 @@
       <bpmn:outgoing>Flow_1x4bi66</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_09cv893" sourceRef="Pickup_1" targetRef="FinishOrder_1" />
-    <bpmn:sendTask id="Warehouse_1" name="Warehouse" camunda:delegateExpression="#{startWarehouseAdapter}">
+    <bpmn:sendTask id="Warehouse_1" name="StartWarehouse" camunda:type="external" camunda:topic="startWarehouse">
+      <bpmn:extensionElements />
       <bpmn:incoming>Flow_02qqk26</bpmn:incoming>
       <bpmn:outgoing>Flow_0jitjck</bpmn:outgoing>
     </bpmn:sendTask>
-    <bpmn:sequenceFlow id="Flow_0933p2v" sourceRef="Warehouse_done" targetRef="Grabber_1" />
-    <bpmn:receiveTask id="Warehouse_done" name="Warehouse_done" messageRef="Message_0uojl3b">
+    <bpmn:receiveTask id="Activity_1v2j3xl" name="EndWarehouse" messageRef="Message_08fjn7o">
       <bpmn:incoming>Flow_0jitjck</bpmn:incoming>
-      <bpmn:outgoing>Flow_0933p2v</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1bc1vgl</bpmn:outgoing>
     </bpmn:receiveTask>
+    <bpmn:sequenceFlow id="Flow_1bc1vgl" sourceRef="Activity_1v2j3xl" targetRef="Grabber_1" />
   </bpmn:process>
   <bpmn:message id="Message_03rv1gp" name="EDPOFactory" />
   <bpmn:message id="Message_202kqql" name="order" />
   <bpmn:message id="Message_0uojl3b" name="FinishedWarehouseCommand" />
+  <bpmn:message id="Message_08fjn7o" name="EndWarehouseCommand" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Order">
-      <bpmndi:BPMNShape id="Event_1ew0wbr_di" bpmnElement="CreateOrder_1">
-        <dc:Bounds x="132" y="62" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="120" y="105" width="62" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ayqr71_di" bpmnElement="Warehouse_1">
-        <dc:Bounds x="220" y="40" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0btyz6q_di" bpmnElement="Grabber_1">
-        <dc:Bounds x="370" y="240" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0likj7r_di" bpmnElement="Delivery_1">
-        <dc:Bounds x="530" y="240" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0sehs5t_di" bpmnElement="Pickup_1">
-        <dc:Bounds x="690" y="240" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0yb499w_di" bpmnElement="FinishOrder_1">
         <dc:Bounds x="842" y="262" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="831" y="305" width="58" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0qptr5n_di" bpmnElement="Warehouse_done">
+      <bpmndi:BPMNShape id="Event_1ew0wbr_di" bpmnElement="CreateOrder_1">
+        <dc:Bounds x="132" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="120" y="105" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0btyz6q_di" bpmnElement="Grabber_1">
+        <dc:Bounds x="370" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0sehs5t_di" bpmnElement="Pickup_1">
+        <dc:Bounds x="690" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0likj7r_di" bpmnElement="Delivery_1">
+        <dc:Bounds x="530" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ayqr71_di" bpmnElement="Warehouse_1">
+        <dc:Bounds x="220" y="40" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0lodixo_di" bpmnElement="Activity_1v2j3xl">
         <dc:Bounds x="370" y="40" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_02qqk26_di" bpmnElement="Flow_02qqk26">
         <di:waypoint x="168" y="80" />
         <di:waypoint x="220" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1x4bi66_di" bpmnElement="Flow_1x4bi66">
+        <di:waypoint x="630" y="280" />
+        <di:waypoint x="690" y="280" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0jitjck_di" bpmnElement="Flow_0jitjck">
         <di:waypoint x="320" y="80" />
@@ -85,15 +93,11 @@
         <di:waypoint x="470" y="280" />
         <di:waypoint x="530" y="280" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1x4bi66_di" bpmnElement="Flow_1x4bi66">
-        <di:waypoint x="630" y="280" />
-        <di:waypoint x="690" y="280" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_09cv893_di" bpmnElement="Flow_09cv893">
         <di:waypoint x="790" y="280" />
         <di:waypoint x="842" y="280" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0933p2v_di" bpmnElement="Flow_0933p2v">
+      <bpmndi:BPMNEdge id="Flow_1bc1vgl_di" bpmnElement="Flow_1bc1vgl">
         <di:waypoint x="420" y="120" />
         <di:waypoint x="420" y="240" />
       </bpmndi:BPMNEdge>

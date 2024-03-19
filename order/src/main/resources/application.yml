@@ -9,7 +9,21 @@ camunda.bpm:
     properties:
       historyTimeToLive: P1D
 
+camunda.bpm.client:
+  base-url: http://warehouse:8081/engine-rest
+  worker-id: spring-boot-worker-2
+  basic-auth:
+    username: demo
+    password: demo
+    subscriptions:
+      endWarehouse:
+        variable-names: []
+#        process-definition-key:
+
 kafka:
   bootstrap-address: kafka:9092
   group-id: order
-#  trusted-packages: ch.unisg.warehouse.dto
+  trusted-packages: ch.unisg.order.dto
+
+server:
+  port: 8080
