@@ -1,6 +1,7 @@
-package ch.unisg.warehouse.config;
+package ch.unisg.order.config;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,6 @@ public class KafkaTopicConfig {
         return new KafkaAdmin(configs);
     }
 
-    /*
     @Bean
     public NewTopic startProcessMessageTopic() {
         return new NewTopic("start-process-message-topic", 1, (short) 1);
@@ -37,6 +37,4 @@ public class KafkaTopicConfig {
     public NewTopic serviceTaskMessageTopic() {
         return new NewTopic("service-task-message-topic", 1, (short) 1);
     }
-
-     */
 }

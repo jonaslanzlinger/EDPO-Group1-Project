@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_11duh81" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.20.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+  <bpmn:process id="Warehouse" name="Warehouse" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="StartWarehouse" name="StartWarehouse">
+      <bpmn:outgoing>Flow_0265f95</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0ywfi6e" messageRef="Message_1niu2i1" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0265f95" sourceRef="StartWarehouse" targetRef="UserTask" />
+    <bpmn:userTask id="UserTask" name="UserTask">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="DoSomething" label="DoSomething" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0265f95</bpmn:incoming>
+      <bpmn:outgoing>Flow_09u3uhv</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_09u3uhv" sourceRef="UserTask" targetRef="EndWarehouse" />
+    <bpmn:endEvent id="EndWarehouse" name="EndWarehouse">
+      <bpmn:incoming>Flow_09u3uhv</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0q5hdql" camunda:type="external" camunda:topic="EndWarehouseCommand" />
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:message id="Message_1niu2i1" name="StartWarehouseCommand" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Warehouse">
+      <bpmndi:BPMNShape id="Event_1qmgfr5_di" bpmnElement="StartWarehouse">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="157" y="142" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1g8i07g_di" bpmnElement="UserTask">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1lv9y6k_di" bpmnElement="EndWarehouse">
+        <dc:Bounds x="422" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="402" y="142" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0265f95_di" bpmnElement="Flow_0265f95">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09u3uhv_di" bpmnElement="Flow_09u3uhv">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="422" y="117" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

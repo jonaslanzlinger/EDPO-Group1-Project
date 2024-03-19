@@ -1,4 +1,4 @@
-package ch.unisg.warehouse.config;
+package ch.unisg.grabber.config;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,6 @@ public class KafkaTopicConfig {
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         return new KafkaAdmin(configs);
     }
-
     /*
     @Bean
     public NewTopic startProcessMessageTopic() {

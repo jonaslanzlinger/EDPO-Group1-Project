@@ -5,6 +5,6 @@ camunda.bpm.client:
     username: demo
     password: demo
     subscriptions:
-      delivery: # topic name of the External Service Task
+      Delivery: # topic name of the External Service Task
         variable-names: []
         process-definition-key: delivery # only filter for External Tasks with this process definition key
