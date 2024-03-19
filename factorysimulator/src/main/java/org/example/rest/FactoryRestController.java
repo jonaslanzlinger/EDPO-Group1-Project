@@ -34,7 +34,7 @@ public class FactoryRestController {
         MqttClient mqttClient = MqttClient.getInstance(URI.create("tcp://mqtt:1883"));
         try {
             for (Station station : stations) {
-                if (station.getStation().equals("VGA_1") || station.getStation().equals("HBW_1")) {
+                if (station.getStation().equals("VGR_1") || station.getStation().equals("HBW_1")) {
                     String jsonStation = factoryService.stationToJson(station);
                     Thread.sleep(1000);
                     mqttClient.publish("factory", jsonStation);

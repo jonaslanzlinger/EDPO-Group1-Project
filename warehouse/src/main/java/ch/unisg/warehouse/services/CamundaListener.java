@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@ExternalTaskSubscription(topicName = "startWarehouse")
+@ExternalTaskSubscription(topicName = "StartWarehouseCommand")
 public class CamundaListener implements ExternalTaskHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -26,13 +26,11 @@ public class CamundaListener implements ExternalTaskHandler {
     @Override
     public void execute(ExternalTask externalTask, ExternalTaskService externalTaskService) {
 
-        CamundaMessageDto message = VariablesUtil.buildCamundaMessageDto("13204p1350918735", "startWarehouse");
+        CamundaMessageDto message = VariablesUtil.buildCamundaMessageDto(externalTask.getBusinessKey(), "StartWarehouseCommand");
         messageService.correlateMessage(message, MESSAGE_START);
 
-        WorkflowLogger.info(logger, "startWarehouse","Warehouse Process started");
+        WorkflowLogger.info(logger, "StartWarehouseCommand","Warehouse Process started");
 
-        System.out.println(externalTask.getId());
-
-//        externalTaskService.complete(externalTask);
+        externalTaskService.complete(externalTask);
     }
 }

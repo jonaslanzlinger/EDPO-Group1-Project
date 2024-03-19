@@ -15,7 +15,7 @@ camunda.bpm:
       username: demo
       password: demo
     subscriptions:
-      endWarehouse:
+      EndWarehouseCommand:
         variable-names: []
 #        process-definition-key:
 

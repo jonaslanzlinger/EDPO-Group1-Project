@@ -17,7 +17,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 public class ShopRestController {
 
     private final MessageService messageService;
-    private final static String MESSAGE_START = "order";
+    private final static String MESSAGE_START = "Order";
 
     @RequestMapping(path = "/api/order", method = PUT)
     public String placeOrder() {
@@ -26,6 +26,8 @@ public class ShopRestController {
 
         CamundaMessageDto message = VariablesUtil.buildCamundaMessageDto(order.getOrderId(), order);
         messageService.correlateMessage(message, MESSAGE_START);
+
+        System.out.println();
 
         return "{\"traceId\": \"" + message.getDto().getOrderId() + "\"}";
     }

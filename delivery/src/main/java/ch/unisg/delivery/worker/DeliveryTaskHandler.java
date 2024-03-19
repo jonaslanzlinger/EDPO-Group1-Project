@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-@ExternalTaskSubscription(topicName = "delivery")
+@ExternalTaskSubscription(topicName = "Delivery")
 public class DeliveryTaskHandler implements ExternalTaskHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -17,7 +17,7 @@ public class Message<T> {
   // Cloud Events attributes (https://github.com/cloudevents/spec/blob/v1.0/spec.md)
   private String type;
   private String id = UUID.randomUUID().toString(); // unique id of this message
-  private String source = "order";
+  private String source = "Order";
   @JsonFormat(shape = JsonFormat.Shape.STRING) // ISO-8601 compliant format  
   private Instant time = Instant.now();
   private T data;
@@ -27,7 +27,7 @@ public class Message<T> {
   // Extension attributes
   private String traceId = UUID.randomUUID().toString(); // trace id, default: new unique
   private String correlationId; // id which can be used for correlation later if required
-  private String group = "order";
+  private String group = "Order";
 
   public Message(String type, T payload) {
     this.type = type;

@@ -5,7 +5,7 @@ camunda.bpm.client:
     username: demo
     password: demo
     subscriptions:
-      grabber: # topic name of the External Service Task
+      Grabber: # topic name of the External Service Task
         variable-names: []
         process-definition-key: grabber # only filter for External Tasks with this process definition key
 
