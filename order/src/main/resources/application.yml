@@ -8,13 +8,12 @@ camunda.bpm:
   generic-properties:
     properties:
       historyTimeToLive: P1D
-
-camunda.bpm.client:
-  base-url: http://warehouse:8081/engine-rest
-  worker-id: spring-boot-worker-2
-  basic-auth:
-    username: demo
-    password: demo
+  client:
+    base-url: http://warehouse:8081/engine-rest
+    worker-id: spring-boot-worker-2
+    basic-auth:
+      username: demo
+      password: demo
     subscriptions:
       endWarehouse:
         variable-names: []
