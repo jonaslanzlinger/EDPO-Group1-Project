@@ -1,15 +1,3 @@
-camunda.bpm.client:
-  base-url: http://order:8080/engine-rest
-  worker-id: grabber
-  basic-auth:
-    username: demo
-    password: demo
-    subscriptions:
-      Grabber: # topic name of the External Service Task
-        variable-names: []
-        process-definition-key: grabber # only filter for External Tasks with this process definition key
-
-
 kafka:
   bootstrap-address: kafka:9092
   group-id: grabber
