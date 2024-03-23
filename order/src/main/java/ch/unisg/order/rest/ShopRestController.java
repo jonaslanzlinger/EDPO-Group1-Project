@@ -1,12 +1,11 @@
 package ch.unisg.order.rest;
 
-import ch.unisg.order.services.MessageService;
+import ch.unisg.order.services.ProcessStarterService;
 import ch.unisg.order.domain.Order;
-import ch.unisg.order.dto.CamundaMessageDto;
 
-import ch.unisg.order.util.VariablesUtil;
 import lombok.AllArgsConstructor;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,20 +15,14 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 @AllArgsConstructor
 public class ShopRestController {
 
-    private final MessageService messageService;
-    private final static String MESSAGE_START = "Order";
+    private final ProcessStarterService processStarterService;
 
-    @RequestMapping(path = "/api/order", method = PUT)
-    public String placeOrder() {
+    @RequestMapping(path = "/api/order/{color}", method = PUT)
+    public String placeOrder(@PathVariable String color) {
 
-        Order order = new Order();
-
-        CamundaMessageDto message = VariablesUtil.buildCamundaMessageDto(order.getOrderId(), order);
-        messageService.correlateMessage(message, MESSAGE_START);
-
-        System.out.println();
-
-        return "{\"traceId\": \"" + message.getDto().getOrderId() + "\"}";
+        Order order = new Order(color);
+        processStarterService.sendOrderReceivedMessage(order.getOrderId(), order.getColor());
+        return "{\"traceId\": \"" + order.getOrderId() + "\"}";
     }
 
 }

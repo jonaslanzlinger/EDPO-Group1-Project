@@ -1,16 +1,71 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Cards</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            width: 200px;
+        }
+        .card img {
+            width: 100%;
+            max-height: 150px;
+            border-radius: 5px;
+        }
+        .card .description {
+            color: black;
+            margin: 10px 0;
+        }
+        .card button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .card button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
 <body>
-  Place your order: <br />
-  <img src="button.png" onclick="placeOrder()" style="width: 100px;"></img>
-  <div id="thanks"></div>
-</body>
+
+<div class="card">
+    <img src="blue_product.jpg" alt="Blue Product">
+    <div class="description">Blue Product</div>
+    <button onclick="placeOrderBlue()">Order</button>
+</div>
+
+<div class="card">
+    <img src="red_product.jpg" alt="Red Product">
+    <div class="description">Red Product</div>
+    <button onclick="placeOrderRed()">Order</button>
+</div>
+
+<div class="card">
+    <img src="white_product.jpg" alt="White Product">
+    <div class="description">White Product</div>
+    <button onclick="placeOrderWhite()">Order</button>
+</div>
 
 	<script type="text/javascript">
     var count = 0;
-		function placeOrder() {
+		function placeOrderBlue() {
 			 $.ajax({
-              url: "./api/order",
+              url: "./api/order/blue",
               type: "put",
               data: {}
           }).done(function(result) {
@@ -18,6 +73,26 @@
             $('#thanks').html('Thank you for order #' + count + '.<br>Trace id: <b>' + JSON.parse(result).traceId + '</b>');
           })
 		}
+    function placeOrderRed() {
+        $.ajax({
+            url: "./api/order/red",
+            type: "put",
+            data: {}
+        }).done(function(result) {
+            count = count+1;
+            $('#thanks').html('Thank you for order #' + count + '.<br>Trace id: <b>' + JSON.parse(result).traceId + '</b>');
+        })
+    }
+    function placeOrderWhite() {
+        $.ajax({
+            url: "./api/order/white",
+            type: "put",
+            data: {}
+        }).done(function(result) {
+            count = count+1;
+            $('#thanks').html('Thank you for order #' + count + '.<br>Trace id: <b>' + JSON.parse(result).traceId + '</b>');
+        })
+    }
 	</script>
   <script src="./jquery.min.js"></script>
 
