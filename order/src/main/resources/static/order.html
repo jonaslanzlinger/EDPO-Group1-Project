@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Cards</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+
         body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cards-container {
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
@@ -39,61 +48,81 @@
         .card button:hover {
             background-color: #0056b3;
         }
+
+        .card button:active {
+            background-color: #4aaaff;
+        }
+
+        .alert-success {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            display: none;
+            min-width: 350px;
+            max-width: 500px;
+        }
+
+        #thanks {
+            text-align: center;
+            display: block;
+            margin-top: 100px;
+        }
+
     </style>
 </head>
 <body>
 
-<div class="card">
-    <img src="blue_product.jpg" alt="Blue Product">
-    <div class="description">Blue Product</div>
-    <button onclick="placeOrderBlue()">Order</button>
-</div>
+    <div id="alert-success" class="alert alert-success">
+        <strong>Success!</strong> Order submitted.
+    </div>
 
-<div class="card">
-    <img src="red_product.jpg" alt="Red Product">
-    <div class="description">Red Product</div>
-    <button onclick="placeOrderRed()">Order</button>
-</div>
+    <div id="thanks">
+        Welcome!<br>
+        Place an order...
+    </div>
 
-<div class="card">
-    <img src="white_product.jpg" alt="White Product">
-    <div class="description">White Product</div>
-    <button onclick="placeOrderWhite()">Order</button>
-</div>
+    <div class="cards-container">
+        <div class="card">
+            <img src="blue_product.jpg" alt="Blue Product">
+            <div class="description">Blue Product</div>
+            <button onclick="placeOrder('blue')">Order</button>
+        </div>
 
+        <div class="card">
+            <img src="red_product.jpg" alt="Red Product">
+            <div class="description">Red Product</div>
+            <button onclick="placeOrder('red')">Order</button>
+        </div>
+
+        <div class="card">
+            <img src="white_product.jpg" alt="White Product">
+            <div class="description">White Product</div>
+            <button onclick="placeOrder('white')">Order</button>
+        </div>
+    </div>
+
+    <script src="./jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 	<script type="text/javascript">
-    var count = 0;
-		function placeOrderBlue() {
-			 $.ajax({
-              url: "./api/order/blue",
-              type: "put",
-              data: {}
-          }).done(function(result) {
-            count = count+1;
-            $('#thanks').html('Thank you for order #' + count + '.<br>Trace id: <b>' + JSON.parse(result).traceId + '</b>');
-          })
-		}
-    function placeOrderRed() {
-        $.ajax({
-            url: "./api/order/red",
-            type: "put",
-            data: {}
-        }).done(function(result) {
-            count = count+1;
-            $('#thanks').html('Thank you for order #' + count + '.<br>Trace id: <b>' + JSON.parse(result).traceId + '</b>');
-        })
-    }
-    function placeOrderWhite() {
-        $.ajax({
-            url: "./api/order/white",
-            type: "put",
-            data: {}
-        }).done(function(result) {
-            count = count+1;
-            $('#thanks').html('Thank you for order #' + count + '.<br>Trace id: <b>' + JSON.parse(result).traceId + '</b>');
-        })
-    }
-	</script>
-  <script src="./jquery.min.js"></script>
+        let count = 0;
+        function placeOrder(color) {
+            $.ajax({
+                url: `./api/order/${color}`,
+                type: "put",
+                data: {}
+            }).done(function(result) {
+                count = count + 1;
+                $('#thanks').html('Thank you for order #' + count + '.<br>Trace id: <b>' + JSON.parse(result).traceId + '</b>');
+            });
 
+            document.getElementById("alert-success").style.display = "block";
+            setTimeout(function() {
+                $("#alert-success").fadeOut(400);
+            }, 1200);
+        }
+	</script>
+
+</body>
 </html>
