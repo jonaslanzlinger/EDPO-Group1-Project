@@ -19,17 +19,15 @@ public class GrabberProcessingService {
     }
 
     @ZeebeWorker(type = "grabGoods", name = "grabGoodsProcessor")
-    public void processOrder(final ActivatedJob job) {
+    public void grabGoods(final ActivatedJob job) {
         String orderDetails = job.getVariablesAsMap().get("orderDetails").toString();
 
-        System.out.println("Processing order: " + orderDetails);
-
-//        String resultVariable = "{\"result\": \"Success\"}";
+        String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
 
         if (Math.random() < 0.5){
             System.out.println("New Complete Command: process instance" + job.getProcessInstanceKey() + " with key " + job.getKey() + " orderDetails: " + orderDetails);
             zeebeClient.newCompleteCommand(job.getKey())
-                    .variables(orderDetails)
+                    .variables(variables)
                     .send()
                     .join(); // Synchronous completion, remove join() for asynchronous
         } else {
