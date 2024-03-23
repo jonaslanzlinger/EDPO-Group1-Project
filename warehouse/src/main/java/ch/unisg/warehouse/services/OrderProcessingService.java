@@ -1,37 +1,31 @@
 package ch.unisg.warehouse.services;
 
-import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class OrderProcessingService {
-
-    private final ZeebeClient zeebeClient;
+    private final CamundaMessageSenderService startWarehouseProcessService;
 
     @Autowired
-    public OrderProcessingService(ZeebeClient zeebeClient) {
-        this.zeebeClient = zeebeClient;
+    public OrderProcessingService(CamundaMessageSenderService startWarehouseProcessService) {
+        this.startWarehouseProcessService = startWarehouseProcessService;
     }
 
     @ZeebeWorker(type = "checkGoods", name = "checkGoodsProcessor")
     public void processOrder(final ActivatedJob job) {
         // Extract variables from the job
         String orderDetails = job.getVariablesAsMap().get("orderDetails").toString();
-
+        long mainProcessKey = job.getKey();
+        String fullDetailsJson = "{\"orderDetails\":\"" + orderDetails + "\"},\"mainProcessKey\":\"" + mainProcessKey + "\"}";
         // Implement your business logic here
         System.out.println("Processing order: " + orderDetails);
-
+        startWarehouseProcessService.sendMessage("Msg_CheckGoodsReceived",UUID.randomUUID().toString(), fullDetailsJson);
         // Optionally update process variables or complete the job with new variables
-        String resultVariable = "{\"result\": \"Success\"}";
-
-        // Complete the job
-        zeebeClient.newCompleteCommand(job.getKey())
-                .variables(resultVariable)
-                .send()
-                .join(); // Synchronous completion, remove join() for asynchronous
     }
 }
 
