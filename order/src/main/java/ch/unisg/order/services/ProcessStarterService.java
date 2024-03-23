@@ -15,10 +15,13 @@ public class ProcessStarterService {
     }
 
     public void sendOrderReceivedMessage(String orderId, String orderDetails) {
+
+        String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
+
         zeebeClient.newPublishMessageCommand()
                 .messageName("Msg_OrderReceived")
                 .correlationKey(orderId) // Usually, the correlationKey is something unique like orderId.
-                .variables("{\"orderDetails\":\"" + orderDetails + "\"}")
+                .variables(variables)
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
     }

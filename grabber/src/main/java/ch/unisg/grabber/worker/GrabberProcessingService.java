@@ -6,6 +6,8 @@ import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 @Service
 public class GrabberProcessingService {
 
@@ -18,22 +20,20 @@ public class GrabberProcessingService {
 
     @ZeebeWorker(type = "grabGoods", name = "grabGoodsProcessor")
     public void processOrder(final ActivatedJob job) {
-        // Extract variables from the job
         String orderDetails = job.getVariablesAsMap().get("orderDetails").toString();
 
-        // Implement your business logic here
-        System.out.println("Starting grabbing order: " + orderDetails);
+        System.out.println("Processing order: " + orderDetails);
 
-        // Optionally update process variables or complete the job with new variables
-        String resultVariable = "{\"result\": \"Success\"}";
+//        String resultVariable = "{\"result\": \"Success\"}";
 
-        // Complete the job
-        System.out.println("Job success: grabGoods for process instance" + job.getProcessInstanceKey() + " with key " + job.getKey());
-        zeebeClient.newCompleteCommand(job.getKey())
-                .variables(resultVariable)
-                .send()
-                .join(); // Synchronous completion, remove join() for asynchronous
-        // Throw an exception
+        if (Math.random() < 0.5){
+            System.out.println("New Complete Command: process instance" + job.getProcessInstanceKey() + " with key " + job.getKey() + " orderDetails: " + orderDetails);
+            zeebeClient.newCompleteCommand(job.getKey())
+                    .variables(orderDetails)
+                    .send()
+                    .join(); // Synchronous completion, remove join() for asynchronous
+        } else {
+            System.out.println("Wait for timeout: process instance" + job.getProcessInstanceKey() + " with key " + job.getKey() + " orderDetails: " + orderDetails);
+        }
     }
 }
-
