@@ -1,24 +1,5 @@
 spring.datasource.url: jdbc:h2:file:./camunda-h2-database
 
-camunda.bpm:
-  admin-user:
-    id: demo
-    password: demo
-  filter.create: All Tasks
-  generic-properties:
-    properties:
-      historyTimeToLive: P1D
-  client:
-    base-url: http://warehouse:8081/engine-rest
-    worker-id: spring-boot-worker-2
-    basic-auth:
-      username: demo
-      password: demo
-    subscriptions:
-      EndWarehouseCommand:
-        variable-names: []
-#        process-definition-key:
-
 kafka:
   bootstrap-address: kafka:9092
   group-id: order
