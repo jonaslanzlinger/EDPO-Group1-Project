@@ -24,7 +24,6 @@ services:
     networks:
       - edpo
 
-
   grabber:
     hostname: grabber
     build:
@@ -38,18 +37,18 @@ services:
     networks:
       - edpo
 
-#  delivery:
-#    hostname: delivery
-#    build:
-#      context: delivery/
-#      dockerfile: Dockerfile
-#    ports:
-#      - 8083:8083
-#    depends_on:
-#      - kafka
-#      - order
-#    networks:
-#      - edpo
+  delivery:
+    hostname: delivery
+    build:
+      context: delivery/
+      dockerfile: Dockerfile
+    ports:
+      - 8083:8083
+    depends_on:
+      - kafka
+      - order
+    networks:
+      - edpo
 
 #  factorylistener:
 #    build:
@@ -104,7 +103,6 @@ services:
     depends_on:
       - zookeeper
 
-
   mqtt:
     image: eclipse-mosquitto
     hostname: mqtt
@@ -116,9 +114,6 @@ services:
       - ./MqttConfig:/mosquitto/config
     networks:
       - edpo
-
-
-
 
 networks:
   edpo:
