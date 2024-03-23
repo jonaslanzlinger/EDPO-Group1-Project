@@ -50,27 +50,27 @@ services:
     networks:
       - edpo
 
-#  factorylistener:
-#    build:
-#      context: factorylistener/
-#      dockerfile: Dockerfile
-#    ports:
-#      - 8084:8084
-#    depends_on:
-#      - kafka
-#    networks:
-#      - edpo
+  factorylistener:
+    build:
+      context: factorylistener/
+      dockerfile: Dockerfile
+    ports:
+      - 8084:8084
+    depends_on:
+      - kafka
+    networks:
+      - edpo
 
-#  factorysimulator:
-#    build:
-#      context: factorysimulator/
-#      dockerfile: Dockerfile
-#    ports:
-#      - 8085:8085
-#    depends_on:
-#      - kafka
-#    networks:
-#      - edpo
+  factorysimulator:
+    build:
+      context: factorysimulator/
+      dockerfile: Dockerfile
+    ports:
+      - 8085:8085
+    depends_on:
+      - kafka
+    networks:
+      - edpo
 
   zookeeper:
     image: "bitnami/zookeeper:latest"
