@@ -14,3 +14,13 @@ kafka:
   bootstrap-address: kafka:9092
   group-id: grabber
   trusted-packages: ch.unisg.grabber.dto
+
+# https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
+# https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
+
+zeebe.client:
+  cloud:
+    region: syd-1
+    clusterId: ad3b0231-67b1-4db4-a79e-78c38368693a
+    clientId: 3jKJQ-rRdS2b0E2uzI04pQTOPrwpEpjQ
+    clientSecret: 2aGczJ9b3~.rqAPPfdYzXu9nyAiypMrkWdLLuJapY82Kt7R9D7RkvFxwZ0.2WNdu
