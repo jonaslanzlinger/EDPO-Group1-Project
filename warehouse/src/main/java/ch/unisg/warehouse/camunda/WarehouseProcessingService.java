@@ -38,7 +38,7 @@ public class WarehouseProcessingService {
         String orderDetails = job.getVariablesAsMap().get("orderDetails").toString();
         String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
 
-        WorkflowLogger.info(log, "checkGoods", "Processing order: " + job.getProcessInstanceKey() + " - " + orderDetails);
+        WorkflowLogger.info(log, "checkGoods","Processing order: " + job.getProcessInstanceKey() + " - " + orderDetails);
 
         // TODO: Remove hardcoded stuff here
         if (orderDetails.contains("red")) {

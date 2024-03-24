@@ -29,7 +29,7 @@ public class MessageConsumer {
      */
     @KafkaListener(topics = "HBW_1")
     public void startMessageProcess(WarehouseUpdateDto message){
-        WorkflowLogger.info(log, "startMessageProcess", "Received message from Kafka topic: HBW_1");
+        WorkflowLogger.info(log,"startMessageProcess", "Received message from Kafka topic: HBW_1");
         wareHouseStatusService.updateWarehouseStatus(message.getData());
     }
 

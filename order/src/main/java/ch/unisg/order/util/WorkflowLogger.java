@@ -2,12 +2,20 @@ package ch.unisg.order.util;
 
 import org.slf4j.Logger;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 /**
  * @implSpec Logger to trace the flow using keyword workflow-service-info
  */
 public final class WorkflowLogger {
 
-    private static final String INFO_LOGGER = "Timestamp:{}:workflow-service-info:{}:{}";
+    private static final String INFO_LOGGER = "{} - order-info, Method=\"{}\", Message=\"{}\"";
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            .withZone(ZoneId.systemDefault());
+
+
     private static final String ERROR_LOGGER = "Timestamp:{}:workflow-service-error:{}:{}";
 
     private WorkflowLogger() {
@@ -22,7 +30,8 @@ public final class WorkflowLogger {
      * @param message : processing details
      */
     public static void info(Logger logger, String method, String message) {
-        logger.info(INFO_LOGGER, System.currentTimeMillis(), method, message);
+        String formattedTimestamp = DATE_TIME_FORMATTER.format(Instant.now());
+        logger.info(INFO_LOGGER, formattedTimestamp, method, message);
     }
 
 
