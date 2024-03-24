@@ -1,7 +1,6 @@
-package ch.unisg.warehouse.config;
+package ch.unisg.warehouse.kafka.config;
 
-import ch.unisg.warehouse.dto.WarehouseUpdateDto;
-import com.fasterxml.jackson.databind.JsonNode;
+import ch.unisg.warehouse.kafka.dto.WarehouseUpdateDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,19 +15,31 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This is a configuration class for Kafka consumers.
+ * It uses Spring's @Configuration and @EnableKafka annotations to enable Kafka and mark this class as a source of bean definitions.
+ * It also uses the @Value annotation to inject values from the application's properties file.
+ */
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
 
+    // The address of the Kafka bootstrap server
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
+    // The group ID for the Kafka consumer
     @Value(value = "${kafka.group-id}")
     private String groupId;
 
+    // The trusted packages for the Kafka consumer
     @Value(value = "${kafka.trusted-packages}")
     private String trustedPackage;
 
+    /**
+     * This method creates a ConsumerFactory bean that creates Kafka consumers.
+     * @return A ConsumerFactory for WarehouseUpdateDto objects.
+     */
     @Bean
     public ConsumerFactory<String, WarehouseUpdateDto> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -49,6 +60,10 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
+    /**
+     * This method creates a ConcurrentKafkaListenerContainerFactory bean that creates Kafka listeners.
+     * @return A ConcurrentKafkaListenerContainerFactory for WarehouseUpdateDto objects.
+     */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, WarehouseUpdateDto>
     kafkaListenerContainerFactory() {

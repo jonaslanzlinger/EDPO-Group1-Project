@@ -1,4 +1,4 @@
-package ch.unisg.warehouse.config;
+package ch.unisg.warehouse.kafka.config;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,12 +9,22 @@ import org.springframework.kafka.core.KafkaAdmin;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This is a configuration class for Kafka topics.
+ * It uses Spring's @Configuration annotation to mark this class as a source of bean definitions.
+ * It also uses the @Value annotation to inject values from the application's properties file.
+ */
 @Configuration
 public class KafkaTopicConfig {
 
+    // The address of the Kafka bootstrap server
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
+    /**
+     * This method creates a KafkaAdmin bean that can be used to manage Kafka topics.
+     * @return A KafkaAdmin instance.
+     */
     @Bean
     public KafkaAdmin kafkaAdmin() {
         Map<String, Object> configs = new HashMap<>();
@@ -23,20 +33,11 @@ public class KafkaTopicConfig {
     }
 
     /*
+    // This method creates a NewTopic bean that represents a Kafka topic.
+    // It is currently commented out.
     @Bean
     public NewTopic startProcessMessageTopic() {
         return new NewTopic("start-process-message-topic", 1, (short) 1);
     }
-
-    @Bean
-    public NewTopic intermediateMessageTopic() {
-        return new NewTopic("intermediate-message-topic", 1, (short) 1);
-    }
-
-    @Bean
-    public NewTopic serviceTaskMessageTopic() {
-        return new NewTopic("service-task-message-topic", 1, (short) 1);
-    }
-
      */
 }
