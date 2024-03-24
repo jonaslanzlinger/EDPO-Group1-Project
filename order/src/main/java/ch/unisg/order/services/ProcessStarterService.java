@@ -28,18 +28,20 @@ public class ProcessStarterService {
     /**
      * This method sends an order received message to the Zeebe broker.
      * It creates a new publish message command, sets the message name, correlation key and variables, and sends the command.
-     * @param orderId The unique identifier of the order.
+     * @param orderId      The unique identifier of the order.
      * @param orderDetails The details of the order.
+     * @return processInstanceKey
      */
-    public void sendOrderReceivedMessage(String orderId, String orderDetails) {
+    public long sendOrderReceivedMessage(String orderId, String orderDetails) {
 
         String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
 
-        zeebeClient.newPublishMessageCommand()
+        var returnvalue = zeebeClient.newPublishMessageCommand()
                 .messageName("Msg_OrderReceived")
                 .correlationKey(orderId) // Usually, the correlationKey is something unique like orderId.
                 .variables(variables)
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
+        return returnvalue.getMessageKey();
     }
 }

@@ -37,8 +37,12 @@ public class ShopRestController {
     public String placeOrder(@PathVariable String color) {
 
         Order order = new Order(color);
-        WorkflowLogger.info(log,"placeOrder","Order received: " + order.getOrderId() + " - " + order.getColor());
-        processStarterService.sendOrderReceivedMessage(order.getOrderId(), order.getColor());
+        long messageKey = processStarterService.sendOrderReceivedMessage(order.getOrderId(), order.getColor());
+
+        // TODO: CHECK WHY THIS WORKS?
+        long processInstanceKey = messageKey + 1;
+
+        WorkflowLogger.info(log,"placeOrder","Order received: " + processInstanceKey + " - " + order.getColor());
         return "{\"traceId\": \"" + order.getOrderId() + "\"}";
     }
 
