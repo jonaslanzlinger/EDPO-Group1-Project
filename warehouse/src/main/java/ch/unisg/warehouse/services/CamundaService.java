@@ -39,13 +39,4 @@ public class CamundaService {
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
     }
-
-    public void startSubProcess(String processId, String orderDetailsJson) {
-        zeebeClient.newCreateInstanceCommand()
-                .bpmnProcessId(processId)
-                .latestVersion()
-                .variables(orderDetailsJson)
-                .send()
-                .join(); // join() to synchronously wait for the result, remove for async
-    }
 }
