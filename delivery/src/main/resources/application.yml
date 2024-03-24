@@ -6,9 +6,13 @@ kafka:
 # https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
 # https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
 
+
 zeebe.client:
   cloud:
     region: syd-1
     clusterId: ad3b0231-67b1-4db4-a79e-78c38368693a
     clientId: IxAxCmNYLkp6mlti-U8Y.nXQxR8oi~F1
     clientSecret: 58Xo5pkaS4t6KU0hEbDmy.ohBWxN9duwzl-IhOV1sxtgLSLR5bO4mWXfiUcQAxWo
+
+server:
+  port: 8083

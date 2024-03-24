@@ -1,6 +1,6 @@
-package ch.unisg.delivery.config;
+package ch.unisg.delivery.kafka.config;
 
-import ch.unisg.delivery.dto.DeliveryUpdateDto;
+import ch.unisg.delivery.kafka.dto.DeliveryUpdateDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;

@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * It uses an AtomicReference to hold the latest status of the warehouse.
  */
 @Service
-public class WareHouseStatusService {
+public class WarehouseStatusService {
 
     // The latest status of the warehouse
     private final AtomicReference<HBW_1> latestStatus = new AtomicReference<>(new HBW_1());

@@ -1,4 +1,4 @@
-package ch.unisg.delivery.dto;
+package ch.unisg.delivery.kafka.dto;
 
 import ch.unisg.delivery.domain.VGR_1;
 import lombok.AllArgsConstructor;
