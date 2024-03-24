@@ -1,8 +1,10 @@
 package ch.unisg.delivery.rest;
 
 import ch.unisg.delivery.camunda.CamundaService;
+import ch.unisg.delivery.domain.DeliveryStatusService;
 import ch.unisg.delivery.domain.Order;
 import ch.unisg.delivery.domain.OrderRegistry;
+import ch.unisg.delivery.domain.VGR_1;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,18 @@ public class DeliveryServiceRestController {
     // The service for sending messages to Camunda
     private CamundaService camundaMessageSenderService;
 
+    // The service for updating the delivery status
+    private DeliveryStatusService deliveryStatusService;
+
+    /**
+     * This method returns the latest status of the delivery station.
+     * @return The latest status of the delivery station.
+     */
+    @GetMapping(path = "/status", produces = "application/json")
+    public VGR_1 getStatus() {
+        return deliveryStatusService.getLatestStatus();
+    }
+
     /**
      * This method returns the list of orders that have been placed.
      * @return The list of orders that have been placed.
@@ -31,7 +45,6 @@ public class DeliveryServiceRestController {
     public List<Order> getOrders() {
         return OrderRegistry.getOrders();
     }
-
 
     // TODO: include orderId in the variables
     /**
