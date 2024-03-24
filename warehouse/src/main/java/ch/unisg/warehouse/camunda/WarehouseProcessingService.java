@@ -42,16 +42,12 @@ public class WarehouseProcessingService {
 
         // TODO: Remove hardcoded stuff here
         if (orderDetails.contains("red")) {
-            WorkflowLogger.info(log, "checkGoods",
-                    "New Throw Error Command: GoodsNotAvailable for process instance "
-                            + job.getProcessInstanceKey() + " with key " + job.getKey()
-                            + " orderDetails: " + orderDetails);
+            WorkflowLogger.info(log, "checkGoods", "Failed Order: " + job.getProcessInstanceKey());
             camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
                     String.format("No %s goods available", orderDetails), job.getKey());
 
         } else {
-            WorkflowLogger.info(log, "checkGoods", "New Complete Command: process instance "
-                    + job.getProcessInstanceKey() + " with key " + job.getKey() + " orderDetails: " + orderDetails);
+            WorkflowLogger.info(log, "checkGoods", "Complete order: " + job.getProcessInstanceKey());
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
         }
     }
