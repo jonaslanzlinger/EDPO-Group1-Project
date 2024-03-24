@@ -28,7 +28,14 @@ public class OrderRegistry {
         orders.add(order);
     }
 
-    public static Order pop(){
+    /**
+     * @return The order that is at the front of the queue.
+     * @throws IndexOutOfBoundsException If there are no orders in the registry.
+     */
+    public static Order pop() throws IndexOutOfBoundsException {
+        if (orders.isEmpty()) {
+            throw new IndexOutOfBoundsException("Empty registry.");
+        }
         return orders.remove(0);
     }
 }
