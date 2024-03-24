@@ -1,6 +1,6 @@
-package ch.unisg.delivery.consumer;
+package ch.unisg.delivery.kafka.consumer;
 
-import ch.unisg.delivery.dto.DeliveryUpdateDto;
+import ch.unisg.delivery.kafka.dto.DeliveryUpdateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
