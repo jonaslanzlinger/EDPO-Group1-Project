@@ -38,16 +38,16 @@ public class WarehouseProcessingService {
         String orderDetails = job.getVariablesAsMap().get("orderDetails").toString();
         String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
 
-        WorkflowLogger.info(log, "checkGoods", "Processing order: " + orderDetails);
+        WorkflowLogger.info(log, "checkGoods", "Processing order: " + job.getProcessInstanceKey() + " - " + orderDetails);
 
         // TODO: Remove hardcoded stuff here
         if (orderDetails.contains("red")) {
-            WorkflowLogger.info(log, "checkGoods", "Failed Order: " + job.getProcessInstanceKey());
+            WorkflowLogger.info(log, "checkGoods", "Failed Order: " + job.getProcessInstanceKey()+ " - " + orderDetails);
             camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
                     String.format("No %s goods available", orderDetails), job.getKey());
 
         } else {
-            WorkflowLogger.info(log, "checkGoods", "Complete order: " + job.getProcessInstanceKey());
+            WorkflowLogger.info(log, "checkGoods", "Complete order: " + job.getProcessInstanceKey()+ " - " + orderDetails);
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
         }
     }
