@@ -1,4 +1,4 @@
-package ch.unisg.grabber.config;
+package ch.unisg.grabber.kafka.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -14,15 +14,26 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This is a configuration class for Kafka producers.
+ * It uses Spring's @Configuration annotation to indicate that it is a configuration class.
+ */
 @Configuration
 public class KafkaProducerConfig {
 
+    // The address of the Kafka bootstrap server
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
+    // The trusted packages for the Kafka producer
     @Value(value = "${kafka.trusted-packages}")
     private String trustedPackage;
 
+    /**
+     * This method creates a ProducerFactory for String.
+     * It sets the bootstrap servers, key serializer, value serializer and trusted packages for the producer.
+     * @return A ProducerFactory for String.
+     */
     @Bean
     public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -39,6 +50,11 @@ public class KafkaProducerConfig {
         return new DefaultKafkaProducerFactory<>(props);
     }
 
+    /**
+     * This method creates a KafkaTemplate for String.
+     * It sets the ProducerFactory for the KafkaTemplate.
+     * @return A KafkaTemplate for String.
+     */
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());

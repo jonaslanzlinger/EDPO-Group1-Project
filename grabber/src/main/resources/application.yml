@@ -1,7 +1,7 @@
 kafka:
   bootstrap-address: kafka:9092
   group-id: grabber
-  trusted-packages: ch.unisg.grabber.dto
+  trusted-packages: ch.unisg.grabber.kafka.dto
 
 # https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
 # https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
