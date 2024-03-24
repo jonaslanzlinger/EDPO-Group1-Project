@@ -13,7 +13,7 @@ public final class WorkflowLogger {
 
 
 
-    private static final String INFO_LOGGER = "{} - warehouse-info, Method=\"{}\", Message=\"{}\"";
+    private static final String INFO_LOGGER = "{} - warehouse-info: {} - {}";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
     private static final String ERROR_LOGGER = "Timestamp:{}:workflow-service-error:{}:{}";

@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
  */
 public final class WorkflowLogger {
 
-    private static final String INFO_LOGGER = "{} - order-info, Method=\"{}\", Message=\"{}\"";
+    private static final String INFO_LOGGER = "{} - order-info: {} - {}";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
 
