@@ -1,7 +1,9 @@
 package ch.unisg.warehouse.camunda;
 
+import ch.unisg.warehouse.utils.WorkflowLogger;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
  * It uses the CamundaService to interact with the Camunda engine.
  */
 @Service
+@Slf4j
 public class WarehouseProcessingService {
 
     // The CamundaService instance used to send commands to the Camunda engine
@@ -33,16 +36,22 @@ public class WarehouseProcessingService {
     @ZeebeWorker(type = "checkGoods", name = "checkGoodsProcessor")
     public void checkGoods(final ActivatedJob job) {
         String orderDetails = job.getVariablesAsMap().get("orderDetails").toString();
-        System.out.println("Processing order: " + orderDetails);
         String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
+
+        WorkflowLogger.info(log, "checkGoods", "Processing order: " + orderDetails);
 
         // TODO: Remove hardcoded stuff here
         if (orderDetails.contains("red")) {
-            System.out.println("New Throw Error Command: GoodsNotAvailable for process instance " + job.getProcessInstanceKey() + " with key " + job.getKey() + " orderDetails: " + orderDetails);
-            camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable", String.format("No %s goods available", orderDetails), job.getKey());
+            WorkflowLogger.info(log, "checkGoods",
+                    "New Throw Error Command: GoodsNotAvailable for process instance "
+                            + job.getProcessInstanceKey() + " with key " + job.getKey()
+                            + " orderDetails: " + orderDetails);
+            camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
+                    String.format("No %s goods available", orderDetails), job.getKey());
 
         } else {
-            System.out.println("New Complete Command: process instance " + job.getProcessInstanceKey() + " with key " + job.getKey() + " orderDetails: " + orderDetails);
+            WorkflowLogger.info(log, "checkGoods", "New Complete Command: process instance "
+                    + job.getProcessInstanceKey() + " with key " + job.getKey() + " orderDetails: " + orderDetails);
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
         }
     }
