@@ -103,7 +103,6 @@ services:
     depends_on:
       - zookeeper
 
-
   mqtt:
     image: eclipse-mosquitto
     hostname: mqtt
@@ -115,9 +114,6 @@ services:
       - ./MqttConfig:/mosquitto/config
     networks:
       - edpo
-
-
-
 
 networks:
   edpo:

@@ -4,6 +4,7 @@
    * This will start the following containers:
      * zookeeper
      * kafka
+     * mqtt
      * order
      * warehouse
      * grabber
@@ -16,7 +17,7 @@ MQTT messages will be produced each second from now.
 The MQTT messages from the factory will now get relayed to the other services via Kafka.
 5. Open another browser tab and go to `http://localhost:8080/order.html`
    * issue some orders...
-6. You can now inspect the Order process at `http://localhost:8080/`
-7. You can now inspect the Warehouse process at `http://localhost:8081/`
+6. Check the logs of the services to see the messages being processed.
+7. Check online through camunda the process instances and tasks.
 
 Note: Perform the user tasks where needed to continue the processes.

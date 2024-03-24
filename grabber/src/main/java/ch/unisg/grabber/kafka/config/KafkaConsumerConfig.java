@@ -1,5 +1,6 @@
-package ch.unisg.order.config;
+package ch.unisg.grabber.kafka.config;
 
+import ch.unisg.grabber.kafka.dto.GrabberUpdateDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,14 +10,14 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This is a configuration class for Kafka consumer.
- * It uses Spring's @Configuration annotation to indicate that it is a configuration class.
- * It uses Spring's @EnableKafka annotation to enable detection of @KafkaListener annotation on spring managed beans.
+ * This is a configuration class for Kafka consumers.
+ * It uses Spring's @EnableKafka and @Configuration annotations to enable Kafka and indicate that it is a configuration class.
  */
 @EnableKafka
 @Configuration
@@ -26,17 +27,21 @@ public class KafkaConsumerConfig {
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
-    // The group ID of the Kafka consumer
+    // The group ID for the Kafka consumer
     @Value(value = "${kafka.group-id}")
     private String groupId;
 
+    // The trusted packages for the Kafka consumer
+    @Value(value = "${kafka.trusted-packages}")
+    private String trustedPackage;
+
     /**
-     * This method creates a ConsumerFactory which is responsible for creating Kafka consumers.
-     * It sets the bootstrap servers, group id, and key and value deserializers.
-     * @return A ConsumerFactory for creating Kafka consumers.
+     * This method creates a ConsumerFactory for GrabberUpdateDto.
+     * It sets the bootstrap servers, group ID, key deserializer, value deserializer, default value type and trusted packages for the consumer.
+     * @return A ConsumerFactory for GrabberUpdateDto.
      */
     @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
+    public ConsumerFactory<String, GrabberUpdateDto> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -49,21 +54,22 @@ public class KafkaConsumerConfig {
                 StringDeserializer.class);
         props.put(
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class);
+                JsonDeserializer.class);
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, GrabberUpdateDto.class.getName());
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackage);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     /**
-     * This method creates a ConcurrentKafkaListenerContainerFactory.
-     * It sets the ConsumerFactory for the container.
-     * The ConcurrentKafkaListenerContainerFactory is responsible for creating containers for methods annotated with @KafkaListener.
-     * @return A ConcurrentKafkaListenerContainerFactory for creating Kafka listener containers.
+     * This method creates a ConcurrentKafkaListenerContainerFactory for GrabberUpdateDto.
+     * It sets the ConsumerFactory for the listener container factory.
+     * @return A ConcurrentKafkaListenerContainerFactory for GrabberUpdateDto.
      */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String>
+    public ConcurrentKafkaListenerContainerFactory<String, GrabberUpdateDto>
     kafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+        ConcurrentKafkaListenerContainerFactory<String, GrabberUpdateDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;

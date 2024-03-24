@@ -1,4 +1,4 @@
-package ch.unisg.order.config;
+package ch.unisg.warehouse.kafka.config;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +11,8 @@ import java.util.Map;
 
 /**
  * This is a configuration class for Kafka topics.
- * It uses Spring's @Configuration annotation to indicate that it is a configuration class.
+ * It uses Spring's @Configuration annotation to mark this class as a source of bean definitions.
+ * It also uses the @Value annotation to inject values from the application's properties file.
  */
 @Configuration
 public class KafkaTopicConfig {
@@ -21,9 +22,8 @@ public class KafkaTopicConfig {
     private String bootstrapAddress;
 
     /**
-     * This method creates a KafkaAdmin which is responsible for managing and inspecting topics, brokers and other Kafka objects.
-     * It sets the bootstrap servers for the admin client.
-     * @return A KafkaAdmin for managing and inspecting Kafka objects.
+     * This method creates a KafkaAdmin bean that can be used to manage Kafka topics.
+     * @return A KafkaAdmin instance.
      */
     @Bean
     public KafkaAdmin kafkaAdmin() {
@@ -31,4 +31,13 @@ public class KafkaTopicConfig {
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         return new KafkaAdmin(configs);
     }
+
+    /*
+    // This method creates a NewTopic bean that represents a Kafka topic.
+    // It is currently commented out.
+    @Bean
+    public NewTopic startProcessMessageTopic() {
+        return new NewTopic("start-process-message-topic", 1, (short) 1);
+    }
+     */
 }

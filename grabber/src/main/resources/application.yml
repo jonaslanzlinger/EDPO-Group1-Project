@@ -1,16 +1,14 @@
-camunda.bpm.client:
-  base-url: http://order:8080/engine-rest
-  worker-id: grabber
-  basic-auth:
-    username: demo
-    password: demo
-    subscriptions:
-      Grabber: # topic name of the External Service Task
-        variable-names: []
-        process-definition-key: grabber # only filter for External Tasks with this process definition key
-
-
 kafka:
   bootstrap-address: kafka:9092
   group-id: grabber
-  trusted-packages: ch.unisg.grabber.dto
+  trusted-packages: ch.unisg.grabber.kafka.dto
+
+# https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
+# https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
+
+zeebe.client:
+  cloud:
+    region: syd-1
+    clusterId: ad3b0231-67b1-4db4-a79e-78c38368693a
+    clientId: 3jKJQ-rRdS2b0E2uzI04pQTOPrwpEpjQ
+    clientSecret: 2aGczJ9b3~.rqAPPfdYzXu9nyAiypMrkWdLLuJapY82Kt7R9D7RkvFxwZ0.2WNdu

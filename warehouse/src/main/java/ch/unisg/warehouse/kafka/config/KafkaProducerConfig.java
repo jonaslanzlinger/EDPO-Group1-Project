@@ -1,4 +1,4 @@
-package ch.unisg.order.config;
+package ch.unisg.warehouse.kafka.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -8,14 +8,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This is a configuration class for Kafka producer.
- * It uses Spring's @Configuration annotation to indicate that it is a configuration class.
+ * This is a configuration class for Kafka producers.
+ * It uses Spring's @Configuration annotation to mark this class as a source of bean definitions.
+ * It also uses the @Value annotation to inject values from the application's properties file.
  */
 @Configuration
 public class KafkaProducerConfig {
@@ -24,10 +26,13 @@ public class KafkaProducerConfig {
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
+    // The trusted packages for the Kafka producer
+    @Value(value = "${kafka.trusted-packages}")
+    private String trustedPackage;
+
     /**
-     * This method creates a ProducerFactory which is responsible for creating Kafka producers.
-     * It sets the bootstrap servers, and key and value serializers.
-     * @return A ProducerFactory for creating Kafka producers.
+     * This method creates a ProducerFactory bean that creates Kafka producers.
+     * @return A ProducerFactory for String objects.
      */
     @Bean
     public ProducerFactory<String, String> producerFactory() {
@@ -41,14 +46,13 @@ public class KafkaProducerConfig {
         props.put(
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 JsonSerializer.class);
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackage);
         return new DefaultKafkaProducerFactory<>(props);
     }
 
     /**
-     * This method creates a KafkaTemplate.
-     * It sets the ProducerFactory for the template.
-     * The KafkaTemplate wraps a Producer instance and provides convenience methods for sending messages to Kafka topics.
-     * @return A KafkaTemplate for sending messages to Kafka topics.
+     * This method creates a KafkaTemplate bean that can be used to send messages to Kafka.
+     * @return A KafkaTemplate for String objects.
      */
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {

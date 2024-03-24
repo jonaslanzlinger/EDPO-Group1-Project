@@ -1,24 +1,3 @@
-spring.datasource.url: jdbc:h2:file:./camunda-h2-database
-
-camunda.bpm:
-  admin-user:
-    id: demo
-    password: demo
-  filter.create: All Tasks
-  generic-properties:
-    properties:
-      historyTimeToLive: P1D
-  client:
-    base-url: http://warehouse:8081/engine-rest
-    worker-id: spring-boot-worker-2
-    basic-auth:
-      username: demo
-      password: demo
-    subscriptions:
-      EndWarehouseCommand:
-        variable-names: []
-#        process-definition-key:
-
 kafka:
   bootstrap-address: kafka:9092
   group-id: order
@@ -26,3 +5,13 @@ kafka:
 
 server:
   port: 8080
+
+# https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
+# https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
+
+zeebe.client:
+  cloud:
+    region: syd-1
+    clusterId: ad3b0231-67b1-4db4-a79e-78c38368693a
+    clientId: rGIiwc.r9ouoRsQyLLoPgDLodpRbHQ5K
+    clientSecret: NK-PO4Ws-rMsdzLNoBcTzTVlIffP4oR~zUeWcuv6.OWTD1ChFYsJpZjxhIn4XmyT
