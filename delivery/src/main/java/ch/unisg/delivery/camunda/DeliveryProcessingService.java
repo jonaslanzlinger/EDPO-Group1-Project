@@ -3,7 +3,6 @@ package ch.unisg.delivery.camunda;
 import ch.unisg.delivery.domain.Order;
 import ch.unisg.delivery.domain.OrderRegistry;
 import ch.unisg.delivery.utils.WorkflowLogger;
-import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import lombok.extern.slf4j.Slf4j;
