@@ -4,12 +4,21 @@ import ch.unisg.order.services.ProcessStarterService;
 import ch.unisg.order.domain.Order;
 
 import ch.unisg.order.util.WorkflowLogger;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Random;
 
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
@@ -44,6 +53,49 @@ public class ShopRestController {
 
         WorkflowLogger.info(log,"placeOrder","Order received: " + processInstanceKey + " - " + order.getColor());
         return "{\"traceId\": \"" + order.getOrderId() + "\"}";
+    }
+
+    /**
+     * This method handles GET requests to "/updates".
+     * It sends an update message and returns an SseEmitter.
+     * It uses Spring's @GetMapping annotation to map the URL path and method to this method.
+     * @return An SseEmitter.
+     */
+    @GetMapping("/api/updates")
+    public SseEmitter sendUpdates() {
+        SseEmitter emitter = new SseEmitter();
+
+        // TODO insert some real data objects here. just mock data for now
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode jsonArray = mapper.createArrayNode();
+
+        ObjectNode jsonObject1 = mapper.createObjectNode();
+        jsonObject1.put("orderId", new Random().nextInt(1000000));
+        jsonObject1.put("station", "warehouse");
+        jsonObject1.put("color", "blue");
+        jsonArray.add(jsonObject1);
+
+        ObjectNode jsonObject2 = mapper.createObjectNode();
+        jsonObject2.put("orderId", new Random().nextInt(1000000));
+        jsonObject2.put("station", "gripper");
+        jsonObject2.put("color", "red");
+        jsonArray.add(jsonObject2);
+
+        ObjectNode jsonObject3 = mapper.createObjectNode();
+        jsonObject3.put("orderId", new Random().nextInt(1000000));
+        jsonObject3.put("station", "delivery");
+        jsonObject3.put("color", "white");
+        jsonArray.add(jsonObject3);
+
+        String jsonString = jsonArray.toString();
+
+        try {
+            emitter.send(SseEmitter.event().name("message").data(jsonString));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        emitter.complete();
+        return emitter;
     }
 
 }
