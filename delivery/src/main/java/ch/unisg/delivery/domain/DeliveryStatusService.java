@@ -39,7 +39,7 @@ public class DeliveryStatusService {
                 Order order = OrderRegistry.pop();
 
                 WorkflowLogger.info(log, "updateDeliveryStatus","Light sensor triggered. Order popped from registry: " + order.getOrderId());
-
+                // TODO: Fix orderDetails since wrong variable name
                 camundaMessageSenderService.sendMessageCommand(
                         "Msg_ProductAtLightSensor",
                         order.getOrderId(),
