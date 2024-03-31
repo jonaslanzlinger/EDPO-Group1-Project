@@ -45,8 +45,8 @@ public class ShopRestController {
     @RequestMapping(path = "/api/order/{color}", method = PUT)
     public String placeOrder(@PathVariable String color) {
 
-        Order order = new Order(color);
-        long messageKey = processStarterService.sendOrderReceivedMessage(order.getOrderId(), order.getColor());
+        Order order = new Order(color,"pickup");
+        long messageKey = processStarterService.sendOrderReceivedMessage(order);
 
         // TODO: CHECK WHY THIS WORKS?
         long processInstanceKey = messageKey + 1;

@@ -37,18 +37,17 @@ public class GrabberProcessingService {
      */
     @ZeebeWorker(type = "grabGoods", name = "grabGoodsProcessor")
     public void grabGoods(final ActivatedJob job) {
-        String orderDetails = job.getVariablesAsMap().get("orderDetails").toString();
-        String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
+        String orderColor = job.getVariablesAsMap().get("orderColor").toString();
 
-        WorkflowLogger.info(log, "grabGoods", "Processing order: " + job.getProcessInstanceKey() + " - " + orderDetails);
+        WorkflowLogger.info(log, "grabGoods", "Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
         if (Math.random() < 0.5){
-            WorkflowLogger.info(log, "grabGoods", "Complete order: " + job.getProcessInstanceKey() + " - " + orderDetails);
+            WorkflowLogger.info(log, "grabGoods", "Complete order: " + job.getProcessInstanceKey() + " - " + orderColor);
             zeebeClient.newCompleteCommand(job.getKey())
-                    .variables(variables)
+                    .variables(job.getVariables())
                     .send()
                     .join(); // Synchronous completion, remove join() for asynchronous
         } else {
-            WorkflowLogger.info(log, "grabGoods", "Failed order: " + job.getProcessInstanceKey() + " - " + orderDetails);
+            WorkflowLogger.info(log, "grabGoods", "Failed order: " + job.getProcessInstanceKey() + " - " + orderColor);
         }
     }
 }
