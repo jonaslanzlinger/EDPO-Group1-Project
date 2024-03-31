@@ -13,12 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class MessageConsumer {
+
+    private final Stock stock;
+
     @Transactional
     @KafkaListener(id = "order", topics = "warehouse")
     public void startMessageProcess(String message){
         WorkflowLogger.info(log, "OrderMessageConsumer", "Received message from Kafka topic: warehouse");
         StockUpdateDto stockUpdateDto = StockUpdateDto.fromJson(message);
-        Stock.getSingleton().setStock(stockUpdateDto.getData());
+        stock.updateWarehouseStatus(stockUpdateDto.getData());
     }
 
 }

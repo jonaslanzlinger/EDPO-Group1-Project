@@ -35,6 +35,18 @@ public class WarehouseService {
         // send the updated status to the Kafka topic "warehouse"
         messageProducer.sendMessage(stockUpdateDto);
     }
+    public void updateWarehouse(HBW_1 hbw_1) {
+        // Update the warehouse status with the data from the message
+        warehouseStatusService.updateWarehouseStatus(hbw_1);
+
+        // build StockUpdateDto
+        StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
+                .data(hbw_1.getCurrent_stock())
+                .build();
+
+        // send the updated status to the Kafka topic "warehouse"
+        messageProducer.sendMessage(stockUpdateDto);
+    }
 
 
     public String getProduct(String color) {
@@ -60,7 +72,7 @@ public class WarehouseService {
         hbw_1.getCurrent_stock().put(productId, "");
 
         // Update the warehouse status
-        warehouseStatusService.updateWarehouseStatus(hbw_1);
+        updateWarehouse(hbw_1);
 
         return productId;
     }

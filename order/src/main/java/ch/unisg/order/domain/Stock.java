@@ -1,38 +1,21 @@
 package ch.unisg.order.domain;
 
-
-import lombok.Builder;
-import lombok.Data;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
-@Data
-@Builder
+@Service
 public class Stock {
 
-    private static Stock singleton;
+    // The latest status of the warehouse
+    private final AtomicReference<Map<String,String>> latestStatus = new AtomicReference<>(new HashMap<>(){});
 
-    private Map<String,String> stock;
-
-    public Stock(Map<String,String> stock) {
-        this.stock = stock;
+    public void updateWarehouseStatus(Map<String,String> stock) {
+        latestStatus.set(stock);
     }
-
-    public static Stock getSingleton() {
-        if (singleton == null) {
-            singleton = new Stock(new HashMap<>());
-        }
-        return singleton;
+    public Map<String,String> getLatestStatus() {
+        return latestStatus.get();
     }
-
-    private Map<String,String> getStock() {
-        return stock;
-    }
-
-    public void updatePosition(String pos, String col) {
-        stock.put(pos, col);
-    }
-
-
 }
