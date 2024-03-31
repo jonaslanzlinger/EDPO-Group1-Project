@@ -1,6 +1,7 @@
 package ch.unisg.warehouse.domain;
 
 
+import ch.unisg.warehouse.kafka.dto.StockUpdateDto;
 import ch.unisg.warehouse.kafka.dto.WarehouseUpdateDto;
 import ch.unisg.warehouse.kafka.producer.MessageProducer;
 import lombok.RequiredArgsConstructor;
@@ -21,18 +22,35 @@ public class WarehouseService {
 
     public void updateWarehouse(WarehouseUpdateDto message) {
         // TODO: DO MORE STUFF HERE
+        HBW_1 hbw_1 = message.getData();
 
         // Update the warehouse status with the data from the message
-        warehouseStatusService.updateWarehouseStatus(message.getData());
+        warehouseStatusService.updateWarehouseStatus(hbw_1);
+
+        // build StockUpdateDto
+        StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
+                .type(message.getType())
+                .id(message.getId())
+                .source(message.getSource())
+                .time(message.getTime())
+                .data(message.getData().getCurrent_stock())
+                .datacontenttype(message.getDatacontenttype())
+                .specversion(message.getSpecversion())
+                .build();
 
         // send the updated status to the Kafka topic "warehouse"
-        messageProducer.send(message);
+        messageProducer.send(stockUpdateDto);
     }
 
 
     public String getProduct(String color) {
         // Get the latest status of the warehouse
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
+
+        // in case the warehouse has not been initialized yet
+        if (hbw_1 == null) {
+            return null;
+        }
 
         String productId = hbw_1.getCurrent_stock().entrySet().stream()
                 .filter(entry -> entry.getValue().equals(color))

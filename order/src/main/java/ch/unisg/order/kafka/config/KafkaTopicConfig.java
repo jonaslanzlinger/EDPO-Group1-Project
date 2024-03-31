@@ -1,4 +1,4 @@
-package ch.unisg.order.config;
+package ch.unisg.order.kafka.config;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.springframework.beans.factory.annotation.Value;

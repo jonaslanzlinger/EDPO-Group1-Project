@@ -1,7 +1,7 @@
 kafka:
   bootstrap-address: kafka:9092
   group-id: order
-  trusted-packages: ch.unisg.order.dto
+  trusted-packages: ch.unisg.order.kafka
 
 server:
   port: 8080

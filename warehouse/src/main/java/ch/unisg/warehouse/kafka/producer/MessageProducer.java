@@ -1,6 +1,6 @@
 package ch.unisg.warehouse.kafka.producer;
 
-import ch.unisg.warehouse.kafka.dto.WarehouseUpdateDto;
+import ch.unisg.warehouse.kafka.dto.StockUpdateDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,13 +30,13 @@ public class MessageProducer {
         return TopicBuilder.name(TOPIC_NAME).partitions(1).replicas(1).build();
     }
 
-    public void send(WarehouseUpdateDto m) {
+    public void send(StockUpdateDto m) {
         try {
             // avoid too much magic and transform ourselves
             String jsonMessage = objectMapper.writeValueAsString(m);
 
             // wrap into a proper message for Kafka including a header
-            ProducerRecord<String, String> record = new ProducerRecord<>("warehouse", jsonMessage);
+            ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, jsonMessage);
             record.headers().add("type", m.getType().getBytes());
 
             // and send it
