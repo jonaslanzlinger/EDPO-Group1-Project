@@ -34,22 +34,21 @@ public class DeliveryProcessingService {
      */
     @ZeebeWorker(type = "registerOrder", name = "registerOrderProcessor")
     public void registerOrder(final ActivatedJob job) {
-        String orderDetails = job.getVariablesAsMap().get("orderDetails").toString();
-        String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
+        String orderColor = job.getVariablesAsMap().get("orderColor").toString();
 
-        WorkflowLogger.info(log, "registerOrder","Processing order: " + job.getProcessInstanceKey() + " - " + orderDetails);
+        WorkflowLogger.info(log, "registerOrder","Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
 
-        OrderRegistry.addOrder(new Order(orderDetails));
+        OrderRegistry.addOrder(new Order(orderColor));
 
-        WorkflowLogger.info(log, "registerOrder","Complete order: " + job.getProcessInstanceKey() + " - " + orderDetails);
-        camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
+        WorkflowLogger.info(log, "registerOrder","Complete order: " + job.getProcessInstanceKey() + " - " + orderColor);
+        camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
 
-//        if (orderDetails.contains("blue")) {
-//            WorkflowLogger.info(log, "registerOrder","Failed order: " + job.getProcessInstanceKey() + " - " + orderDetails);
+//        if (orderColor.contains("blue")) {
+//            WorkflowLogger.info(log, "registerOrder","Failed order: " + job.getProcessInstanceKey() + " - " + orderColor);
 //            camundaMessageSenderService.throwErrorCommand("DeliveryStationError",
-//                    String.format("Orders with %s goods fail in delivery station", orderDetails), job.getKey());
+//                    String.format("Orders with %s goods fail in delivery station", orderColor), job.getKey());
 //        } else {
-//            WorkflowLogger.info(log, "registerOrder","Complete order: " + job.getProcessInstanceKey() + " - " + orderDetails);
+//            WorkflowLogger.info(log, "registerOrder","Complete order: " + job.getProcessInstanceKey() + " - " + orderColor);
 //            camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
 //        }
     }

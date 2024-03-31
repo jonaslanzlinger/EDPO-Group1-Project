@@ -1,5 +1,6 @@
 package ch.unisg.order.services;
 
+import ch.unisg.order.domain.Order;
 import io.camunda.zeebe.client.ZeebeClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,18 +29,20 @@ public class ProcessStarterService {
     /**
      * This method sends an order received message to the Zeebe broker.
      * It creates a new publish message command, sets the message name, correlation key and variables, and sends the command.
-     * @param orderId      The unique identifier of the order.
-     * @param orderDetails The details of the order.
+     * @param order      The order.
      * @return processInstanceKey
      */
-    public long sendOrderReceivedMessage(String orderId, String orderDetails) {
+    public long sendOrderReceivedMessage(Order order) {
 
-        String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
+        String orderVariables = "{\"orderColor\": \"" + order.getColor() + "\"," +
+                "\"orderId\": \"" + order.getOrderId() + "\"," +
+                "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}";
+
 
         var returnvalue = zeebeClient.newPublishMessageCommand()
                 .messageName("Msg_OrderReceived")
-                .correlationKey(orderId) // Usually, the correlationKey is something unique like orderId.
-                .variables(variables)
+                .correlationKey(order.getOrderId()) // Usually, the correlationKey is something unique like orderId.
+                .variables(orderVariables)
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
         return returnvalue.getMessageKey();

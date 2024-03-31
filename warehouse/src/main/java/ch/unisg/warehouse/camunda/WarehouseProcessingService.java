@@ -35,20 +35,20 @@ public class WarehouseProcessingService {
      */
     @ZeebeWorker(type = "checkGoods", name = "checkGoodsProcessor")
     public void checkGoods(final ActivatedJob job) {
-        String orderDetails = job.getVariablesAsMap().get("orderDetails").toString();
-        String variables = String.format("{\"orderDetails\": \"%s\"}", orderDetails);
+        String orderColor = job.getVariablesAsMap().get("orderColor").toString();
 
-        WorkflowLogger.info(log, "checkGoods","Processing order: " + job.getProcessInstanceKey() + " - " + orderDetails);
+
+        WorkflowLogger.info(log, "checkGoods","Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
 
         // TODO: Remove hardcoded stuff here
-        if (orderDetails.contains("red")) {
-            WorkflowLogger.info(log, "checkGoods", "Failed Order: " + job.getProcessInstanceKey()+ " - " + orderDetails);
+        if (orderColor.contains("red")) {
+            WorkflowLogger.info(log, "checkGoods", "Failed Order: " + job.getProcessInstanceKey()+ " - " + orderColor);
             camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
-                    String.format("No %s goods available", orderDetails), job.getKey());
+                    String.format("No %s goods available", orderColor), job.getKey());
 
         } else {
-            WorkflowLogger.info(log, "checkGoods", "Complete order: " + job.getProcessInstanceKey()+ " - " + orderDetails);
-            camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
+            WorkflowLogger.info(log, "checkGoods", "Complete order: " + job.getProcessInstanceKey()+ " - " + orderColor);
+            camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
         }
     }
 }

@@ -23,6 +23,8 @@ public class Order implements Serializable {
   // Color of the order
   private String color;
 
+  private String deliveryMethod;
+
   /**
    * Default constructor.
    * It initializes orderId with a random UUID.
@@ -36,8 +38,9 @@ public class Order implements Serializable {
    * It initializes orderId with a random UUID and color with the provided color.
    * @param color The color of the order.
    */
-  public Order(String color) {
+  public Order(String color, String deliveryMethod) {
     this.orderId = UUID.randomUUID().toString();
     this.color = color;
+    this.deliveryMethod = deliveryMethod;
   }
 }
