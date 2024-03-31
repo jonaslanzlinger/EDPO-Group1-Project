@@ -27,13 +27,13 @@ public class CamundaService {
      * Sends a message command to the Camunda engine.
      * @param messageName The name of the message to be sent.
      * @param orderId The correlation key for the message, usually something unique like an order ID.
-     * @param orderDetailsJson The variables for the message, in JSON format.
+     * @param orderJson The variables for the message, in JSON format.
      */
-    public void sendMessageCommand(String messageName, String orderId, String orderDetailsJson) {
+    public void sendMessageCommand(String messageName, String orderId, String orderJson) {
         zeebeClient.newPublishMessageCommand()
                 .messageName(messageName)
                 .correlationKey(orderId)
-                .variables(orderDetailsJson)
+                .variables(orderJson)
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
     }
@@ -55,11 +55,11 @@ public class CamundaService {
     /**
      * Sends a complete command to the Camunda engine.
      * @param jobKey The key of the job to be completed.
-     * @param orderDetailsJson The variables for the job completion, in JSON format.
+     * @param orderJson The variables for the job completion, in JSON format.
      */
-    public void sendCompleteCommand(long jobKey, String orderDetailsJson) {
+    public void sendCompleteCommand(long jobKey, String orderJson) {
         zeebeClient.newCompleteCommand(jobKey)
-                .variables(orderDetailsJson)
+                .variables(orderJson)
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
     }

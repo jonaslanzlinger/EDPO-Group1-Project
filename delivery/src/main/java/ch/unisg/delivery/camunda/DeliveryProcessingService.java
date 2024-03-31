@@ -41,13 +41,14 @@ public class DeliveryProcessingService {
         // Now you can access individual properties within the 'order' object
         String orderColor = (String) orderVariables.get("orderColor");
         String orderId = (String) orderVariables.get("orderId");
-        String pickUp = (String) orderVariables.get("pickUp");
+        String deliveryMethod = (String) orderVariables.get("deliveryMethod");
 
         WorkflowLogger.info(log, "registerOrder","Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
 
-        OrderRegistry.addOrder(new Order(orderColor));
+        OrderRegistry.addOrder(new Order(orderId, orderColor, deliveryMethod));
 
         WorkflowLogger.info(log, "registerOrder","Complete order: " + job.getProcessInstanceKey() + " - " + orderColor);
+
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
 
 //        if (orderColor.contains("blue")) {

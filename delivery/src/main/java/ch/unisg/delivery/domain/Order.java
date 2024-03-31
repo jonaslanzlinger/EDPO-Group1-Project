@@ -21,7 +21,9 @@ public class Order implements Serializable {
   // Unique identifier for the order
   private String orderId;
   // Color of the order
-  private String color;
+  private String orderColor;
+    // Delivery method for the order
+  private String deliveryMethod;
 
   /**
    * Default constructor.
@@ -33,11 +35,13 @@ public class Order implements Serializable {
 
   /**
    * Constructor with color parameter.
-   * It initializes orderId with a random UUID and color with the provided color.
-   * @param color The color of the order.
+   * It initializes orderId with a random UUID and color with the provided color and deliveryMethod.
+   * @param orderColor The color of the order.
+   * @param deliveryMethod The delivery method of the order.
    */
-  public Order(String color) {
+  public Order(String orderColor, String deliveryMethod) {
     this.orderId = UUID.randomUUID().toString();
-    this.color = color;
+    this.orderColor = orderColor;
+    this.deliveryMethod = deliveryMethod;
   }
 }

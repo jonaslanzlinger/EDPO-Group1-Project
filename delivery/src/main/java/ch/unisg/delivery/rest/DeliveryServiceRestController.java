@@ -57,8 +57,10 @@ public class DeliveryServiceRestController {
         Order order = OrderRegistry.pop();
         camundaMessageSenderService.sendMessageCommand(
                 "Msg_ProductAtLightSensor",
-                order.getColor(),
-                String.format("{\"orderDetails\": \"%s\"}", order.getColor()));
+                order.getOrderColor(),
+                String.format("{ \"orderId\": \"%s\", " +
+                              "\"orderColor\": \"%s\", " +
+                              "\"deliveryMethod\": \"%s\" }", order.getOrderId(), order.getOrderColor(), order.getDeliveryMethod()));
         return String.format("Light sensor triggered for order: %s", order);
     }
 }

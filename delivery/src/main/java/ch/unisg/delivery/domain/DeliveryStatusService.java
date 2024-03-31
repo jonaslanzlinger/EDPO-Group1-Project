@@ -43,7 +43,7 @@ public class DeliveryStatusService {
                 camundaMessageSenderService.sendMessageCommand(
                         "Msg_ProductAtLightSensor",
                         order.getOrderId(),
-                        String.format("{\"orderDetails\": \"%s\"}", order.getColor()));
+                        String.format("{\"orderDetails\": \"%s\"}", order.getOrderColor()));
             } catch (IndexOutOfBoundsException e) {
                 // no orders in the registry
             }
