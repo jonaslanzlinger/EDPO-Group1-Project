@@ -35,16 +35,17 @@ public class ShopRestController {
     private final ProcessStarterService processStarterService;
 
     /**
-     * This method handles PUT requests to "/api/order/{color}".
-     * It creates a new Order with the provided color, sends an order received message, and returns a JSON string with the order's traceId.
+     * This method handles PUT requests to "/api/order/{color}/{deliveryMethod}".
+     * It creates a new Order with the provided color and the deliveryMethod, sends an order received message, and returns a JSON string with the order's traceId.
      * It uses Spring's @RequestMapping annotation to map the URL path and method to this method.
      * @param color The color of the order.
+     * @param deliveryMethod The delivery method of the order.
      * @return A JSON string with the order's traceId.
      */
-    @RequestMapping(path = "/api/order/{color}", method = PUT)
-    public String placeOrder(@PathVariable String color) {
+    @RequestMapping(path = "/api/order/{color}/{deliveryMethod}", method = PUT)
+    public String placeOrder(@PathVariable String color, @PathVariable String deliveryMethod) {
 
-        Order order = new Order(color,"pickup");
+        Order order = new Order(color, deliveryMethod);
         long messageKey = processStarterService.sendOrderReceivedMessage(order);
 
         // TODO: CHECK WHY THIS WORKS?

@@ -18,11 +18,12 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 public class Order implements Serializable {
+
   // Unique identifier for the order
   private String orderId;
   // Color of the order
   private String color;
-
+  // Delivery method of the order
   private String deliveryMethod;
 
   /**
@@ -35,8 +36,9 @@ public class Order implements Serializable {
 
   /**
    * Constructor with color parameter.
-   * It initializes orderId with a random UUID and color with the provided color.
+   * It initializes orderId with a random UUID and color with the provided color and deliveryMethod
    * @param color The color of the order.
+   * @param deliveryMethod The delivery method of the order.
    */
   public Order(String color, String deliveryMethod) {
     this.orderId = UUID.randomUUID().toString();

@@ -70,6 +70,10 @@
             margin-top: 100px;
         }
 
+        fieldset {
+            margin: auto;
+        }
+
         #canvas {
             padding: 100px 50px;
         }
@@ -107,15 +111,25 @@
         </div>
     </div>
 
+    <fieldset id="delivery-method">
+        <legend>Select a delivery method:</legend>
+        <input type="radio" id="radio-postal" name="deliveryMethod" value="postal" checked />
+        <label for="radio-postal">Postal</label>
+
+        <input type="radio" id="radio-pickup" name="deliveryMethod" value="pickup" />
+        <label for="radio-pickup">Pickup</label>
+    </fieldset>
+
     <canvas id="canvas" width="956" height="717"></canvas>
 
     <script src="./jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 	<script type="text/javascript">
         let count = 0;
+        let deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
         function placeOrder(color) {
             $.ajax({
-                url: `./api/order/${color}`,
+                url: `./api/order/${color}/${deliveryMethod}`,
                 type: "put",
                 data: {}
             }).done(function(result) {
