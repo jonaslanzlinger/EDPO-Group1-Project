@@ -24,5 +24,6 @@ Note: Perform the user tasks where needed to continue the processes.
 
 
 # TODO
-- [x] Make Order UI responsive to Stock changes
-- [x] Correctly display error if stock is not available
+- [ ] Make Order UI responsive to Stock changes
+- [ ] Correctly display error if stock is not available
+- [ ] Add Hystrix Breaker to warehouse service 
