@@ -14,8 +14,6 @@ public class StockService {
 
 
     public boolean checkStock(String color) {
-        System.out.println("Checking stock for color: " + color);
-        System.out.println("Stock: " + stock.getLatestStatus());
         return stock.getLatestStatus().containsValue(color);
     }
 
