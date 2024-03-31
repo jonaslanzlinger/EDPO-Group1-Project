@@ -1,7 +1,6 @@
-kafka:
-  bootstrap-address: kafka:9092
-  group-id: order
-  trusted-packages: ch.unisg.order.dto
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
 
 server:
   port: 8080

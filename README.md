@@ -21,3 +21,8 @@ The MQTT messages from the factory will now get relayed to the other services vi
 7. Check online through camunda the process instances and tasks.
 
 Note: Perform the user tasks where needed to continue the processes.
+
+
+# TODO
+- [x] Make Order UI responsive to Stock changes
+- [x] Correctly display error if stock is not available

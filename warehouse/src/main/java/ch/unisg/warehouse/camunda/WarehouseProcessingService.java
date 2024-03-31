@@ -1,5 +1,6 @@
 package ch.unisg.warehouse.camunda;
 
+import ch.unisg.warehouse.domain.WarehouseService;
 import ch.unisg.warehouse.utils.WorkflowLogger;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
@@ -20,13 +21,16 @@ public class WarehouseProcessingService {
     // The CamundaService instance used to send commands to the Camunda engine
     private final CamundaService camundaMessageSenderService;
 
+    private final WarehouseService warehouseService;
+
     /**
      * Constructor for the WarehouseProcessingService class.
      * @param camundaMessageSenderService The CamundaService instance to be used for interactions with the Camunda engine.
      */
     @Autowired
-    public WarehouseProcessingService(CamundaService camundaMessageSenderService) {
+    public WarehouseProcessingService(CamundaService camundaMessageSenderService, WarehouseService warehouseService) {
         this.camundaMessageSenderService = camundaMessageSenderService;
+        this.warehouseService = warehouseService;
     }
 
     /**
@@ -48,12 +52,12 @@ public class WarehouseProcessingService {
 
         WorkflowLogger.info(log, "checkGoods","Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
 
-        // TODO: Remove hardcoded stuff here
-        if (orderColor.contains("red")) {
+        String productId = warehouseService.getProduct(orderColor);
+
+        if (productId == null) {
             WorkflowLogger.info(log, "checkGoods", "Failed Order: " + job.getProcessInstanceKey()+ " - " + orderColor);
             camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
                     String.format("No %s goods available", orderColor), job.getKey());
-
         } else {
             WorkflowLogger.info(log, "checkGoods", "Complete order: " + job.getProcessInstanceKey()+ " - " + orderColor);
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());

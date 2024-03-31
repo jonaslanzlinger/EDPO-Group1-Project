@@ -3,6 +3,7 @@ package ch.unisg.order.rest;
 import ch.unisg.order.services.ProcessStarterService;
 import ch.unisg.order.domain.Order;
 
+import ch.unisg.order.services.StockService;
 import ch.unisg.order.util.WorkflowLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -34,6 +35,8 @@ public class ShopRestController {
     // The service for starting processes
     private final ProcessStarterService processStarterService;
 
+    private final StockService stockService;
+
     /**
      * This method handles PUT requests to "/api/order/{color}/{deliveryMethod}".
      * It creates a new Order with the provided color and the deliveryMethod, sends an order received message, and returns a JSON string with the order's traceId.
@@ -44,6 +47,13 @@ public class ShopRestController {
      */
     @RequestMapping(path = "/api/order/{color}/{deliveryMethod}", method = PUT)
     public String placeOrder(@PathVariable String color, @PathVariable String deliveryMethod) {
+
+
+        // Check if the color is in stock
+        if (!stockService.checkStock(color)) {
+            return "{\"error\": \"Color not in stock\"}";
+        }
+
 
         Order order = new Order(color, deliveryMethod);
         long messageKey = processStarterService.sendOrderReceivedMessage(order);
