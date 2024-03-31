@@ -34,9 +34,10 @@ public class ProcessStarterService {
      */
     public long sendOrderReceivedMessage(Order order) {
 
-        String orderVariables = "{\"orderColor\": \"" + order.getColor() + "\"," +
+        String orderVariables = "{\"order\": {\"orderColor\": \"" + order.getColor() + "\"," +
                 "\"orderId\": \"" + order.getOrderId() + "\"," +
-                "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}";
+                "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}}";
+
 
 
         var returnvalue = zeebeClient.newPublishMessageCommand()
