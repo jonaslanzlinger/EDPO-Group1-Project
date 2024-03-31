@@ -1,7 +1,7 @@
 package ch.unisg.warehouse.kafka.consumer;
 
+import ch.unisg.warehouse.domain.WarehouseService;
 import ch.unisg.warehouse.kafka.dto.WarehouseUpdateDto;
-import ch.unisg.warehouse.domain.WarehouseStatusService;
 import ch.unisg.warehouse.utils.WorkflowLogger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +19,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MessageConsumer {
 
-    // The service that manages the warehouse status
-    private final WarehouseStatusService warehouseStatusService;
+    // The service that manages the warehouse
+    private final WarehouseService warehouseService;
 
     /**
      * This method is a Kafka listener that processes messages from the "HBW_1" topic.
@@ -30,7 +30,8 @@ public class MessageConsumer {
     @KafkaListener(topics = "HBW_1")
     public void startMessageProcess(WarehouseUpdateDto message){
         WorkflowLogger.info(log,"startMessageProcess", "Received message from Kafka topic: HBW_1");
-        warehouseStatusService.updateWarehouseStatus(message.getData());
+        warehouseService.updateWarehouse(message);
+
     }
 
 }
