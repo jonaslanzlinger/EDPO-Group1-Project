@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * This is a service class that processes warehouse tasks.
  * It uses the CamundaService to interact with the Camunda engine.
@@ -35,7 +37,13 @@ public class WarehouseProcessingService {
      */
     @ZeebeWorker(type = "checkGoods", name = "checkGoodsProcessor")
     public void checkGoods(final ActivatedJob job) {
-        String orderColor = job.getVariablesAsMap().get("orderColor").toString();
+        Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
+
+        // Now you can access individual properties within the 'order' object
+        String orderColor = (String) orderVariables.get("orderColor");
+        String orderId = (String) orderVariables.get("orderId");
+        String pickUp = (String) orderVariables.get("pickUp");
+
 
 
         WorkflowLogger.info(log, "checkGoods","Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);

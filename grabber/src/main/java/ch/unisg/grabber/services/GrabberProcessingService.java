@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * This is a service class for processing Grabber tasks.
  * It uses Spring's @Service annotation to indicate that it is a service class.
@@ -37,7 +39,12 @@ public class GrabberProcessingService {
      */
     @ZeebeWorker(type = "grabGoods", name = "grabGoodsProcessor")
     public void grabGoods(final ActivatedJob job) {
-        String orderColor = job.getVariablesAsMap().get("orderColor").toString();
+        Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
+
+        // Now you can access individual properties within the 'order' object
+        String orderColor = (String) orderVariables.get("orderColor");
+        String orderId = (String) orderVariables.get("orderId");
+        String pickUp = (String) orderVariables.get("pickUp");
 
         WorkflowLogger.info(log, "grabGoods", "Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
         if (Math.random() < 0.5){
