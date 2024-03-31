@@ -2,6 +2,9 @@ kafka:
   bootstrap-address: kafka:9092
   group-id: warehouse
   trusted-packages: ch.unisg.warehouse.kafka.dto
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 server:
   port: 8081

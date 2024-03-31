@@ -3,7 +3,7 @@ package ch.unisg.warehouse.domain;
 
 import ch.unisg.warehouse.kafka.dto.StockUpdateDto;
 import ch.unisg.warehouse.kafka.dto.WarehouseUpdateDto;
-import ch.unisg.warehouse.kafka.producer.MessageProducer;
+import ch.unisg.warehouse.kafka.producer.StockUpdateProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ public class WarehouseService {
 
     private final WarehouseStatusService warehouseStatusService;
 
-    private final MessageProducer messageProducer;
+    private final StockUpdateProducer messageProducer;
 
 
     public void updateWarehouse(WarehouseUpdateDto message) {
@@ -29,17 +29,11 @@ public class WarehouseService {
 
         // build StockUpdateDto
         StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
-                .type(message.getType())
-                .id(message.getId())
-                .source(message.getSource())
-                .time(message.getTime())
                 .data(message.getData().getCurrent_stock())
-                .datacontenttype(message.getDatacontenttype())
-                .specversion(message.getSpecversion())
                 .build();
 
         // send the updated status to the Kafka topic "warehouse"
-        messageProducer.send(stockUpdateDto);
+        messageProducer.sendMessage(stockUpdateDto);
     }
 
 

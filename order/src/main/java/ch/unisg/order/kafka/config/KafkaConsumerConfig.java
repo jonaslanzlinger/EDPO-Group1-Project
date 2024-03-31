@@ -10,6 +10,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
@@ -28,49 +29,21 @@ public class KafkaConsumerConfig {
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
-    // The group ID of the Kafka consumer
-    @Value(value = "${kafka.group-id}")
-    private String groupId;
 
-    // The trusted packages for the Kafka consumer
-    @Value(value = "${kafka.trusted-packages}")
-    private String trustedPackage;
-
-    /**
-     * This method creates a ConsumerFactory which is responsible for creating Kafka consumers.
-     * It sets the bootstrap servers, group id, and key and value deserializers.
-     * @return A ConsumerFactory for creating Kafka consumers.
-     */
     @Bean
     public ConsumerFactory<String, StockDto> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                bootstrapAddress);
-        props.put(
-                ConsumerConfig.GROUP_ID_CONFIG,
-                groupId);
-        props.put(
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class);
-        props.put(
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, StockDto.class.getName());
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackage);
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class.getName());
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*"); // Or your specific package
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, StockDto.class);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
-    /**
-     * This method creates a ConcurrentKafkaListenerContainerFactory.
-     * It sets the ConsumerFactory for the container.
-     * The ConcurrentKafkaListenerContainerFactory is responsible for creating containers for methods annotated with @KafkaListener.
-     * @return A ConcurrentKafkaListenerContainerFactory for creating Kafka listener containers.
-     */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, StockDto>
-    kafkaListenerContainerFactory() {
-
+    public ConcurrentKafkaListenerContainerFactory<String, StockDto> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, StockDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
