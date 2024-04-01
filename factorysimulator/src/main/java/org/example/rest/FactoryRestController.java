@@ -56,6 +56,13 @@ public class FactoryRestController {
      */
     @GetMapping(path = "/vgr/read_color")
     public String vgrReadColor() {
+
+        double randomSleepDuration = Math.random() * 4000;
+        try {
+            Thread.sleep((long) randomSleepDuration);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return "white";
     }
 
