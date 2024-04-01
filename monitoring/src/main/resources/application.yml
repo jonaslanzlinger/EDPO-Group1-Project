@@ -1,0 +1,22 @@
+kafka:
+  bootstrap-address: kafka:9092
+  group-id: monitoring
+  trusted-packages: ch.unisg.monitoring.kafka.dto
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+server:
+  port: 8089
+
+
+# https://github.com/camunda-community-hub/spring-zeebe#configuring-camunda-platform-8-saas-connection
+# https://github.com/camunda-community-hub/spring-zeebe#additional-configuration-options
+
+#
+#zeebe.client:
+#  cloud:
+#    region: syd-1
+#    clusterId: ad3b0231-67b1-4db4-a79e-78c38368693a
+#    clientId: 0.xK59TjJoScgnEt0Sr3spn6JkLVhTz4
+#    clientSecret: iv0wYeJjf_05.5AHj1CM.lyIQ9e1U85wXX~jhtdZss2OyI5xRhg0NdzDij2NKh6W
