@@ -173,6 +173,33 @@
                 ctx.stroke();
             }
         };
+
+        let redStock = 0;
+        let blueStock = 0;
+        let whiteStock = 0;
+
+        let stockEvtSource = new EventSource("/api/currentStock");
+        stockEvtSource.onmessage = function(event) {
+            let stock = JSON.parse(event.data);
+            redStock = stock.red;
+            blueStock = stock.blue;
+            whiteStock = stock.white;
+
+            document.querySelectorAll('.card').forEach(card => {
+                let color = card.querySelector('.description').textContent.split(' ')[0].toLowerCase();
+                let button = card.querySelector('button');
+                if (stock[color] === 0) {
+                    button.disabled = true;
+                    button.textContent = 'Out of stock';
+                } else {
+                    button.disabled = false;
+                    button.textContent = 'Order';
+                }
+            });
+        };
+
+
+
     </script>
 
 </body>

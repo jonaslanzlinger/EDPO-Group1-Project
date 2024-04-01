@@ -11,13 +11,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
 
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
@@ -57,6 +56,8 @@ public class ShopRestController {
 
         Order order = new Order(color, deliveryMethod);
         long messageKey = processStarterService.sendOrderReceivedMessage(order);
+        stockService.removeColorFromStock(color);
+
 
         // TODO: CHECK WHY THIS WORKS?
         long processInstanceKey = messageKey + 1;
@@ -108,4 +109,36 @@ public class ShopRestController {
         return emitter;
     }
 
+    @ResponseBody
+    @GetMapping("/api/currentStock")
+    public SseEmitter getCurrentStock() {
+        SseEmitter emitter = new SseEmitter();
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode jsonObject1 = mapper.createObjectNode();
+        jsonObject1.put("red", 0);
+        jsonObject1.put("blue", 0);
+        jsonObject1.put("white", 0);
+
+        Map<String, String> stock = stockService.getStock();
+        stock.forEach((key, value) -> {
+            // check what color and then increase the count
+            switch (value) {
+                case "red" -> jsonObject1.put("red", jsonObject1.get("red").asInt() + 1);
+                case "blue" -> jsonObject1.put("blue", jsonObject1.get("blue").asInt() + 1);
+                case "white" -> jsonObject1.put("white", jsonObject1.get("white").asInt() + 1);
+            }
+
+        });
+
+        String jsonString = jsonObject1.toString();
+
+        try {
+            emitter.send(SseEmitter.event().name("message").data(jsonString));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        emitter.complete();
+        return emitter;
+    }
 }
