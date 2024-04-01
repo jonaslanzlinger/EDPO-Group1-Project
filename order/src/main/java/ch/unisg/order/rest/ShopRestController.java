@@ -11,13 +11,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
 
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
@@ -57,6 +56,8 @@ public class ShopRestController {
 
         Order order = new Order(color, deliveryMethod);
         long messageKey = processStarterService.sendOrderReceivedMessage(order);
+        stockService.removeColorFromStock(color);
+
 
         // TODO: CHECK WHY THIS WORKS?
         long processInstanceKey = messageKey + 1;
@@ -108,4 +109,9 @@ public class ShopRestController {
         return emitter;
     }
 
+    @ResponseBody
+    @GetMapping("/currentStock")
+    public Map<String, String> getCurrentStock() {
+        return stockService.getStock(); // Return the stock information as JSON
+    }
 }

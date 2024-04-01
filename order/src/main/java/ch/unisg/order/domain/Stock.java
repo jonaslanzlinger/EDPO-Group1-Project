@@ -18,4 +18,12 @@ public class Stock {
     public Map<String,String> getLatestStatus() {
         return latestStatus.get();
     }
+
+    public void removeColor(String color) {
+        // get first key whose value is equal to color
+        latestStatus.get().entrySet().stream()
+                .filter(entry -> color.equals(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .findFirst().ifPresent(key -> latestStatus.get().remove(key));
+    }
 }
