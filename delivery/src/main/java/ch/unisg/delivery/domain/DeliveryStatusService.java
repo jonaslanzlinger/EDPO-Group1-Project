@@ -36,14 +36,9 @@ public class DeliveryStatusService {
         // TODO don't know which sensor is which. Therefore, listen on both...
         if (vgr_1.isI4_light_barrier() || vgr_1.isI7_light_barrier()) {
             try {
-                Order order = OrderRegistry.pop();
+                WorkflowLogger.info(log, "updateDeliveryStatus","Light sensor triggered.");
 
-                WorkflowLogger.info(log, "updateDeliveryStatus","Light sensor triggered. Order popped from registry: " + order.getOrderId());
-                // TODO: Fix orderDetails since wrong variable name
-                camundaMessageSenderService.sendMessageCommand(
-                        "Msg_ProductAtLightSensor",
-                        order.getOrderId(),
-                        String.format("{\"orderDetails\": \"%s\"}", order.getOrderColor()));
+                camundaMessageSenderService.sendMessageCommand("Msg_ProductAtLightSensor");
             } catch (IndexOutOfBoundsException e) {
                 // no orders in the registry
             }

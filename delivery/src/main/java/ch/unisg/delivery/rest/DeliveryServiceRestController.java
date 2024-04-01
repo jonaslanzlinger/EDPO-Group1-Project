@@ -46,7 +46,6 @@ public class DeliveryServiceRestController {
         return OrderRegistry.getOrders();
     }
 
-    // TODO: include orderId in the variables
     /**
      * This method triggers the light sensor in the delivery station.
      * It pops an order from the order registry and sends a message to the Camunda engine.
@@ -54,13 +53,17 @@ public class DeliveryServiceRestController {
      */
     @GetMapping("/triggerLightSensor")
     public String triggerLightSensor(){
-        Order order = OrderRegistry.pop();
-        camundaMessageSenderService.sendMessageCommand(
-                "Msg_ProductAtLightSensor",
-                order.getOrderColor(),
-                String.format("{ \"orderId\": \"%s\", " +
-                              "\"orderColor\": \"%s\", " +
-                              "\"deliveryMethod\": \"%s\" }", order.getOrderId(), order.getOrderColor(), order.getDeliveryMethod()));
-        return String.format("Light sensor triggered for order: %s", order);
+        camundaMessageSenderService.sendMessageCommand("Msg_ProductAtLightSensor");
+        return "Light sensor triggered.";
+
+        // TODO: leave this, maybe we need that later
+//        Order order = OrderRegistry.pop();
+//        camundaMessageSenderService.sendMessageCommand(
+//                "Msg_ProductAtLightSensor",
+//                order.getOrderColor(),
+//                String.format("{ \"orderId\": \"%s\", " +
+//                              "\"orderColor\": \"%s\", " +
+//                              "\"deliveryMethod\": \"%s\" }", order.getOrderId(), order.getOrderColor(), order.getDeliveryMethod()));
+//        return String.format("Light sensor triggered for order: %s", order);
     }
 }
