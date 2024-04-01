@@ -26,4 +26,5 @@ Note: Perform the user tasks where needed to continue the processes.
 # TODO
 - [ ] Make Order UI responsive to Stock changes
 - [ ] Correctly display error if stock is not available
-- [ ] Add Hystrix Breaker to warehouse service 
+- [ ] Add Hystrix Breaker to warehouse service
+- [ ] Fix the parallel gateway in delivery service. The rest is working nicely. (Probably best to just program that message based)
