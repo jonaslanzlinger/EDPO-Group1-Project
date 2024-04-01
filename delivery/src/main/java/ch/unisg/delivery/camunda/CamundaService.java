@@ -4,6 +4,8 @@ import io.camunda.zeebe.client.ZeebeClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * This is a service class that provides utility methods for interacting with the Camunda Zeebe client.
  * It provides methods to send messages, throw errors, and complete jobs.
@@ -26,14 +28,11 @@ public class CamundaService {
     /**
      * Sends a message command to the Camunda engine.
      * @param messageName The name of the message to be sent.
-     * @param orderId The correlation key for the message, usually something unique like an order ID.
-     * @param orderJson The variables for the message, in JSON format.
      */
-    public void sendMessageCommand(String messageName, String orderId, String orderJson) {
+    public void sendMessageCommand(String messageName) {
         zeebeClient.newPublishMessageCommand()
                 .messageName(messageName)
-                .correlationKey(orderId)
-                .variables(orderJson)
+                .correlationKey(UUID.randomUUID().toString())
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
     }
