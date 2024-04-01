@@ -26,14 +26,14 @@ public class CamundaService {
     /**
      * Sends a message command to the Camunda engine.
      * @param messageName The name of the message to be sent.
-     * @param orderId The correlation key for the message, usually something unique like an order ID.
-     * @param orderDetailsJson The variables for the message, in JSON format.
+     * @param correlationkey The correlation key for the message, usually something unique like an order ID.
+     * @param variables The variables for the message, in JSON format.
      */
-    public void sendMessageCommand(String messageName, String orderId, String orderDetailsJson) {
+    public void sendMessageCommand(String messageName, String correlationkey, String variables) {
         zeebeClient.newPublishMessageCommand()
                 .messageName(messageName)
-                .correlationKey(orderId)
-                .variables(orderDetailsJson)
+                .correlationKey(correlationkey)
+                .variables(variables)
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
     }

@@ -42,11 +42,10 @@ public class WarehouseProcessingService {
     @ZeebeWorker(type = "checkGoods", name = "checkGoodsProcessor")
     public void checkGoods(final ActivatedJob job) {
         Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
-
         // Now you can access individual properties within the 'order' object
         String orderColor = (String) orderVariables.get("orderColor");
-        String orderId = (String) orderVariables.get("orderId");
-        String pickUp = (String) orderVariables.get("pickUp");
+
+
 
 
 
@@ -63,4 +62,80 @@ public class WarehouseProcessingService {
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
         }
     }
+
+    @ZeebeWorker(type = "checkGoodsAvailable", name = "checkGoodsAvailableProcessor")
+    public void checkGoodsAvailable(final ActivatedJob job) {
+        Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
+        // Now you can access individual properties within the 'order' object
+        String orderColor = (String) orderVariables.get("orderColor");
+
+        WorkflowLogger.info(log, "checkGoodsAvailable","Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
+
+
+        boolean isAvailable = warehouseService.checkProduct(orderColor);
+
+        if (!isAvailable) {
+            WorkflowLogger.info(log, "checkGoodsAvailable", "Failed Order: " + job.getProcessInstanceKey()+ " - " + orderColor);
+            camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
+                    String.format("No %s goods available", orderColor), job.getKey());
+        } else {
+            WorkflowLogger.info(log, "checkGoodsAvailable", "Complete order: " + job.getProcessInstanceKey()+ " - " + orderColor);
+            camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+        }
+    }
+
+    @ZeebeWorker(type = "checkHBW", name = "checkHBWProcessor")
+    public void checkHBWStatus(final ActivatedJob job) {
+        WorkflowLogger.info(log, "checkHBWStatus", "Checking HBW status");
+        Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
+        // Now you can access individual properties within the 'order' object
+        String orderId = (String) orderVariables.get("orderId");
+        boolean inUse = warehouseService.isInUse();
+        String inUseJson = String.format("{\"available\":\"%s\"}", !inUse);
+
+        if (inUse) {
+            WorkflowLogger.info(log, "checkHBWStatus", "HBW is in use");
+            camundaMessageSenderService.sendCompleteCommand(job.getKey(),inUseJson);
+            warehouseService.addToQueue(orderId);
+        } else {
+            WorkflowLogger.info(log, "checkHBWStatus", "HBW is not in use");
+            camundaMessageSenderService.sendCompleteCommand(job.getKey(), inUseJson);
+        }
+    }
+
+    @ZeebeWorker(type = "lockHBW", name = "lockHBWProcessor")
+    public void lockHBW(final ActivatedJob job) {
+        WorkflowLogger.info(log, "lockHBW", "Locking HBW");
+        Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
+        // Now you can access individual properties within the 'order' object
+        String orderId = (String) orderVariables.get("orderId");
+
+        boolean success = warehouseService.setInUse();
+        String lockedJson = String.format("{\"locked\":\"%s\"}", success);
+
+        if (success) {
+            WorkflowLogger.info(log, "lockHBW", "HBW locked");
+            camundaMessageSenderService.sendCompleteCommand(job.getKey(), lockedJson);
+        } else {
+            WorkflowLogger.info(log, "lockHBW", "HBW already in use");
+            camundaMessageSenderService.sendCompleteCommand(job.getKey(), lockedJson);
+            warehouseService.addToQueue(orderId);
+        }
+    }
+
+    @ZeebeWorker(type = "freeHBW", name = "freeHBWProcessor")
+    public void freeHBW(final ActivatedJob job) {
+        WorkflowLogger.info(log, "freeHBW", "Freeing HBW");
+
+        String nextProcess = warehouseService.releaseHBW();
+        String freedJson = String.format("{\"available\":\"%s\"}", true);
+        WorkflowLogger.info(log, "freeHBW", "HBW freed");
+        camundaMessageSenderService.sendCompleteCommand(job.getKey(), freedJson);
+
+        if (nextProcess != null) {
+            WorkflowLogger.info(log, "freeHBW", "Next process: " + nextProcess);
+            camundaMessageSenderService.sendMessageCommand("HBWAvailable",nextProcess,freedJson);
+        }
+    }
+
 }

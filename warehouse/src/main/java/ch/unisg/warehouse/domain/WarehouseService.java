@@ -48,7 +48,6 @@ public class WarehouseService {
         messageProducer.sendMessage(stockUpdateDto);
     }
 
-
     public String getProduct(String color) {
         // Get the latest status of the warehouse
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
@@ -77,11 +76,46 @@ public class WarehouseService {
         return productId;
     }
 
+    public boolean checkProduct(String color) {
+        // Get the latest status of the warehouse
+        HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
+
+        // in case the warehouse has not been initialized yet
+        if (hbw_1 == null) {
+            return false;
+        }
+
+        String productId = hbw_1.getCurrent_stock().entrySet().stream()
+                .filter(entry -> entry.getValue().equals(color))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+
+        return productId != null;
+
+    }
 
     public String getStock() {
         // Get the latest status of the warehouse
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
         return hbw_1.getCurrent_stock().toString();
+    }
+
+
+    public boolean setInUse() {
+        return warehouseStatusService.tryReserveHBW();
+    }
+
+    public boolean isInUse() {
+        return warehouseStatusService.isInUse();
+    }
+
+    public String releaseHBW() {
+        return warehouseStatusService.releaseHBW();
+    }
+
+    public void addToQueue(String processInstanceId) {
+        warehouseStatusService.addToQueue(processInstanceId);
     }
 
 
