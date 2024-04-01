@@ -5,6 +5,7 @@ import org.example.domain.FactoryService;
 import org.example.domain.stations.Station;
 import org.example.mqtt.MqttClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,11 +19,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 public class FactoryRestController {
 
-
     @Autowired
     private FactoryService factoryService;
-
-
 
     @RequestMapping(path = "/send", method = GET)
     public String startSending() throws MqttException {
@@ -50,5 +48,23 @@ public class FactoryRestController {
         // but we return an own correlationId which can be used in the UI to show status maybe later
         return "Done";
     }
+
+    /**
+     * This method returns the current color detected at the VGR light sensor.
+     * @return The current color detected at the VGR light sensor.
+     * For now, it always returns "white".
+     */
+    @GetMapping(path = "/vgr/read_color")
+    public String vgrReadColor() {
+
+        double randomSleepDuration = Math.random() * 4000;
+        try {
+            Thread.sleep((long) randomSleepDuration);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return "white";
+    }
+
 
 }
