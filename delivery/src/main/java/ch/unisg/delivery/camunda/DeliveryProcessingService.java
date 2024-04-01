@@ -62,15 +62,12 @@ public class DeliveryProcessingService {
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
     }
 
+    /**
+     * This method retrieves the color of the order at the light sensor.
+     * @param job The job that contains the details of the order.
+     */
     @ZeebeWorker(type = "retrieveColor", name = "retrieveColorProcessor")
     public void retrieveColor(final ActivatedJob job) {
-
-        // TODO: Leave this, maybe we need this later
-//        Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
-//
-//        String orderId = (String) orderVariables.get("orderId");
-//        String orderColor = (String) orderVariables.get("orderColor");
-//        String deliveryMethod = (String) orderVariables.get("deliveryMethod");
 
         WorkflowLogger.info(log, "retrieveColor","Retrieving color at light sensor...");
 
@@ -94,7 +91,9 @@ public class DeliveryProcessingService {
 
                 WorkflowLogger.info(log, "retrieveColor","Color retrieved: " + response.body());
 
-                camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+                String variables = "{ \"orderColor\": \"" + response.body() + "\"}";
+
+                camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
                 return null;
             }
 
@@ -106,5 +105,34 @@ public class DeliveryProcessingService {
                 return null;
             }
         }.execute();
+    }
+
+    /**
+     * This method matches the color of the order to the color retrieved at the light sensor.
+     * @param job The job that contains the detected color at the light sensor.
+     */
+    @ZeebeWorker(type = "matchColorToOrder", name = "matchColorToOrderProcessor")
+    public void matchColorToOrder(final ActivatedJob job) {
+
+        String orderColor = (String) job.getVariablesAsMap().get("orderColor");
+
+        Order order = OrderRegistry.popNextOrderByColor(orderColor);
+
+        String orderVariables = null;
+        if (order == null) {
+            WorkflowLogger.info(log, "matchColorToOrder","No order found for color: " + orderColor);
+
+            orderVariables = "{\"matchFound\": \"false\", \"order\": {\"orderColor\": \"" + order.getOrderColor() + "\"," +
+                    "\"orderId\": \"" + order.getOrderId() + "\"," +
+                    "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}}";
+        } else {
+            WorkflowLogger.info(log, "matchColorToOrder","Order found for color: " + orderColor);
+
+            orderVariables = "{\"matchFound\": \"true\", \"order\": {\"orderColor\": \"" + order.getOrderColor() + "\"," +
+                    "\"orderId\": \"" + order.getOrderId() + "\"," +
+                    "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}}";
+        }
+
+        camundaMessageSenderService.sendCompleteCommand(job.getKey(), orderVariables);
     }
 }
