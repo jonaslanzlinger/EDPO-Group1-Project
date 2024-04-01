@@ -45,13 +45,11 @@ public class WarehouseProcessingService {
         // Now you can access individual properties within the 'order' object
         String orderColor = (String) orderVariables.get("orderColor");
 
-
-
-
-
         WorkflowLogger.info(log, "checkGoods","Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
 
-        String productId = warehouseService.getProduct(orderColor);
+        String productId = warehouseService.getProductSlot(orderColor);
+
+        String productSlot = String.format("{\"productSlot\":\"%s\"}", productId);
 
         if (productId == null) {
             WorkflowLogger.info(log, "checkGoods", "Failed Order: " + job.getProcessInstanceKey()+ " - " + orderColor);
@@ -59,7 +57,7 @@ public class WarehouseProcessingService {
                     String.format("No %s goods available", orderColor), job.getKey());
         } else {
             WorkflowLogger.info(log, "checkGoods", "Complete order: " + job.getProcessInstanceKey()+ " - " + orderColor);
-            camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+            camundaMessageSenderService.sendCompleteCommand(job.getKey(), productSlot);
         }
     }
 
@@ -138,4 +136,11 @@ public class WarehouseProcessingService {
         }
     }
 
+    @ZeebeWorker(type = "unloadProduct", name = "unloadProductProcessor")
+    public void unloadProduct(final ActivatedJob job) {
+        WorkflowLogger.info(log, "unloadProduct", "Unloading product");
+        String productSlot = job.getVariablesAsMap().get("productSlot").toString();
+        warehouseService.getProduct(productSlot);
+        camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+    }
 }

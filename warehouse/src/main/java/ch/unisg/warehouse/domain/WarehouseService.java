@@ -76,6 +76,23 @@ public class WarehouseService {
         return productId;
     }
 
+    public String getProductSlot(String color) {
+        // Get the latest status of the warehouse
+        HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
+
+        // in case the warehouse has not been initialized yet
+        if (hbw_1 == null) {
+            return null;
+        }
+
+        return hbw_1.getCurrent_stock().entrySet().stream()
+                .filter(entry -> entry.getValue().equals(color))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    }
+
+
     public boolean checkProduct(String color) {
         // Get the latest status of the warehouse
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
