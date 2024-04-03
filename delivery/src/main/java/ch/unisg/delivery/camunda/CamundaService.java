@@ -37,6 +37,23 @@ public class CamundaService {
                 .join(); // join() to synchronously wait for the result, remove for async
     }
 
+    public void sendMessageCommand(String messageName, String correlationKey) {
+        zeebeClient.newPublishMessageCommand()
+                .messageName(messageName)
+                .correlationKey(correlationKey)
+                .send()
+                .join(); // join() to synchronously wait for the result, remove for async
+    }
+
+    public void sendMessageCommand(String messageName, String correlationKey, String variables) {
+        zeebeClient.newPublishMessageCommand()
+                .messageName(messageName)
+                .correlationKey(correlationKey)
+                .variables(variables)
+                .send()
+                .join(); // join() to synchronously wait for the result, remove for async
+    }
+
     /**
      * Throws an error command to the Camunda engine.
      * @param errorCode The error code for the error to be thrown.

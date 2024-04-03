@@ -53,17 +53,18 @@ public class DeliveryServiceRestController {
      */
     @GetMapping("/triggerLightSensor")
     public String triggerLightSensor(){
-        camundaMessageSenderService.sendMessageCommand("Msg_ProductAtLightSensor");
-        return "Light sensor triggered.";
+        //camundaMessageSenderService.sendMessageCommand("Msg_ProductAtLightSensor");
+        //return "Light sensor triggered.";
 
         // TODO: leave this, maybe we need that later
-//        Order order = OrderRegistry.pop();
-//        camundaMessageSenderService.sendMessageCommand(
-//                "Msg_ProductAtLightSensor",
-//                order.getOrderColor(),
-//                String.format("{ \"orderId\": \"%s\", " +
-//                              "\"orderColor\": \"%s\", " +
-//                              "\"deliveryMethod\": \"%s\" }", order.getOrderId(), order.getOrderColor(), order.getDeliveryMethod()));
-//        return String.format("Light sensor triggered for order: %s", order);
+        Order order = OrderRegistry.peek();
+        if (order == null) {
+            return "No orders to process.";
+        }
+
+        camundaMessageSenderService.sendMessageCommand(
+                "ProductAtLightSensor",
+                order.getOrderId());
+        return String.format("Light sensor triggered for order: %s", order);
     }
 }

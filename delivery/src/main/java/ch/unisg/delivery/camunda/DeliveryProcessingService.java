@@ -3,7 +3,7 @@ package ch.unisg.delivery.camunda;
 import ch.unisg.delivery.domain.Order;
 import ch.unisg.delivery.domain.OrderRegistry;
 import ch.unisg.delivery.utils.WorkflowLogger;
-import com.google.api.Http;
+
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandProperties;
@@ -13,12 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.sql.SQLOutput;
+
 import java.util.Map;
 
 /**
@@ -79,7 +79,7 @@ public class DeliveryProcessingService {
 
         HystrixCommand.Setter config = HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("retrieveColor"))
                 .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
-                        .withExecutionTimeoutInMilliseconds(2_000));
+                        .withExecutionTimeoutInMilliseconds(10_000));
 
         HttpResponse response = new HystrixCommand<HttpResponse>(config) {
 
@@ -111,22 +111,29 @@ public class DeliveryProcessingService {
      * This method matches the color of the order to the color retrieved at the light sensor.
      * @param job The job that contains the detected color at the light sensor.
      */
+    //TODO: The way this job gets called is weird imo -> When a process calls this job it should expect to
+    // do something for its own process? Also if match was not found maybe we should go into a loop? and wait til correct
+    // color appears?
     @ZeebeWorker(type = "matchColorToOrder", name = "matchColorToOrderProcessor")
     public void matchColorToOrder(final ActivatedJob job) {
+        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
-        String orderColor = (String) job.getVariablesAsMap().get("orderColor");
+        String orderIdJob = (String) orderFromJob.get("orderId");
+        String orderColorJob = (String) orderFromJob.get("orderColor");
+        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
 
-        Order order = OrderRegistry.popNextOrderByColor(orderColor);
+
+        Order order = OrderRegistry.popNextOrderByColor(orderColorJob);
 
         String orderVariables = null;
         if (order == null) {
-            WorkflowLogger.info(log, "matchColorToOrder","No order found for color: " + orderColor);
+            WorkflowLogger.info(log, "matchColorToOrder","No order found for color: " + orderColorJob);
 
-            orderVariables = "{\"matchFound\": \"false\", \"order\": {\"orderColor\": \"" + order.getOrderColor() + "\"," +
-                    "\"orderId\": \"" + order.getOrderId() + "\"," +
-                    "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}}";
+            orderVariables = "{\"matchFound\": \"false\", \"order\": {\"orderColor\": \"" + orderColorJob + "\"," +
+                    "\"orderId\": \"" + orderIdJob + "\"," +
+                    "\"deliveryMethod\": \"" + deliveryMethodJob + "\"}}";
         } else {
-            WorkflowLogger.info(log, "matchColorToOrder","Order found for color: " + orderColor);
+            WorkflowLogger.info(log, "matchColorToOrder","Order found for color: " + orderColorJob);
 
             orderVariables = "{\"matchFound\": \"true\", \"order\": {\"orderColor\": \"" + order.getOrderColor() + "\"," +
                     "\"orderId\": \"" + order.getOrderId() + "\"," +

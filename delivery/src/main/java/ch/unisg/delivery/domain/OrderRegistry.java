@@ -36,7 +36,7 @@ public class OrderRegistry {
         if (orders.isEmpty()) {
             return null;
         }
-        return orders.remove(0);
+        return orders.removeFirst();
     }
 
     /**
@@ -51,5 +51,12 @@ public class OrderRegistry {
             }
         }
         return null;
+    }
+
+    public static Order peek() {
+        if (orders.isEmpty()) {
+            return null;
+        }
+        return orders.getFirst();
     }
 }

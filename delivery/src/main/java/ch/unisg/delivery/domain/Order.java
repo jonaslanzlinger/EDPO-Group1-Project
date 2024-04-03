@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.UUID;
+
 
 /**
  * This is a domain class for Order.
@@ -24,24 +24,4 @@ public class Order implements Serializable {
   private String orderColor;
     // Delivery method for the order
   private String deliveryMethod;
-
-  /**
-   * Default constructor.
-   * It initializes orderId with a random UUID.
-   */
-  public Order() {
-    this.orderId = UUID.randomUUID().toString();
-  }
-
-  /**
-   * Constructor with color parameter.
-   * It initializes orderId with a random UUID and color with the provided color and deliveryMethod.
-   * @param orderColor The color of the order.
-   * @param deliveryMethod The delivery method of the order.
-   */
-  public Order(String orderColor, String deliveryMethod) {
-    this.orderId = UUID.randomUUID().toString();
-    this.orderColor = orderColor;
-    this.deliveryMethod = deliveryMethod;
-  }
 }

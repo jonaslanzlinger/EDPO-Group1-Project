@@ -1,6 +1,5 @@
 package ch.unisg.warehouse.domain;
 
-
 import ch.unisg.warehouse.kafka.dto.StockUpdateDto;
 import ch.unisg.warehouse.kafka.dto.WarehouseUpdateDto;
 import ch.unisg.warehouse.kafka.producer.StockUpdateProducer;
@@ -10,81 +9,76 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * This is a service class that manages the warehouse.
+ * It uses the WarehouseStatusService to interact with the warehouse status and the StockUpdateProducer to send messages.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class WarehouseService {
 
     private final WarehouseStatusService warehouseStatusService;
-
     private final StockUpdateProducer messageProducer;
 
-
+    /**
+     * Updates the warehouse status with the data from the message and sends the updated status to the Kafka topic "warehouse".
+     * @param message The message containing the new warehouse status.
+     */
     public void updateWarehouse(WarehouseUpdateDto message) {
-        // TODO: DO MORE STUFF HERE
         HBW_1 hbw_1 = message.getData();
-
-        // Update the warehouse status with the data from the message
         warehouseStatusService.updateWarehouseStatus(hbw_1);
-
-        // build StockUpdateDto
         StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
                 .data(message.getData().getCurrent_stock())
                 .build();
-
-        // send the updated status to the Kafka topic "warehouse"
         messageProducer.sendMessage(stockUpdateDto);
     }
-    public void updateWarehouse(HBW_1 hbw_1) {
-        // Update the warehouse status with the data from the message
-        warehouseStatusService.updateWarehouseStatus(hbw_1);
 
-        // build StockUpdateDto
+    /**
+     * Updates the warehouse status with the data from the HBW_1 object and sends the updated status to the Kafka topic "warehouse".
+     * @param hbw_1 The HBW_1 object containing the new warehouse status.
+     */
+    public void updateWarehouse(HBW_1 hbw_1) {
+        warehouseStatusService.updateWarehouseStatus(hbw_1);
         StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
                 .data(hbw_1.getCurrent_stock())
                 .build();
-
-        // send the updated status to the Kafka topic "warehouse"
         messageProducer.sendMessage(stockUpdateDto);
     }
 
+    /**
+     * Retrieves a product of a specific color from the warehouse.
+     * @param color The color of the product to retrieve.
+     * @return The product id of the retrieved product, or null if no product of the specified color is found.
+     */
     public String getProduct(String color) {
-        // Get the latest status of the warehouse
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
-
-        // in case the warehouse has not been initialized yet
         if (hbw_1 == null) {
             return null;
         }
-
         String productId = hbw_1.getCurrent_stock().entrySet().stream()
                 .filter(entry -> entry.getValue().equals(color))
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElse(null);
-
         if (productId == null) {
             return null;
         }
-
-        // Remove the product from the warehouse
         hbw_1.getCurrent_stock().put(productId, "");
-
-        // Update the warehouse status
         updateWarehouse(hbw_1);
-
         return productId;
     }
 
+    /**
+     * Retrieves the product slot of a product of a specific color from the warehouse.
+     * @param color The color of the product to retrieve the slot for.
+     * @return The product slot of the product, or null if no product of the specified color is found.
+     */
     public String getProductSlot(String color) {
-        // Get the latest status of the warehouse
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
-
-        // in case the warehouse has not been initialized yet
         if (hbw_1 == null) {
             return null;
         }
-
         return hbw_1.getCurrent_stock().entrySet().stream()
                 .filter(entry -> entry.getValue().equals(color))
                 .map(Map.Entry::getKey)
@@ -92,48 +86,62 @@ public class WarehouseService {
                 .orElse(null);
     }
 
-
+    /**
+     * Checks if a product of a specific color is available in the warehouse.
+     * @param color The color of the product to check for.
+     * @return true if a product of the specified color is available, false otherwise.
+     */
     public boolean checkProduct(String color) {
-        // Get the latest status of the warehouse
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
-
-        // in case the warehouse has not been initialized yet
         if (hbw_1 == null) {
             return false;
         }
-
         String productId = hbw_1.getCurrent_stock().entrySet().stream()
                 .filter(entry -> entry.getValue().equals(color))
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElse(null);
-
         return productId != null;
-
     }
 
+    /**
+     * Retrieves the current stock of the warehouse.
+     * @return A string representation of the current stock of the warehouse.
+     */
     public String getStock() {
-        // Get the latest status of the warehouse
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
         return hbw_1.getCurrent_stock().toString();
     }
 
-
+    /**
+     * Tries to reserve the warehouse.
+     * @return true if the warehouse was successfully reserved, false otherwise.
+     */
     public boolean setInUse() {
         return warehouseStatusService.tryReserveHBW();
     }
 
+    /**
+     * Checks if the warehouse is currently in use.
+     * @return true if the warehouse is in use, false otherwise.
+     */
     public boolean isInUse() {
         return warehouseStatusService.isInUse();
     }
 
+    /**
+     * Releases the warehouse and returns the next process in the queue.
+     * @return the process instance id of the next process in the queue, or null if the queue is empty.
+     */
     public String releaseHBW() {
         return warehouseStatusService.releaseHBW();
     }
 
+    /**
+     * Adds a process instance id to the queue of waiting processes.
+     * @param processInstanceId the id of the process to add to the queue.
+     */
     public void addToQueue(String processInstanceId) {
         warehouseStatusService.addToQueue(processInstanceId);
     }
-
-
 }

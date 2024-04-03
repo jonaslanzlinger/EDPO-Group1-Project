@@ -20,7 +20,7 @@ public class WarehouseStatusService {
     // if the warehouse is currently in use or not
     private final AtomicBoolean inUse = new AtomicBoolean(false);
 
-    // que of waiting instances
+    // Queue of waiting instances
     private final Queue<String> waitingProcesses = new ConcurrentLinkedQueue<>();
 
     /**
@@ -39,11 +39,19 @@ public class WarehouseStatusService {
         return latestStatus.get();
     }
 
-
+    /**
+     * Checks if the warehouse is currently in use.
+     * @return true if the warehouse is in use, false otherwise.
+     */
     public boolean isInUse() {
         return inUse.get();
     }
 
+    /**
+     * Tries to reserve the warehouse. If the warehouse is not in use, it sets it to in use and returns true.
+     * If the warehouse is in use, it returns false.
+     * @return true if the warehouse was successfully reserved, false otherwise.
+     */
     public boolean tryReserveHBW() {
         synchronized (this) {
             if (!inUse.get()) {
@@ -54,11 +62,19 @@ public class WarehouseStatusService {
         }
     }
 
+    /**
+     * Releases the warehouse and returns the next process in the queue.
+     * @return the process instance id of the next process in the queue, or null if the queue is empty.
+     */
     public String releaseHBW() {
         inUse.set(false);
         return waitingProcesses.poll();
     }
 
+    /**
+     * Adds a process instance id to the queue of waiting processes.
+     * @param processInstanceId the id of the process to add to the queue.
+     */
     public synchronized void addToQueue(String processInstanceId) {
         waitingProcesses.add(processInstanceId);
     }
