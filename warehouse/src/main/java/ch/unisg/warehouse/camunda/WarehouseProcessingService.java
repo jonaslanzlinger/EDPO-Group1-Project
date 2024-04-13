@@ -165,6 +165,13 @@ public class WarehouseProcessingService {
         }
     }
 
+    @ZeebeWorker(type = "positionHBW", name = "positionHBWProcessor")
+    public void positionHBW(final ActivatedJob job) {
+        logInfo("positionHBW", "Positioning HBW");
+        camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+        logInfo("positionHBW", "HBW positioned");
+    }
+
     /**
      * This method unloads a product from the warehouse.
      * After unloading the product, it sends a complete command to the Camunda engine.
