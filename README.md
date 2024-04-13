@@ -11,6 +11,7 @@
      * delivery
      * factorysimulator
      * factorylistener
+     * monitoring
 3. Open the browser and go to `http://localhost:8085/send` to start the factory simulator.
 MQTT messages will be produced each second from now.
 4. Open another browser tab and go to `http://localhost:8084/send` to start the factory listener.
