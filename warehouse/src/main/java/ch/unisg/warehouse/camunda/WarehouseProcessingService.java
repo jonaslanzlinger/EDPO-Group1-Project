@@ -179,6 +179,19 @@ public class WarehouseProcessingService {
         warehouseService.getProduct(productSlot);
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
         logInfo("unloadProduct", "Unloaded product");
-
     }
+
+    @ZeebeWorker(type = "adjustStock", name = "adjustStockProcessor")
+    public void adjustStock(final ActivatedJob job) {
+        logInfo("adjustStock", "Adjusting stock");
+
+        Map<String, Object> order = getFromMap(job.getVariablesAsMap(), "order", Map.class);
+        String orderColor = getFromMap(order, "orderColor", String.class);
+
+        String productSlot = getFromMap(job.getVariablesAsMap(), "productSlot", String.class);
+        warehouseService.adjustStock(orderColor, productSlot);
+        camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+        logInfo("adjustStock", "Stock adjusted");
+    }
+
 }

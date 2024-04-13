@@ -144,4 +144,11 @@ public class WarehouseService {
     public void addToQueue(String processInstanceId) {
         warehouseStatusService.addToQueue(processInstanceId);
     }
+
+    // TODO: ADD call to the rest service to move HBW and actually reset
+    public void adjustStock(String color, String productSlot) {
+        HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
+        hbw_1.getCurrent_stock().put(productSlot, color);
+        updateWarehouse(hbw_1);
+    }
 }
