@@ -26,4 +26,6 @@ public class MonitorUpdateDto implements Serializable {
     private String method;
 
     private String status;
+
+    private String service;
 }

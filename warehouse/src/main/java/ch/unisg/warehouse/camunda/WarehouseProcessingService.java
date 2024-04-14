@@ -63,6 +63,7 @@ public class WarehouseProcessingService {
                             .orderId(orderId)
                             .method("checkGoods")
                             .status("failed")
+                            .service("warehouse")
                             .build());
         } else {
             logInfo("checkGoods", "Complete order: "
@@ -74,6 +75,7 @@ public class WarehouseProcessingService {
                             .orderId(orderId)
                             .method("checkGoods")
                             .status("success")
+                            .service("warehouse")
                             .build());
         }
     }
@@ -107,6 +109,7 @@ public class WarehouseProcessingService {
                             .orderId(orderId)
                             .method("checkGoodsAvailable")
                             .status("failed")
+                            .service("warehouse")
                             .build());
         } else {
             logInfo("checkGoodsAvailable", "Complete order: "
@@ -117,6 +120,7 @@ public class WarehouseProcessingService {
                             .orderId(orderId)
                             .method("checkGoodsAvailable")
                             .status("success")
+                            .service("warehouse")
                             .build());
         }
     }
@@ -145,6 +149,7 @@ public class WarehouseProcessingService {
                             .orderId(orderId)
                             .method("checkHBW")
                             .status("failed")
+                            .service("warehouse")
                             .build());
         } else {
             logInfo("checkHBWStatus", "HBW is not in use");
@@ -154,6 +159,7 @@ public class WarehouseProcessingService {
                             .orderId(orderId)
                             .method("checkHBW")
                             .status("success")
+                            .service("warehouse")
                             .build());
         }
     }
@@ -182,6 +188,7 @@ public class WarehouseProcessingService {
                             .orderId(orderId)
                             .method("lockHBW")
                             .status("success")
+                            .service("warehouse")
                             .build());
         } else {
             logInfo("lockHBW", "HBW already in use");
@@ -192,6 +199,7 @@ public class WarehouseProcessingService {
                             .orderId(orderId)
                             .method("lockHBW")
                             .status("failed")
+                            .service("warehouse")
                             .build());
         }
     }

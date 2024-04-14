@@ -21,7 +21,7 @@ public class MessageConsumer {
     public void startMessageProcess(String message) {
         WorkflowLogger.info(log, "MonitorDataConsumer", "Received message from Kafka topic: monitoring");
         MonitorUpdateDto monitorUpdateDto = MonitorUpdateDto.fromJson(message);
-        WorkflowLogger.info(log, "MonitorDataConsumer", "OrderId: " + monitorUpdateDto.getOrderId() + " Method:" + monitorUpdateDto.getMethod() + " Status: " + monitorUpdateDto.getStatus());
+        WorkflowLogger.info(log, "MonitorDataConsumer", "OrderId: " + monitorUpdateDto.getOrderId() + "Service: " + monitorUpdateDto.getService() + " Method:" + monitorUpdateDto.getMethod() + " Status: " + monitorUpdateDto.getStatus());
         monitoringStore.addMessage(monitorUpdateDto);
     }
 

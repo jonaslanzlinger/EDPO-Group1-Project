@@ -28,6 +28,8 @@ public class MonitorUpdateDto implements Serializable {
 
     private String status;
 
+    private String service;
+
     public static MonitorUpdateDto fromJson(String message) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
