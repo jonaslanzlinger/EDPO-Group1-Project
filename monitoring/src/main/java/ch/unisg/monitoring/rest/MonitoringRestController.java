@@ -29,7 +29,7 @@ public class MonitoringRestController {
         if (!monitoringStore.containsOrder(orderId)) {
             return "{\"error\": \"Color not in stock\"}";
         }
-        return monitoringStore.getMessages(orderId).stream().map(MonitorUpdateDto::toJson).collect(Collectors.joining(","));
+        return "[" + monitoringStore.getMessages(orderId).stream().map(MonitorUpdateDto::toJson).collect(Collectors.joining(",")) + "]";
 
     }
 
@@ -39,7 +39,7 @@ public class MonitoringRestController {
             return "{\"error\": \"No orders available\"}";
         }
         // Check if the color is in stock
-        return monitoringStore.getAllMessages().values().stream().flatMap(l -> l.stream().map(MonitorUpdateDto::toJson)).collect(Collectors.joining(","));
+        return "[" + monitoringStore.getAllMessages().values().stream().flatMap(l -> l.stream().map(MonitorUpdateDto::toJson)).collect(Collectors.joining(",")) + "]";
 
     }
 }
