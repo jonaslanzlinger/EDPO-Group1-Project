@@ -53,10 +53,7 @@ public class DeliveryServiceRestController {
      */
     @GetMapping("/triggerLightSensor")
     public String triggerLightSensor(){
-        //camundaMessageSenderService.sendMessageCommand("Msg_ProductAtLightSensor");
-        //return "Light sensor triggered.";
 
-        // TODO: leave this, maybe we need that later
         Order order = OrderRegistry.peek();
         if (order == null) {
             return "No orders to process.";

@@ -111,7 +111,7 @@ public class ShopRestController {
 
     @ResponseBody
     @GetMapping("/api/currentStock")
-    public SseEmitter getCurrentStock() {
+    public SseEmitter sendCurrentStock() {
         SseEmitter emitter = new SseEmitter();
         ObjectMapper mapper = new ObjectMapper();
 
