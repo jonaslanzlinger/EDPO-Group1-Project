@@ -1,6 +1,8 @@
 package ch.unisg.warehouse.camunda;
 
 import ch.unisg.warehouse.domain.WarehouseService;
+import ch.unisg.warehouse.kafka.dto.MonitorUpdateDto;
+import ch.unisg.warehouse.kafka.producer.MonitorDataProducer;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +25,14 @@ public class WarehouseProcessingService {
 
     private final WarehouseService warehouseService;
 
+    private final MonitorDataProducer monitorDataProducer;
+
+
     @Autowired
-    public WarehouseProcessingService(CamundaService camundaMessageSenderService, WarehouseService warehouseService) {
+    public WarehouseProcessingService(CamundaService camundaMessageSenderService, WarehouseService warehouseService, MonitorDataProducer monitorDataProducer) {
         this.camundaMessageSenderService = camundaMessageSenderService;
         this.warehouseService = warehouseService;
+        this.monitorDataProducer = monitorDataProducer;
     }
 
     /**
@@ -46,17 +52,29 @@ public class WarehouseProcessingService {
         logInfo("checkGoods", "Processing order: "
                 + job.getProcessInstanceKey() + " - " + orderColor);
 
-
+        String orderId = getFromMap(order, "orderId", String.class);
         if (productId == null) {
             logInfo("checkGoods", "Failed Order: "
-                    + job.getProcessInstanceKey()+ " - " + orderColor);
+                    + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
                     String.format("No %s goods available", orderColor), job.getKey());
+            monitorDataProducer.sendMessage(
+                    new MonitorUpdateDto().builder()
+                            .orderId(orderId)
+                            .method("checkGoods")
+                            .status("failed")
+                            .build());
         } else {
             logInfo("checkGoods", "Complete order: "
-                    + job.getProcessInstanceKey()+ " - " + orderColor);
+                    + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.sendCompleteCommand(job.getKey(),
                     String.format("{\"productSlot\":\"%s\"}", productId));
+            monitorDataProducer.sendMessage(
+                    new MonitorUpdateDto().builder()
+                            .orderId(orderId)
+                            .method("checkGoods")
+                            .status("success")
+                            .build());
         }
     }
 
@@ -77,15 +95,29 @@ public class WarehouseProcessingService {
         logInfo("checkGoodsAvailable", "Processing order: "
                 + job.getProcessInstanceKey() + " - " + orderColor);
 
+        String orderId = getFromMap(order, "orderId", String.class);
+
         if (!isAvailable) {
             logInfo("checkGoodsAvailable", "Failed Order: "
-                    + job.getProcessInstanceKey()+ " - " + orderColor);
+                    + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
                     String.format("No %s goods available", orderColor), job.getKey());
+            monitorDataProducer.sendMessage(
+                    new MonitorUpdateDto().builder()
+                            .orderId(orderId)
+                            .method("checkGoodsAvailable")
+                            .status("failed")
+                            .build());
         } else {
             logInfo("checkGoodsAvailable", "Complete order: "
-                    + job.getProcessInstanceKey()+ " - " + orderColor);
+                    + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+            monitorDataProducer.sendMessage(
+                    new MonitorUpdateDto().builder()
+                            .orderId(orderId)
+                            .method("checkGoodsAvailable")
+                            .status("success")
+                            .build());
         }
     }
 
@@ -106,11 +138,23 @@ public class WarehouseProcessingService {
 
         if (inUse) {
             logInfo("checkHBWStatus", "HBW is in use");
-            camundaMessageSenderService.sendCompleteCommand(job.getKey(),"{\"available\":\"false\"}");
+            camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"available\":\"false\"}");
             warehouseService.addToQueue(orderId);
+            monitorDataProducer.sendMessage(
+                    new MonitorUpdateDto().builder()
+                            .orderId(orderId)
+                            .method("checkHBW")
+                            .status("failed")
+                            .build());
         } else {
             logInfo("checkHBWStatus", "HBW is not in use");
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"available\":\"true\"}");
+            monitorDataProducer.sendMessage(
+                    new MonitorUpdateDto().builder()
+                            .orderId(orderId)
+                            .method("checkHBW")
+                            .status("success")
+                            .build());
         }
     }
 
@@ -133,10 +177,22 @@ public class WarehouseProcessingService {
         if (success) {
             logInfo("lockHBW", "HBW locked");
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"locked\":\"true\"}");
+            monitorDataProducer.sendMessage(
+                    new MonitorUpdateDto().builder()
+                            .orderId(orderId)
+                            .method("lockHBW")
+                            .status("success")
+                            .build());
         } else {
             logInfo("lockHBW", "HBW already in use");
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"locked\":\"false\"}");
             warehouseService.addToQueue(orderId);
+            monitorDataProducer.sendMessage(
+                    new MonitorUpdateDto().builder()
+                            .orderId(orderId)
+                            .method("lockHBW")
+                            .status("failed")
+                            .build());
         }
     }
 
@@ -151,7 +207,7 @@ public class WarehouseProcessingService {
     public void freeHBW(final ActivatedJob job) {
         logInfo("freeHBW", "Freeing HBW");
         String nextProcess = warehouseService.releaseHBW();
-        logInfo("freeHBW", "HBW freed" );
+        logInfo("freeHBW", "HBW freed");
 
 
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"available\":\"true\"}");
