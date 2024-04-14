@@ -38,4 +38,13 @@ public class MonitorUpdateDto implements Serializable {
             throw new RuntimeException(e);
         }
     }
+
+    public static String toJson(MonitorUpdateDto message) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(message);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -24,4 +24,23 @@ public class MonitoringStore {
             messageList.get().put(monitorUpdateDto.getOrderId(), newList);
         }
     }
+
+    public Map<String, List<MonitorUpdateDto>> getAllMessages() {
+        return messageList.get();
+    }
+
+    public List<MonitorUpdateDto> getMessages(String orderId) {
+        if(!messageList.get().containsKey(orderId)) {
+            return new ArrayList<>();
+        }
+        return messageList.get().get(orderId);
+    }
+
+    public boolean containsOrder(String orderId) {
+        return messageList.get().containsKey(orderId);
+    }
+
+    public boolean isEmpty() {
+        return messageList.get().isEmpty();
+    }
 }
