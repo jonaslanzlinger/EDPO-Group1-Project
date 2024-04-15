@@ -110,6 +110,9 @@ public class WarehouseService {
      */
     public String getStock() {
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
+        if (hbw_1 == null) {
+            return null;
+        }
         return hbw_1.getCurrent_stock().toString();
     }
 
