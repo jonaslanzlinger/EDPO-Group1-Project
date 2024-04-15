@@ -47,14 +47,16 @@ public class GrabberProcessingService {
         String pickUp = (String) orderVariables.get("pickUp");
 
         WorkflowLogger.info(log, "grabGoods", "Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
-        if (Math.random() < 0.5){
-            WorkflowLogger.info(log, "grabGoods", "Complete order: " + job.getProcessInstanceKey() + " - " + orderColor);
-            zeebeClient.newCompleteCommand(job.getKey())
-                    .variables(job.getVariables())
-                    .send()
-                    .join(); // Synchronous completion, remove join() for asynchronous
-        } else {
-            WorkflowLogger.info(log, "grabGoods", "Failed order: " + job.getProcessInstanceKey() + " - " + orderColor);
+        try {
+            Thread.sleep(5000); // Simulate grabbing goods (5 seconds)
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-    }
+        WorkflowLogger.info(log, "grabGoods", "Complete order: " + job.getProcessInstanceKey() + " - " + orderColor);
+        zeebeClient.newCompleteCommand(job.getKey())
+                .variables(job.getVariables())
+                .send()
+                .join(); // Synchronous completion, remove join() for asynchronous
+
+}
 }
