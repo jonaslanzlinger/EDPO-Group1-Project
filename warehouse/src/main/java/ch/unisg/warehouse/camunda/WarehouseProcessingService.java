@@ -61,6 +61,7 @@ public class WarehouseProcessingService {
             monitorDataProducer.sendMessage(
                     new MonitorUpdateDto().builder()
                             .orderId(orderId)
+                            .type("Event")
                             .method("checkGoods")
                             .status("failed")
                             .service("warehouse")
@@ -73,6 +74,7 @@ public class WarehouseProcessingService {
             monitorDataProducer.sendMessage(
                     new MonitorUpdateDto().builder()
                             .orderId(orderId)
+                            .type("Event")
                             .method("checkGoods")
                             .status("success")
                             .service("warehouse")
@@ -107,6 +109,7 @@ public class WarehouseProcessingService {
             monitorDataProducer.sendMessage(
                     new MonitorUpdateDto().builder()
                             .orderId(orderId)
+                            .type("Event")
                             .method("checkGoodsAvailable")
                             .status("failed")
                             .service("warehouse")
@@ -118,6 +121,7 @@ public class WarehouseProcessingService {
             monitorDataProducer.sendMessage(
                     new MonitorUpdateDto().builder()
                             .orderId(orderId)
+                            .type("Event")
                             .method("checkGoodsAvailable")
                             .status("success")
                             .service("warehouse")
@@ -147,6 +151,7 @@ public class WarehouseProcessingService {
             monitorDataProducer.sendMessage(
                     new MonitorUpdateDto().builder()
                             .orderId(orderId)
+                            .type("Event")
                             .method("checkHBW")
                             .status("failed")
                             .service("warehouse")
@@ -157,6 +162,7 @@ public class WarehouseProcessingService {
             monitorDataProducer.sendMessage(
                     new MonitorUpdateDto().builder()
                             .orderId(orderId)
+                            .type("Event")
                             .method("checkHBW")
                             .status("success")
                             .service("warehouse")
@@ -186,6 +192,7 @@ public class WarehouseProcessingService {
             monitorDataProducer.sendMessage(
                     new MonitorUpdateDto().builder()
                             .orderId(orderId)
+                            .type("Event")
                             .method("lockHBW")
                             .status("success")
                             .service("warehouse")
@@ -197,6 +204,7 @@ public class WarehouseProcessingService {
             monitorDataProducer.sendMessage(
                     new MonitorUpdateDto().builder()
                             .orderId(orderId)
+                            .type("Event")
                             .method("lockHBW")
                             .status("failed")
                             .service("warehouse")

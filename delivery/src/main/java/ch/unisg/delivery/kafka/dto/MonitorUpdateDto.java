@@ -21,6 +21,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class MonitorUpdateDto implements Serializable {
 
+    private String type;
+
     private String orderId;
 
     private String method;

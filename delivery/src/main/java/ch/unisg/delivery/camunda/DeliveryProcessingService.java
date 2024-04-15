@@ -69,6 +69,7 @@ public class DeliveryProcessingService {
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
         monitorDataProducer.sendMessage(new MonitorUpdateDto().builder()
                 .orderId(orderId)
+                .type("Event")
                 .method("registerOrder")
                 .status("success")
                 .service("delivery")
