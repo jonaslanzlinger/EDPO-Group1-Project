@@ -2,6 +2,8 @@ package ch.unisg.delivery.camunda;
 
 import ch.unisg.delivery.domain.Order;
 import ch.unisg.delivery.domain.OrderRegistry;
+import ch.unisg.delivery.kafka.dto.MonitorUpdateDto;
+import ch.unisg.delivery.kafka.producer.MonitorDataProducer;
 import ch.unisg.delivery.utils.WorkflowLogger;
 
 import com.netflix.hystrix.HystrixCommand;
@@ -31,13 +33,18 @@ public class DeliveryProcessingService {
 
     private final CamundaService camundaMessageSenderService;
 
+    private final MonitorDataProducer monitorDataProducer;
+
     /**
      * Constructor for the DeliveryProcessingService class.
+     *
      * @param camundaMessageSenderService The CamundaService instance to be used for interactions with the Camunda engine.
+     * @param monitorDataProducer The MonitorDataProducer instance to be used for sending monitoring data.
      */
     @Autowired
-    public DeliveryProcessingService(CamundaService camundaMessageSenderService) {
+    public DeliveryProcessingService(CamundaService camundaMessageSenderService, MonitorDataProducer monitorDataProducer) {
         this.camundaMessageSenderService = camundaMessageSenderService;
+        this.monitorDataProducer = monitorDataProducer;
     }
 
     /**
@@ -60,6 +67,13 @@ public class DeliveryProcessingService {
         WorkflowLogger.info(log, "registerOrder","Complete order: " + job.getProcessInstanceKey() + " - " + orderColor);
 
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+        monitorDataProducer.sendMessage(new MonitorUpdateDto().builder()
+                .orderId(orderId)
+                .type("Event")
+                .method("registerOrder")
+                .status("success")
+                .service("delivery")
+                .build());
     }
 
     /**
