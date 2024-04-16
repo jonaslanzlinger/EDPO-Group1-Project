@@ -27,7 +27,7 @@ public class MonitoringRestController {
 
         // Check if the color is in stock
         if (!monitoringStore.containsOrder(orderId)) {
-            return "{\"error\": \"Color not in stock\"}";
+            return "{\"error\": \"OrderId not found\"}";
         }
         return "[" + monitoringStore.getMessages(orderId).stream().map(MonitorUpdateDto::toJson).collect(Collectors.joining(",")) + "]";
 

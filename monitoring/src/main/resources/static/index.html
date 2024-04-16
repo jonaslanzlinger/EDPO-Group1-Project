@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fetch API Example</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    ul { list-style-type: none; padding: 0; }
+    li { margin-bottom: 10px; padding: 10px; background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+<h1>Monitoring</h1>
+<ul id="eventsList"></ul>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const apiUrl = './api/monitoring/orders';
+
+    fetch(apiUrl)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              const list = document.getElementById('eventsList');
+              data.forEach(event => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<span class="orderId">${event.orderId}</span> - Service: ${event.service} Method: ${event.method} Status: [${event.status}]`;
+                // Adjust depending on your API response structure
+                list.appendChild(listItem);
+              });
+            })
+            .catch(error => {
+              console.error('There has been a problem with your fetch operation:', error);
+            });
+  });
+</script>
+</body>
+</html>
