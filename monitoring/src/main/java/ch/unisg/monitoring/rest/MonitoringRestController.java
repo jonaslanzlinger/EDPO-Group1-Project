@@ -5,7 +5,9 @@ import ch.unisg.monitoring.kafka.dto.MonitorUpdateDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -21,6 +23,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 public class MonitoringRestController {
 
     private final MonitoringStore monitoringStore;
+
     //TODO: Status codes
     @RequestMapping(path = "/api/monitoring/{orderId}", method = GET, produces = "application/json")
     public String getOrderId(@PathVariable String orderId) {
@@ -35,11 +38,25 @@ public class MonitoringRestController {
 
     @RequestMapping(path = "/api/monitoring/orders", method = GET, produces = "application/json")
     public String getOrders() {
-        if(monitoringStore.isEmpty()) {
+        if (monitoringStore.isEmpty()) {
             return "{\"error\": \"No orders available\"}";
         }
         // Check if the color is in stock
         return "[" + monitoringStore.getAllMessages().values().stream().flatMap(l -> l.stream().map(MonitorUpdateDto::toJson)).collect(Collectors.joining(",")) + "]";
+    }
 
+    @GetMapping("/api/updates")
+    public SseEmitter sendUpdates() {
+        SseEmitter emitter = new SseEmitter(100L);
+
+        String jsonString = "[" + monitoringStore.getAllMessages().values().stream().flatMap(l -> l.stream().map(MonitorUpdateDto::toJson)).collect(Collectors.joining(",")) + "]";
+
+        try {
+            emitter.send(SseEmitter.event().name("message").data(jsonString));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        emitter.complete();
+        return emitter;
     }
 }
