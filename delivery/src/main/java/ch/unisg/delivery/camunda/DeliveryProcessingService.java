@@ -125,14 +125,6 @@ public class DeliveryProcessingService {
      * This method matches the color of the order to the color retrieved at the light sensor.
      * @param job The job that contains the detected color at the light sensor.
      */
-    //TODO: The way this job gets called is weird imo -> When a process calls this job it should expect to
-    // do something for its own process? Also if match was not found maybe we should go into a loop? and wait til correct
-    // color appears?
-
-    // Best would be -> If no order is found we can give error
-    // If wrong color is found then we can go back through the loop and wait until light sensor detects another product
-    // Uf correct color we continue happy path
-
     @ZeebeWorker(type = "matchColorToOrder", name = "matchColorToOrderProcessor")
     public void matchColorToOrder(final ActivatedJob job) {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
