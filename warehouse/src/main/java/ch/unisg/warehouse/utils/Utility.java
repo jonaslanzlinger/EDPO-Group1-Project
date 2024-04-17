@@ -1,8 +1,13 @@
 package ch.unisg.warehouse.utils;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ch.unisg.warehouse.domain.Order;
+import io.camunda.zeebe.client.api.response.ActivatedJob;
 import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 
 @Slf4j
@@ -23,6 +28,17 @@ public class Utility {
             return clazz.cast(value);
         }
         return null;
+    }
+
+    public static Order getOrder(ActivatedJob job) {
+        Object obj = job.getVariable("order");
+        if (obj instanceof LinkedHashMap) {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.convertValue(obj, Order.class);
+        } else {
+            return null;
+        }
+
     }
 
     /**

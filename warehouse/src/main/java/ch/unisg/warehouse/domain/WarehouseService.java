@@ -26,12 +26,7 @@ public class WarehouseService {
      * @param message The message containing the new warehouse status.
      */
     public void updateWarehouse(WarehouseUpdateDto message) {
-        HBW_1 hbw_1 = message.getData();
-        warehouseStatusService.updateWarehouseStatus(hbw_1);
-        StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
-                .data(message.getData().getCurrent_stock())
-                .build();
-        messageProducer.sendMessage(stockUpdateDto);
+        updateWarehouse(message.getData());
     }
 
     /**
@@ -52,16 +47,12 @@ public class WarehouseService {
      * @return The product id of the retrieved product, or null if no product of the specified color is found.
      */
     public String getProduct(String color) {
-        HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
-        if (hbw_1 == null) {
+        String productId = getProductSlot(color);
+        if (productId == null) {
             return null;
         }
-        String productId = hbw_1.getCurrent_stock().entrySet().stream()
-                .filter(entry -> entry.getValue().equals(color))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElse(null);
-        if (productId == null) {
+        HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
+        if (hbw_1 == null) {
             return null;
         }
         hbw_1.getCurrent_stock().put(productId, "");
@@ -92,15 +83,7 @@ public class WarehouseService {
      * @return true if a product of the specified color is available, false otherwise.
      */
     public boolean checkProduct(String color) {
-        HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
-        if (hbw_1 == null) {
-            return false;
-        }
-        String productId = hbw_1.getCurrent_stock().entrySet().stream()
-                .filter(entry -> entry.getValue().equals(color))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElse(null);
+        String productId = getProductSlot(color);
         return productId != null;
     }
 

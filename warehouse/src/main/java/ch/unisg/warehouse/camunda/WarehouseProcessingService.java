@@ -1,5 +1,6 @@
 package ch.unisg.warehouse.camunda;
 
+import ch.unisg.warehouse.domain.Order;
 import ch.unisg.warehouse.domain.WarehouseService;
 import ch.unisg.warehouse.kafka.dto.MonitorUpdateDto;
 import ch.unisg.warehouse.kafka.producer.MonitorDataProducer;
@@ -8,10 +9,8 @@ import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 
-import static ch.unisg.warehouse.utils.Utility.getFromMap;
-import static ch.unisg.warehouse.utils.Utility.logInfo;
+import static ch.unisg.warehouse.utils.Utility.*;
 
 /**
  * This is a service class that processes warehouse tasks.
@@ -19,6 +18,9 @@ import static ch.unisg.warehouse.utils.Utility.logInfo;
  */
 @Service
 public class WarehouseProcessingService {
+    private final String serviceName = "warehouse";
+    private enum monitorStatus {success, failed}
+    private enum monitorType {Event, Command}
 
     // The CamundaService instance used to send commands to the Camunda engine
     private final CamundaService camundaMessageSenderService;
@@ -45,40 +47,28 @@ public class WarehouseProcessingService {
      */
     @ZeebeWorker(type = "checkGoods", name = "checkGoodsProcessor")
     public void checkGoods(final ActivatedJob job) {
-        Map<String, Object> order = getFromMap(job.getVariablesAsMap(), "order", Map.class);
-        String orderColor = getFromMap(order, "orderColor", String.class);
+        Order order = getOrder(job);
+
+        String orderColor = order.getOrderColor();
+
         String productId = warehouseService.getProductSlot(orderColor);
 
         logInfo("checkGoods", "Processing order: "
                 + job.getProcessInstanceKey() + " - " + orderColor);
 
-        String orderId = getFromMap(order, "orderId", String.class);
+        String orderId = order.getOrderId();
         if (productId == null) {
             logInfo("checkGoods", "Failed Order: "
                     + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
                     String.format("No %s goods available", orderColor), job.getKey());
-            monitorDataProducer.sendMessage(
-                    new MonitorUpdateDto().builder()
-                            .orderId(orderId)
-                            .type("Event")
-                            .method("checkGoods")
-                            .status("failed")
-                            .service("warehouse")
-                            .build());
+            monitorSuccessMessage(orderId, "checkGoods");
         } else {
             logInfo("checkGoods", "Complete order: "
                     + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.sendCompleteCommand(job.getKey(),
                     String.format("{\"productSlot\":\"%s\"}", productId));
-            monitorDataProducer.sendMessage(
-                    new MonitorUpdateDto().builder()
-                            .orderId(orderId)
-                            .type("Event")
-                            .method("checkGoods")
-                            .status("success")
-                            .service("warehouse")
-                            .build());
+            monitorFailedMessage(orderId, "checkGoods");
         }
     }
 
@@ -92,40 +82,27 @@ public class WarehouseProcessingService {
      */
     @ZeebeWorker(type = "checkGoodsAvailable", name = "checkGoodsAvailableProcessor")
     public void checkGoodsAvailable(final ActivatedJob job) {
-        Map<String, Object> order = getFromMap(job.getVariablesAsMap(), "order", Map.class);
-        String orderColor = getFromMap(order, "orderColor", String.class);
+        Order order = getOrder(job);
+        String orderColor = order.getOrderColor();
+
         boolean isAvailable = warehouseService.checkProduct(orderColor);
 
         logInfo("checkGoodsAvailable", "Processing order: "
                 + job.getProcessInstanceKey() + " - " + orderColor);
 
-        String orderId = getFromMap(order, "orderId", String.class);
+        String orderId = order.getOrderId();
 
         if (!isAvailable) {
             logInfo("checkGoodsAvailable", "Failed Order: "
                     + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
                     String.format("No %s goods available", orderColor), job.getKey());
-            monitorDataProducer.sendMessage(
-                    new MonitorUpdateDto().builder()
-                            .orderId(orderId)
-                            .type("Event")
-                            .method("checkGoodsAvailable")
-                            .status("failed")
-                            .service("warehouse")
-                            .build());
+            monitorFailedMessage(orderId, "checkGoodsAvailable");
         } else {
             logInfo("checkGoodsAvailable", "Complete order: "
                     + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
-            monitorDataProducer.sendMessage(
-                    new MonitorUpdateDto().builder()
-                            .orderId(orderId)
-                            .type("Event")
-                            .method("checkGoodsAvailable")
-                            .status("success")
-                            .service("warehouse")
-                            .build());
+            monitorSuccessMessage(orderId, "checkGoodsAvailable");
         }
     }
 
@@ -138,8 +115,8 @@ public class WarehouseProcessingService {
      */
     @ZeebeWorker(type = "checkHBW", name = "checkHBWProcessor")
     public void checkHBWStatus(final ActivatedJob job) {
-        Map<String, Object> order = getFromMap(job.getVariablesAsMap(), "order", Map.class);
-        String orderId = getFromMap(order, "orderId", String.class);
+        Order order = getOrder(job);
+        String orderId = order.getOrderId();
         boolean inUse = warehouseService.isInUse();
 
         logInfo("checkHBWStatus", "Checking HBW status");
@@ -148,25 +125,11 @@ public class WarehouseProcessingService {
             logInfo("checkHBWStatus", "HBW is in use");
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"available\":\"false\"}");
             warehouseService.addToQueue(orderId);
-            monitorDataProducer.sendMessage(
-                    new MonitorUpdateDto().builder()
-                            .orderId(orderId)
-                            .type("Event")
-                            .method("checkHBW")
-                            .status("failed")
-                            .service("warehouse")
-                            .build());
+            monitorFailedMessage(orderId, "checkHBW");
         } else {
             logInfo("checkHBWStatus", "HBW is not in use");
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"available\":\"true\"}");
-            monitorDataProducer.sendMessage(
-                    new MonitorUpdateDto().builder()
-                            .orderId(orderId)
-                            .type("Event")
-                            .method("checkHBW")
-                            .status("success")
-                            .service("warehouse")
-                            .build());
+            monitorSuccessMessage(orderId, "checkHBW");
         }
     }
 
@@ -179,8 +142,8 @@ public class WarehouseProcessingService {
      */
     @ZeebeWorker(type = "lockHBW", name = "lockHBWProcessor")
     public void lockHBW(final ActivatedJob job) {
-        Map<String, Object> order = getFromMap(job.getVariablesAsMap(), "order", Map.class);
-        String orderId = getFromMap(order, "orderId", String.class);
+        Order order = getOrder(job);
+        String orderId = order.getOrderId();
         boolean success = warehouseService.setInUse();
 
         logInfo("lockHBW", "Locking HBW");
@@ -189,26 +152,12 @@ public class WarehouseProcessingService {
         if (success) {
             logInfo("lockHBW", "HBW locked");
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"locked\":\"true\"}");
-            monitorDataProducer.sendMessage(
-                    new MonitorUpdateDto().builder()
-                            .orderId(orderId)
-                            .type("Event")
-                            .method("lockHBW")
-                            .status("success")
-                            .service("warehouse")
-                            .build());
+            monitorSuccessMessage(orderId, "lockHBW");
         } else {
             logInfo("lockHBW", "HBW already in use");
             camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"locked\":\"false\"}");
             warehouseService.addToQueue(orderId);
-            monitorDataProducer.sendMessage(
-                    new MonitorUpdateDto().builder()
-                            .orderId(orderId)
-                            .type("Event")
-                            .method("lockHBW")
-                            .status("failed")
-                            .service("warehouse")
-                            .build());
+            monitorFailedMessage(orderId, "lockHBW");
         }
     }
 
@@ -227,6 +176,7 @@ public class WarehouseProcessingService {
 
 
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"available\":\"true\"}");
+        monitorSuccessMessage(getOrder(job).getOrderId(), "freeHBW");
         if (nextProcess != null) {
             logInfo("freeHBW", "Next process: " + nextProcess);
             camundaMessageSenderService.sendMessageCommand(
@@ -241,6 +191,7 @@ public class WarehouseProcessingService {
     public void positionHBW(final ActivatedJob job) {
         logInfo("positionHBW", "Positioning HBW");
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+        monitorSuccessMessage(getOrder(job).getOrderId(), "positionHBW");
         logInfo("positionHBW", "HBW positioned");
     }
 
@@ -257,6 +208,7 @@ public class WarehouseProcessingService {
         String productSlot = job.getVariablesAsMap().get("productSlot").toString();
         warehouseService.getProduct(productSlot);
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+        monitorSuccessMessage(getOrder(job).getOrderId(), "unloadProduct");
         logInfo("unloadProduct", "Unloaded product");
     }
 
@@ -264,13 +216,33 @@ public class WarehouseProcessingService {
     public void adjustStock(final ActivatedJob job) {
         logInfo("adjustStock", "Adjusting stock");
 
-        Map<String, Object> order = getFromMap(job.getVariablesAsMap(), "order", Map.class);
-        String orderColor = getFromMap(order, "orderColor", String.class);
+        Order order = getOrder(job);
+        String orderColor = order.getOrderColor();
 
         String productSlot = getFromMap(job.getVariablesAsMap(), "productSlot", String.class);
         warehouseService.adjustStock(orderColor, productSlot);
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+        monitorSuccessMessage(getFromMap(job.getVariablesAsMap(), "orderId", String.class), "adjustStock");
         logInfo("adjustStock", "Stock adjusted");
+    }
+
+    private void monitorSuccessMessage(String orderId, String method) {
+        monitorMessage(orderId, method, monitorStatus.success.name());
+    }
+
+    private void monitorFailedMessage(String orderId, String method) {
+        monitorMessage(orderId, method, monitorStatus.failed.name());
+    }
+
+    private void monitorMessage(String orderId, String method, String status) {
+        monitorDataProducer.sendMessage(
+                new MonitorUpdateDto().builder()
+                        .orderId(orderId)
+                        .type(monitorType.Event.name())
+                        .method(method)
+                        .status(status)
+                        .service(serviceName)
+                        .build());
     }
 
 }
