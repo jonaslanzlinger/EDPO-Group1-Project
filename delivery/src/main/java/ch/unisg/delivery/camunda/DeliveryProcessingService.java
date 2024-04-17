@@ -10,6 +10,7 @@ import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
+import io.camunda.zeebe.spring.client.annotation.JobWorker;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class DeliveryProcessingService {
      * This method registers an order in the delivery station.
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "registerOrder", name = "registerOrderProcessor")
+    @JobWorker(type = "registerOrder", name = "registerOrderProcessor", autoComplete = false)
     public void registerOrder(final ActivatedJob job) {
         Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
@@ -78,7 +79,7 @@ public class DeliveryProcessingService {
      * This method retrieves the color of the order at the light sensor.
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "retrieveColor", name = "retrieveColorProcessor")
+    @JobWorker(type = "retrieveColor", name = "retrieveColorProcessor", autoComplete = false)
     public void retrieveColor(final ActivatedJob job) {
 
         WorkflowLogger.info(log, "retrieveColor","Retrieving color at light sensor...");
@@ -123,7 +124,7 @@ public class DeliveryProcessingService {
      * This method matches the color of the order to the color retrieved at the light sensor.
      * @param job The job that contains the detected color at the light sensor.
      */
-    @ZeebeWorker(type = "matchColorToOrder", name = "matchColorToOrderProcessor")
+    @JobWorker(type = "matchColorToOrder", name = "matchColorToOrderProcessor", autoComplete = false)
     public void matchColorToOrder(final ActivatedJob job) {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
         String retrievedColor = (String) job.getVariablesAsMap().get("retrievedColor");
@@ -157,7 +158,7 @@ public class DeliveryProcessingService {
      * This method processes the order that has been matched.
      * @param job The job that contains the matched order.
      */
-    @ZeebeWorker(type = "orderMatched", name = "orderMatchedProcessor")
+    @JobWorker(type = "orderMatched", name = "orderMatchedProcessor", autoComplete = false)
     public void orderMatched(final ActivatedJob job) {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
