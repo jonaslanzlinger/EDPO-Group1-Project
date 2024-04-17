@@ -89,9 +89,6 @@ public class ShopRestController {
 
         String jsonString = jsonArray.toString();
 
-
-        System.out.println(jsonString);
-
         try {
             emitter.send(SseEmitter.event().name("message").data(jsonString));
         } catch (IOException e) {
