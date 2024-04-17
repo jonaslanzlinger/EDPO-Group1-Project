@@ -204,7 +204,7 @@ public class WarehouseProcessingService {
     @ZeebeWorker(type = "unloadProduct", name = "unloadProductProcessor")
     public void unloadProduct(final ActivatedJob job) {
         logInfo("unloadProduct", "Unloading product");
-
+        sleep(5000);
         String productSlot = job.getVariablesAsMap().get("productSlot").toString();
         warehouseService.getProduct(productSlot);
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());

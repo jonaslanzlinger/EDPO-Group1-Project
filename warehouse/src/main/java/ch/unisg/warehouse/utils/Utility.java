@@ -13,10 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Slf4j
 public class Utility {
 
-    public static void sleepRandom() {
-        double randomSleepDuration = Math.random() * 4000;
+    public static void sleep(int duration) {
         try {
-            Thread.sleep((long) randomSleepDuration);
+            Thread.sleep(duration);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
