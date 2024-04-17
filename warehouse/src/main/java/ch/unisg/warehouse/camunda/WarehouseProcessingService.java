@@ -5,7 +5,7 @@ import ch.unisg.warehouse.domain.WarehouseService;
 import ch.unisg.warehouse.kafka.dto.MonitorUpdateDto;
 import ch.unisg.warehouse.kafka.producer.MonitorDataProducer;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
-import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
+import io.camunda.zeebe.spring.client.annotation.JobWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +45,7 @@ public class WarehouseProcessingService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "checkGoods", name = "checkGoodsProcessor")
+    @JobWorker(type = "checkGoods", name = "checkGoodsProcessor",  autoComplete = false)
     public void checkGoods(final ActivatedJob job) {
         Order order = getOrder(job);
 
@@ -80,7 +80,7 @@ public class WarehouseProcessingService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "checkGoodsAvailable", name = "checkGoodsAvailableProcessor")
+    @JobWorker(type = "checkGoodsAvailable", name = "checkGoodsAvailableProcessor",  autoComplete = false)
     public void checkGoodsAvailable(final ActivatedJob job) {
         Order order = getOrder(job);
         String orderColor = order.getOrderColor();
@@ -113,7 +113,7 @@ public class WarehouseProcessingService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "checkHBW", name = "checkHBWProcessor")
+    @JobWorker(type = "checkHBW", name = "checkHBWProcessor",  autoComplete = false)
     public void checkHBWStatus(final ActivatedJob job) {
         Order order = getOrder(job);
         String orderId = order.getOrderId();
@@ -140,7 +140,7 @@ public class WarehouseProcessingService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "lockHBW", name = "lockHBWProcessor")
+    @JobWorker(type = "lockHBW", name = "lockHBWProcessor",  autoComplete = false)
     public void lockHBW(final ActivatedJob job) {
         Order order = getOrder(job);
         String orderId = order.getOrderId();
@@ -168,7 +168,7 @@ public class WarehouseProcessingService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "freeHBW", name = "freeHBWProcessor")
+    @JobWorker(type = "freeHBW", name = "freeHBWProcessor",  autoComplete = false)
     public void freeHBW(final ActivatedJob job) {
         logInfo("freeHBW", "Freeing HBW");
         String nextProcess = warehouseService.releaseHBW();
@@ -187,7 +187,7 @@ public class WarehouseProcessingService {
         }
     }
 
-    @ZeebeWorker(type = "positionHBW", name = "positionHBWProcessor")
+    @JobWorker(type = "positionHBW", name = "positionHBWProcessor",  autoComplete = false)
     public void positionHBW(final ActivatedJob job) {
         logInfo("positionHBW", "Positioning HBW");
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
@@ -201,7 +201,7 @@ public class WarehouseProcessingService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "unloadProduct", name = "unloadProductProcessor")
+    @JobWorker(type = "unloadProduct", name = "unloadProductProcessor",  autoComplete = false)
     public void unloadProduct(final ActivatedJob job) {
         logInfo("unloadProduct", "Unloading product");
         sleep(5000);
@@ -212,7 +212,7 @@ public class WarehouseProcessingService {
         logInfo("unloadProduct", "Unloaded product");
     }
 
-    @ZeebeWorker(type = "adjustStock", name = "adjustStockProcessor")
+    @JobWorker(type = "adjustStock", name = "adjustStockProcessor",  autoComplete = false)
     public void adjustStock(final ActivatedJob job) {
         logInfo("adjustStock", "Adjusting stock");
 
