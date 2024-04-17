@@ -19,8 +19,8 @@ import static ch.unisg.warehouse.utils.Utility.*;
 @Service
 public class WarehouseProcessingService {
     private final String serviceName = "warehouse";
-    private enum monitorStatus {success, failed}
-    private enum monitorType {Event, Command}
+    private enum MonitorStatus {success, failed}
+    private enum MonitorType {Event, Command}
 
     // The CamundaService instance used to send commands to the Camunda engine
     private final CamundaService camundaMessageSenderService;
@@ -227,18 +227,18 @@ public class WarehouseProcessingService {
     }
 
     private void monitorSuccessMessage(String orderId, String method) {
-        monitorMessage(orderId, method, monitorStatus.success.name());
+        monitorMessage(orderId, method, MonitorStatus.success.name());
     }
 
     private void monitorFailedMessage(String orderId, String method) {
-        monitorMessage(orderId, method, monitorStatus.failed.name());
+        monitorMessage(orderId, method, MonitorStatus.failed.name());
     }
 
     private void monitorMessage(String orderId, String method, String status) {
         monitorDataProducer.sendMessage(
                 new MonitorUpdateDto().builder()
                         .orderId(orderId)
-                        .type(monitorType.Event.name())
+                        .type(MonitorType.Event.name())
                         .method(method)
                         .status(status)
                         .service(serviceName)
