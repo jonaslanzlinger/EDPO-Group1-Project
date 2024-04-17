@@ -62,13 +62,13 @@ public class WarehouseProcessingService {
                     + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.throwErrorCommand("GoodsNotAvailable",
                     String.format("No %s goods available", orderColor), job.getKey());
-            monitorSuccessMessage(orderId, "checkGoods");
+            monitorFailedMessage(orderId, "checkGoods");
         } else {
             logInfo("checkGoods", "Complete order: "
                     + job.getProcessInstanceKey() + " - " + orderColor);
             camundaMessageSenderService.sendCompleteCommand(job.getKey(),
                     String.format("{\"productSlot\":\"%s\"}", productId));
-            monitorFailedMessage(orderId, "checkGoods");
+            monitorSuccessMessage(orderId, "checkGoods");
         }
     }
 
