@@ -5,6 +5,7 @@ import ch.unisg.order.domain.OrderRegistry;
 import ch.unisg.order.kafka.producer.MonitorDataProducer;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
+import io.camunda.zeebe.spring.client.annotation.JobWorker;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,7 +70,7 @@ public class ProcessStarterService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "setProgressWarehouse", name = "setProgressWarehouseProcessor")
+    @JobWorker(type = "setProgressWarehouse", name = "setProgressWarehouseProcessor", autoComplete = false)
     public void setProgressWarehouse(final ActivatedJob job) {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
@@ -100,7 +101,7 @@ public class ProcessStarterService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "setProgressGrabber", name = "setProgressGrabberProcessor")
+    @JobWorker(type = "setProgressGrabber", name = "setProgressGrabberProcessor", autoComplete = false)
     public void setProgressGripper(final ActivatedJob job) {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
@@ -131,7 +132,7 @@ public class ProcessStarterService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "setProgressDelivery", name = "setProgressDeliveryProcessor")
+    @JobWorker(type = "setProgressDelivery", name = "setProgressDeliveryProcessor", autoComplete = false)
     public void setProgressDelivery(final ActivatedJob job) {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
@@ -162,7 +163,7 @@ public class ProcessStarterService {
      *
      * @param job The job that contains the details of the order.
      */
-    @ZeebeWorker(type = "setProgressDelivered", name = "setProgressDeliveredProcessor")
+    @JobWorker(type = "setProgressDelivered", name = "setProgressDeliveredProcessor", autoComplete = false)
     public void setProgressDelivered(final ActivatedJob job) {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
