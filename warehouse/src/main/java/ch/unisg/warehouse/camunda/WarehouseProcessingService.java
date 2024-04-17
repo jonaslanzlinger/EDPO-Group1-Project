@@ -222,7 +222,7 @@ public class WarehouseProcessingService {
         String productSlot = getFromMap(job.getVariablesAsMap(), "productSlot", String.class);
         warehouseService.adjustStock(orderColor, productSlot);
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
-        monitorSuccessMessage(getFromMap(job.getVariablesAsMap(), "orderId", String.class), "adjustStock");
+        monitorSuccessMessage(order.getOrderId(), "adjustStock");
         logInfo("adjustStock", "Stock adjusted");
     }
 
