@@ -1,5 +1,6 @@
 package ch.unisg.order.rest;
 
+import ch.unisg.order.domain.OrderRegistry;
 import ch.unisg.order.services.ProcessStarterService;
 import ch.unisg.order.domain.Order;
 
@@ -55,11 +56,10 @@ public class ShopRestController {
 
 
         Order order = new Order(color, deliveryMethod);
+        OrderRegistry.addOrder(order);
         long messageKey = processStarterService.sendOrderReceivedMessage(order);
         stockService.removeColorFromStock(color);
 
-
-        // TODO: CHECK WHY THIS WORKS?
         long processInstanceKey = messageKey + 1;
 
         WorkflowLogger.info(log,"placeOrder","Order received: " + processInstanceKey + " - " + order.getColor());
@@ -76,29 +76,21 @@ public class ShopRestController {
     public SseEmitter sendUpdates() {
         SseEmitter emitter = new SseEmitter();
 
-        // TODO insert some real data objects here. just mock data for now
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode jsonArray = mapper.createArrayNode();
 
-        ObjectNode jsonObject1 = mapper.createObjectNode();
-        jsonObject1.put("orderId", new Random().nextInt(1000000));
-        jsonObject1.put("station", "warehouse");
-        jsonObject1.put("color", "blue");
-        jsonArray.add(jsonObject1);
-
-        ObjectNode jsonObject2 = mapper.createObjectNode();
-        jsonObject2.put("orderId", new Random().nextInt(1000000));
-        jsonObject2.put("station", "gripper");
-        jsonObject2.put("color", "red");
-        jsonArray.add(jsonObject2);
-
-        ObjectNode jsonObject3 = mapper.createObjectNode();
-        jsonObject3.put("orderId", new Random().nextInt(1000000));
-        jsonObject3.put("station", "delivery");
-        jsonObject3.put("color", "white");
-        jsonArray.add(jsonObject3);
+        OrderRegistry.getOrders().forEach(order -> {
+            ObjectNode jsonObject = mapper.createObjectNode();
+            jsonObject.put("orderId", order.getOrderId());
+            jsonObject.put("progress", order.getProgress());
+            jsonObject.put("color", order.getColor());
+            jsonArray.add(jsonObject);
+        });
 
         String jsonString = jsonArray.toString();
+
+
+        System.out.println(jsonString);
 
         try {
             emitter.send(SseEmitter.event().name("message").data(jsonString));

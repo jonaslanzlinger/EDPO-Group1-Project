@@ -64,8 +64,6 @@ public class DeliveryProcessingService {
 
         OrderRegistry.addOrder(new Order(orderId, orderColor, deliveryMethod));
 
-        WorkflowLogger.info(log, "registerOrder","Complete order: " + job.getProcessInstanceKey() + " - " + orderColor);
-
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
         monitorDataProducer.sendMessage(new MonitorUpdateDto().builder()
                 .orderId(orderId)
@@ -103,9 +101,9 @@ public class DeliveryProcessingService {
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                WorkflowLogger.info(log, "retrieveColor","Color retrieved: " + response.body());
+                WorkflowLogger.info(log, "retrievedColor","Color retrieved: " + response.body());
 
-                String variables = "{ \"orderColor\": \"" + response.body() + "\"}";
+                String variables = "{ \"retrievedColor\": \"" + response.body() + "\"}";
 
                 camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
                 return null;
@@ -128,13 +126,14 @@ public class DeliveryProcessingService {
     @ZeebeWorker(type = "matchColorToOrder", name = "matchColorToOrderProcessor")
     public void matchColorToOrder(final ActivatedJob job) {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
+        String retrievedColor = (String) job.getVariablesAsMap().get("retrievedColor");
 
         String orderIdJob = (String) orderFromJob.get("orderId");
         String orderColorJob = (String) orderFromJob.get("orderColor");
         String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
 
 
-        Order order = OrderRegistry.popNextOrderByColor(orderColorJob);
+        Order order = OrderRegistry.popNextOrderByColor(retrievedColor);
 
         String orderVariables = null;
         if (order == null) {
@@ -152,5 +151,30 @@ public class DeliveryProcessingService {
         }
 
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), orderVariables);
+    }
+
+    /**
+     * This method processes the order that has been matched.
+     * @param job The job that contains the matched order.
+     */
+    @ZeebeWorker(type = "orderMatched", name = "orderMatchedProcessor")
+    public void orderMatched(final ActivatedJob job) {
+        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
+
+        String orderIdJob = (String) orderFromJob.get("orderId");
+        String orderColorJob = (String) orderFromJob.get("orderColor");
+        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
+
+        WorkflowLogger.info(log, "orderMatched","Order matched: " + orderIdJob + " - " + orderColorJob);
+
+        monitorDataProducer.sendMessage(new MonitorUpdateDto().builder()
+                .orderId(orderIdJob)
+                .type("Event")
+                .method("orderMatched")
+                .status("success")
+                .service("delivery")
+                .build());
+
+        camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
     }
 }

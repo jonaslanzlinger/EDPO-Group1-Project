@@ -1,9 +1,16 @@
 package ch.unisg.order.services;
 
 import ch.unisg.order.domain.Order;
+import ch.unisg.order.domain.OrderRegistry;
+import ch.unisg.order.util.WorkflowLogger;
 import io.camunda.zeebe.client.ZeebeClient;
+import io.camunda.zeebe.client.api.response.ActivatedJob;
+import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * This is a service class for starting processes.
@@ -48,4 +55,130 @@ public class ProcessStarterService {
                 .join(); // join() to synchronously wait for the result, remove for async
         return returnvalue.getMessageKey();
     }
+
+    /**
+     * This method sends a message to the Zeebe broker to set the progress of an order to "warehouse".
+     * It creates a new complete command, sets the variables, and sends the command.
+     * @param job The job that contains the details of the order.
+     */
+    @ZeebeWorker(type = "setProgressWarehouse", name = "setProgressWarehouseProcessor")
+    public void setProgressWarehouse(final ActivatedJob job) {
+        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
+
+        String orderIdJob = (String) orderFromJob.get("orderId");
+        String orderColorJob = (String) orderFromJob.get("orderColor");
+        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("warehouse");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        zeebeClient.newCompleteCommand(job.getKey())
+                .variables(job.getVariables())
+                .send()
+                .join(); // join() to synchronously wait for the result, remove for async
+    }
+
+    /**
+     * This method sends a message to the Zeebe broker to set the progress of an order to "grabber".
+     * It creates a new complete command, sets the variables, and sends the command.
+     * @param job The job that contains the details of the order.
+     */
+    @ZeebeWorker(type = "setProgressGrabber", name = "setProgressGrabberProcessor")
+    public void setProgressGripper(final ActivatedJob job) {
+        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
+
+        String orderIdJob = (String) orderFromJob.get("orderId");
+        String orderColorJob = (String) orderFromJob.get("orderColor");
+        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("grabber");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        zeebeClient.newCompleteCommand(job.getKey())
+                .variables(job.getVariables())
+                .send()
+                .join(); // join() to synchronously wait for the result, remove for async
+    }
+
+    /**
+     * This method sends a message to the Zeebe broker to set the progress of an order to "delivery".
+     * It creates a new complete command, sets the variables, and sends the command.
+     * @param job The job that contains the details of the order.
+     */
+    @ZeebeWorker(type = "setProgressDelivery", name = "setProgressDeliveryProcessor")
+    public void setProgressDelivery(final ActivatedJob job) {
+        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
+
+        String orderIdJob = (String) orderFromJob.get("orderId");
+        String orderColorJob = (String) orderFromJob.get("orderColor");
+        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("delivery");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        zeebeClient.newCompleteCommand(job.getKey())
+                .variables(job.getVariables())
+                .send()
+                .join(); // join() to synchronously wait for the result, remove for async
+    }
+
+    /**
+     * This method sends a message to the Zeebe broker to set the progress of an order to "delivered".
+     * It creates a new complete command, sets the variables, and sends the command.
+     * @param job The job that contains the details of the order.
+     */
+    @ZeebeWorker(type = "setProgressDelivered", name = "setProgressDeliveredProcessor")
+    public void setProgressDelivered(final ActivatedJob job) {
+        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
+
+        String orderIdJob = (String) orderFromJob.get("orderId");
+        String orderColorJob = (String) orderFromJob.get("orderColor");
+        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("delivered");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        zeebeClient.newCompleteCommand(job.getKey())
+                .variables(job.getVariables())
+                .send()
+                .join(); // join() to synchronously wait for the result, remove for async
+    }
+
+
 }

@@ -25,6 +25,8 @@ public class Order implements Serializable {
   private String color;
   // Delivery method of the order
   private String deliveryMethod;
+  // Current progress of the order
+  private String progress;
 
   /**
    * Default constructor.
@@ -44,5 +46,6 @@ public class Order implements Serializable {
     this.orderId = UUID.randomUUID().toString();
     this.color = color;
     this.deliveryMethod = deliveryMethod;
+    this.progress = "ordered";
   }
 }
