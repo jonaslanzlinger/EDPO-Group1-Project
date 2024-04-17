@@ -139,7 +139,7 @@ public class DeliveryProcessingService {
         String orderVariables = null;
         if (order == null) {
             WorkflowLogger.info(log, "matchColorToOrder","No order found for color: " + orderColorJob);
-
+            OrderRegistry.pop();
             orderVariables = "{\"matchFound\": \"false\", \"order\": {\"orderColor\": \"" + orderColorJob + "\"," +
                     "\"orderId\": \"" + orderIdJob + "\"," +
                     "\"deliveryMethod\": \"" + deliveryMethodJob + "\"}}";

@@ -144,6 +144,9 @@ public class WarehouseProcessingService {
     public void lockHBW(final ActivatedJob job) {
         Order order = getOrder(job);
         String orderId = order.getOrderId();
+        try {
+            Thread.sleep((long) (Math.random() * (5000 - 1000) + 1000));
+        } catch (InterruptedException ignored) {}
         boolean success = warehouseService.setInUse();
 
         logInfo("lockHBW", "Locking HBW");
@@ -204,9 +207,13 @@ public class WarehouseProcessingService {
     @JobWorker(type = "unloadProduct", name = "unloadProductProcessor",  autoComplete = false)
     public void unloadProduct(final ActivatedJob job) {
         logInfo("unloadProduct", "Unloading product");
-        sleep(5000);
-        String productSlot = job.getVariablesAsMap().get("productSlot").toString();
-        warehouseService.getProduct(productSlot);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException ignored) {}
+        Order order = getOrder(job);
+        String orderColor = order.getOrderColor();
+
+        warehouseService.getProduct(orderColor);
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
         monitorSuccessMessage(getOrder(job).getOrderId(), "unloadProduct");
         logInfo("unloadProduct", "Unloaded product");
