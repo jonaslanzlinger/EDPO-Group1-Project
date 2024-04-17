@@ -1,4 +1,4 @@
-package ch.unisg.order.kafka;
+package ch.unisg.order.kafka.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;

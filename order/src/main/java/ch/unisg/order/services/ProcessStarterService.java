@@ -2,7 +2,7 @@ package ch.unisg.order.services;
 
 import ch.unisg.order.domain.Order;
 import ch.unisg.order.domain.OrderRegistry;
-import ch.unisg.order.util.WorkflowLogger;
+import ch.unisg.order.kafka.producer.MonitorDataProducer;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Objects;
+
+import static ch.unisg.order.kafka.producer.MonitorDataProducer.MonitorStatus.*;
 
 /**
  * This is a service class for starting processes.
@@ -22,21 +24,27 @@ public class ProcessStarterService {
     // The Zeebe client for interacting with the Zeebe broker
     private final ZeebeClient zeebeClient;
 
+    private final MonitorDataProducer monitorDataProducer;
+
     /**
      * Constructor with ZeebeClient parameter.
      * It initializes zeebeClient with the provided ZeebeClient.
      * It uses Spring's @Autowired annotation to automatically inject the ZeebeClient.
-     * @param zeebeClient The ZeebeClient for interacting with the Zeebe broker.
+     *
+     * @param zeebeClient         The ZeebeClient for interacting with the Zeebe broker.
+     * @param monitorDataProducer
      */
     @Autowired
-    public ProcessStarterService(ZeebeClient zeebeClient) {
+    public ProcessStarterService(ZeebeClient zeebeClient, MonitorDataProducer monitorDataProducer) {
         this.zeebeClient = zeebeClient;
+        this.monitorDataProducer = monitorDataProducer;
     }
 
     /**
      * This method sends an order received message to the Zeebe broker.
      * It creates a new publish message command, sets the message name, correlation key and variables, and sends the command.
-     * @param order      The order.
+     *
+     * @param order The order.
      * @return processInstanceKey
      */
     public long sendOrderReceivedMessage(Order order) {
@@ -44,7 +52,6 @@ public class ProcessStarterService {
         String orderVariables = "{\"order\": {\"orderColor\": \"" + order.getColor() + "\"," +
                 "\"orderId\": \"" + order.getOrderId() + "\"," +
                 "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}}";
-
 
 
         var returnvalue = zeebeClient.newPublishMessageCommand()
@@ -59,6 +66,7 @@ public class ProcessStarterService {
     /**
      * This method sends a message to the Zeebe broker to set the progress of an order to "warehouse".
      * It creates a new complete command, sets the variables, and sends the command.
+     *
      * @param job The job that contains the details of the order.
      */
     @ZeebeWorker(type = "setProgressWarehouse", name = "setProgressWarehouseProcessor")
@@ -66,8 +74,6 @@ public class ProcessStarterService {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
         String orderIdJob = (String) orderFromJob.get("orderId");
-        String orderColorJob = (String) orderFromJob.get("orderColor");
-        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
 
         try {
             Thread.sleep(2000);
@@ -85,11 +91,13 @@ public class ProcessStarterService {
                 .variables(job.getVariables())
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
+        monitorDataProducer.sendMonitorUpdate(orderIdJob, "setProgressWarehouse", success.name());
     }
 
     /**
      * This method sends a message to the Zeebe broker to set the progress of an order to "grabber".
      * It creates a new complete command, sets the variables, and sends the command.
+     *
      * @param job The job that contains the details of the order.
      */
     @ZeebeWorker(type = "setProgressGrabber", name = "setProgressGrabberProcessor")
@@ -97,8 +105,6 @@ public class ProcessStarterService {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
         String orderIdJob = (String) orderFromJob.get("orderId");
-        String orderColorJob = (String) orderFromJob.get("orderColor");
-        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
 
         try {
             Thread.sleep(2000);
@@ -116,11 +122,13 @@ public class ProcessStarterService {
                 .variables(job.getVariables())
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
+        monitorDataProducer.sendMonitorUpdate(orderIdJob, "setProgressGrabber", success.name());
     }
 
     /**
      * This method sends a message to the Zeebe broker to set the progress of an order to "delivery".
      * It creates a new complete command, sets the variables, and sends the command.
+     *
      * @param job The job that contains the details of the order.
      */
     @ZeebeWorker(type = "setProgressDelivery", name = "setProgressDeliveryProcessor")
@@ -128,8 +136,6 @@ public class ProcessStarterService {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
         String orderIdJob = (String) orderFromJob.get("orderId");
-        String orderColorJob = (String) orderFromJob.get("orderColor");
-        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
 
         try {
             Thread.sleep(2000);
@@ -147,11 +153,13 @@ public class ProcessStarterService {
                 .variables(job.getVariables())
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
+        monitorDataProducer.sendMonitorUpdate(orderIdJob, "setProgressDelivery", success.name());
     }
 
     /**
      * This method sends a message to the Zeebe broker to set the progress of an order to "delivered".
      * It creates a new complete command, sets the variables, and sends the command.
+     *
      * @param job The job that contains the details of the order.
      */
     @ZeebeWorker(type = "setProgressDelivered", name = "setProgressDeliveredProcessor")
@@ -159,8 +167,6 @@ public class ProcessStarterService {
         Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
         String orderIdJob = (String) orderFromJob.get("orderId");
-        String orderColorJob = (String) orderFromJob.get("orderColor");
-        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
 
         try {
             Thread.sleep(2000);
@@ -178,7 +184,7 @@ public class ProcessStarterService {
                 .variables(job.getVariables())
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
+
+        monitorDataProducer.sendMonitorUpdate(orderIdJob, "setProgressDelivered", success.name());
     }
-
-
 }
