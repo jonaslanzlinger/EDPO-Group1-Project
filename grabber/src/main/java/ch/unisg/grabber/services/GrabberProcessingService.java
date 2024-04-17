@@ -5,6 +5,7 @@ import ch.unisg.grabber.kafka.producer.MonitorDataProducer;
 import ch.unisg.grabber.utils.WorkflowLogger;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
+import io.camunda.zeebe.spring.client.annotation.JobWorker;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class GrabberProcessingService {
      *
      * @param job The job that is being processed.
      */
-    @ZeebeWorker(type = "grabGoods", name = "grabGoodsProcessor")
+    @JobWorker(type = "grabGoods", name = "grabGoodsProcessor", autoComplete = false)
     public void grabGoods(final ActivatedJob job) {
         Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
 
