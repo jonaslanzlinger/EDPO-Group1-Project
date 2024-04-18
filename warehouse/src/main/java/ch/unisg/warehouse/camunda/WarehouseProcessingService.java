@@ -7,7 +7,6 @@ import ch.unisg.warehouse.kafka.producer.MonitorDataProducer;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
 import io.camunda.zeebe.spring.client.annotation.Variable;
-import io.camunda.zeebe.spring.client.annotation.VariablesAsType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +47,7 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "checkGoods", name = "checkGoodsProcessor",  autoComplete = false)
-    public void checkGoods(final ActivatedJob job, @VariablesAsType Order order) {
+    public void checkGoods(final ActivatedJob job, @Variable Order order) {
         String orderColor = order.getOrderColor();
 
         String productId = warehouseService.getProductSlot(orderColor);
@@ -81,7 +80,7 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "checkGoodsAvailable", name = "checkGoodsAvailableProcessor",  autoComplete = false)
-    public void checkGoodsAvailable(final ActivatedJob job, @VariablesAsType Order order) {
+    public void checkGoodsAvailable(final ActivatedJob job, @Variable Order order) {
         String orderColor = order.getOrderColor();
 
         boolean isAvailable = warehouseService.checkProduct(orderColor);
@@ -113,7 +112,7 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "checkHBW", name = "checkHBWProcessor",  autoComplete = false)
-    public void checkHBWStatus(final ActivatedJob job, @VariablesAsType Order order) {
+    public void checkHBWStatus(final ActivatedJob job, @Variable Order order) {
         String orderId = order.getOrderId();
         boolean inUse = warehouseService.isInUse();
 
@@ -139,7 +138,7 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "lockHBW", name = "lockHBWProcessor",  autoComplete = false)
-    public void lockHBW(final ActivatedJob job, @VariablesAsType Order order) {
+    public void lockHBW(final ActivatedJob job, @Variable Order order) {
         String orderId = order.getOrderId();
 
         sleep((int) (Math.random() * (5000 - 1000) + 1000));
@@ -168,7 +167,7 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "freeHBW", name = "freeHBWProcessor",  autoComplete = false)
-    public void freeHBW(final ActivatedJob job, @VariablesAsType Order order) {
+    public void freeHBW(final ActivatedJob job, @Variable Order order) {
         logInfo("freeHBW", "Freeing HBW");
         String nextProcess = warehouseService.releaseHBW();
         logInfo("freeHBW", "HBW freed");
@@ -187,7 +186,7 @@ public class WarehouseProcessingService {
     }
 
     @JobWorker(type = "positionHBW", name = "positionHBWProcessor",  autoComplete = false)
-    public void positionHBW(final ActivatedJob job, @VariablesAsType Order order) {
+    public void positionHBW(final ActivatedJob job, @Variable Order order) {
         logInfo("positionHBW", "Positioning HBW");
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
         monitorSuccessMessage(order.getOrderId(), "positionHBW");
@@ -201,7 +200,7 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "unloadProduct", name = "unloadProductProcessor",  autoComplete = false)
-    public void unloadProduct(final ActivatedJob job, @VariablesAsType Order order) {
+    public void unloadProduct(final ActivatedJob job, @Variable Order order) {
         logInfo("unloadProduct", "Unloading product");
 
         sleep(5000);
@@ -215,7 +214,7 @@ public class WarehouseProcessingService {
     }
 
     @JobWorker(type = "adjustStock", name = "adjustStockProcessor",  autoComplete = false)
-    public void adjustStock(final ActivatedJob job, @VariablesAsType Order order, @Variable String productSlot) {
+    public void adjustStock(final ActivatedJob job, @Variable Order order, @Variable String productSlot) {
         logInfo("adjustStock", "Adjusting stock");
 
         String orderColor = order.getOrderColor();

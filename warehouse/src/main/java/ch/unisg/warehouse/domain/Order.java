@@ -8,5 +8,4 @@ public class Order {
     private String orderColor;
     private String orderId;
     private String deliveryMethod;
-    private String progress;
 }
