@@ -6,6 +6,8 @@ import ch.unisg.warehouse.kafka.dto.MonitorUpdateDto;
 import ch.unisg.warehouse.kafka.producer.MonitorDataProducer;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
+import io.camunda.zeebe.spring.client.annotation.Variable;
+import io.camunda.zeebe.spring.client.annotation.VariablesAsType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,9 +48,7 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "checkGoods", name = "checkGoodsProcessor",  autoComplete = false)
-    public void checkGoods(final ActivatedJob job) {
-        Order order = getOrder(job);
-
+    public void checkGoods(final ActivatedJob job, @VariablesAsType Order order) {
         String orderColor = order.getOrderColor();
 
         String productId = warehouseService.getProductSlot(orderColor);
@@ -81,8 +81,7 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "checkGoodsAvailable", name = "checkGoodsAvailableProcessor",  autoComplete = false)
-    public void checkGoodsAvailable(final ActivatedJob job) {
-        Order order = getOrder(job);
+    public void checkGoodsAvailable(final ActivatedJob job, @VariablesAsType Order order) {
         String orderColor = order.getOrderColor();
 
         boolean isAvailable = warehouseService.checkProduct(orderColor);
@@ -114,8 +113,7 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "checkHBW", name = "checkHBWProcessor",  autoComplete = false)
-    public void checkHBWStatus(final ActivatedJob job) {
-        Order order = getOrder(job);
+    public void checkHBWStatus(final ActivatedJob job, @VariablesAsType Order order) {
         String orderId = order.getOrderId();
         boolean inUse = warehouseService.isInUse();
 
@@ -141,16 +139,14 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "lockHBW", name = "lockHBWProcessor",  autoComplete = false)
-    public void lockHBW(final ActivatedJob job) {
-        Order order = getOrder(job);
+    public void lockHBW(final ActivatedJob job, @VariablesAsType Order order) {
         String orderId = order.getOrderId();
-        try {
-            Thread.sleep((long) (Math.random() * (5000 - 1000) + 1000));
-        } catch (InterruptedException ignored) {}
+
+        sleep((int) (Math.random() * (5000 - 1000) + 1000));
+
         boolean success = warehouseService.setInUse();
 
         logInfo("lockHBW", "Locking HBW");
-
 
         if (success) {
             logInfo("lockHBW", "HBW locked");
@@ -172,14 +168,14 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "freeHBW", name = "freeHBWProcessor",  autoComplete = false)
-    public void freeHBW(final ActivatedJob job) {
+    public void freeHBW(final ActivatedJob job, @VariablesAsType Order order) {
         logInfo("freeHBW", "Freeing HBW");
         String nextProcess = warehouseService.releaseHBW();
         logInfo("freeHBW", "HBW freed");
 
 
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"available\":\"true\"}");
-        monitorSuccessMessage(getOrder(job).getOrderId(), "freeHBW");
+        monitorSuccessMessage(order.getOrderId(), "freeHBW");
         if (nextProcess != null) {
             logInfo("freeHBW", "Next process: " + nextProcess);
             camundaMessageSenderService.sendMessageCommand(
@@ -191,10 +187,10 @@ public class WarehouseProcessingService {
     }
 
     @JobWorker(type = "positionHBW", name = "positionHBWProcessor",  autoComplete = false)
-    public void positionHBW(final ActivatedJob job) {
+    public void positionHBW(final ActivatedJob job, @VariablesAsType Order order) {
         logInfo("positionHBW", "Positioning HBW");
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
-        monitorSuccessMessage(getOrder(job).getOrderId(), "positionHBW");
+        monitorSuccessMessage(order.getOrderId(), "positionHBW");
         logInfo("positionHBW", "HBW positioned");
     }
 
@@ -205,28 +201,25 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "unloadProduct", name = "unloadProductProcessor",  autoComplete = false)
-    public void unloadProduct(final ActivatedJob job) {
+    public void unloadProduct(final ActivatedJob job, @VariablesAsType Order order) {
         logInfo("unloadProduct", "Unloading product");
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ignored) {}
-        Order order = getOrder(job);
+
+        sleep(5000);
+
         String orderColor = order.getOrderColor();
 
         warehouseService.getProduct(orderColor);
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
-        monitorSuccessMessage(getOrder(job).getOrderId(), "unloadProduct");
+        monitorSuccessMessage(order.getOrderId(), "unloadProduct");
         logInfo("unloadProduct", "Unloaded product");
     }
 
     @JobWorker(type = "adjustStock", name = "adjustStockProcessor",  autoComplete = false)
-    public void adjustStock(final ActivatedJob job) {
+    public void adjustStock(final ActivatedJob job, @VariablesAsType Order order, @Variable String productSlot) {
         logInfo("adjustStock", "Adjusting stock");
 
-        Order order = getOrder(job);
         String orderColor = order.getOrderColor();
 
-        String productSlot = getFromMap(job.getVariablesAsMap(), "productSlot", String.class);
         warehouseService.adjustStock(orderColor, productSlot);
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
         monitorSuccessMessage(order.getOrderId(), "adjustStock");
