@@ -5,7 +5,7 @@ import ch.unisg.order.services.ProcessStarterService;
 import ch.unisg.order.domain.Order;
 
 import ch.unisg.order.services.StockService;
-import ch.unisg.order.util.WorkflowLogger;
+import ch.unisg.order.utils.WorkflowLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,7 +18,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Random;
 
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 

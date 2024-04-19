@@ -6,7 +6,6 @@ import ch.unisg.order.kafka.producer.MonitorDataProducer;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
-import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static ch.unisg.order.kafka.producer.MonitorDataProducer.MonitorStatus.*;
+import static ch.unisg.order.utils.Utility.sleep;
 
 /**
  * This is a service class for starting processes.
@@ -76,17 +76,8 @@ public class ProcessStarterService {
 
         String orderIdJob = (String) orderFromJob.get("orderId");
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(2000);
         Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("warehouse");
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
         zeebeClient.newCompleteCommand(job.getKey())
                 .variables(job.getVariables())
@@ -107,17 +98,8 @@ public class ProcessStarterService {
 
         String orderIdJob = (String) orderFromJob.get("orderId");
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(2000);
         Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("grabber");
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
         zeebeClient.newCompleteCommand(job.getKey())
                 .variables(job.getVariables())
@@ -138,17 +120,8 @@ public class ProcessStarterService {
 
         String orderIdJob = (String) orderFromJob.get("orderId");
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(2000);
         Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("delivery");
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
         zeebeClient.newCompleteCommand(job.getKey())
                 .variables(job.getVariables())
@@ -169,17 +142,8 @@ public class ProcessStarterService {
 
         String orderIdJob = (String) orderFromJob.get("orderId");
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        sleep(2000);
         Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("delivered");
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
         zeebeClient.newCompleteCommand(job.getKey())
                 .variables(job.getVariables())

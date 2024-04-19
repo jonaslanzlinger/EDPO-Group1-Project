@@ -1,4 +1,4 @@
-package ch.unisg.order.util;
+package ch.unisg.order.utils;
 
 import org.slf4j.Logger;
 

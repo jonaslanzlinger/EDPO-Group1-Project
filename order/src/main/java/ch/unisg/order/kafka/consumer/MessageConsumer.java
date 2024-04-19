@@ -3,7 +3,7 @@ package ch.unisg.order.kafka.consumer;
 
 import ch.unisg.order.domain.Stock;
 import ch.unisg.order.kafka.dto.StockUpdateDto;
-import ch.unisg.order.util.WorkflowLogger;
+import ch.unisg.order.utils.WorkflowLogger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
