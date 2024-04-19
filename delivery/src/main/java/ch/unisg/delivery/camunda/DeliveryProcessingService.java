@@ -6,11 +6,13 @@ import ch.unisg.delivery.kafka.dto.MonitorUpdateDto;
 import ch.unisg.delivery.kafka.producer.MonitorDataProducer;
 import ch.unisg.delivery.utils.WorkflowLogger;
 
+import com.google.errorprone.annotations.Var;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
+import io.camunda.zeebe.spring.client.annotation.Variable;
 import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import java.util.Map;
+
+import static ch.unisg.delivery.kafka.producer.MonitorDataProducer.MonitorStatus.success;
 
 /**
  * This is a service class that processes delivery tasks.
@@ -50,37 +54,23 @@ public class DeliveryProcessingService {
 
     /**
      * This method registers an order in the delivery station.
-     * @param job The job that contains the details of the order.
+     * @param order The order to be registered.
      */
-    @JobWorker(type = "registerOrder", name = "registerOrderProcessor", autoComplete = false)
-    public void registerOrder(final ActivatedJob job) {
-        Map<String, Object> orderVariables = (Map<String, Object>) job.getVariablesAsMap().get("order");
+    @JobWorker(type = "registerOrder", name = "registerOrderProcessor")
+    public void registerOrder(@Variable Order order) {
+        WorkflowLogger.info(log, "registerOrder","Processing order: - " + order.getOrderColor());
+        OrderRegistry.addOrder(order);
 
-        // Now you can access individual properties within the 'order' object
-        String orderColor = (String) orderVariables.get("orderColor");
-        String orderId = (String) orderVariables.get("orderId");
-        String deliveryMethod = (String) orderVariables.get("deliveryMethod");
-
-        WorkflowLogger.info(log, "registerOrder","Processing order: " + job.getProcessInstanceKey() + " - " + orderColor);
-
-        OrderRegistry.addOrder(new Order(orderId, orderColor, deliveryMethod));
-
-        camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
-        monitorDataProducer.sendMessage(new MonitorUpdateDto().builder()
-                .orderId(orderId)
-                .type("Event")
-                .method("registerOrder")
-                .status("success")
-                .service("delivery")
-                .build());
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "registerOrder", success.name());
     }
 
     /**
      * This method retrieves the color of the order at the light sensor.
      * @param job The job that contains the details of the order.
+     * @param order The order to be processed.
      */
     @JobWorker(type = "retrieveColor", name = "retrieveColorProcessor", autoComplete = false)
-    public void retrieveColor(final ActivatedJob job) {
+    public void retrieveColor(final ActivatedJob job, @Variable Order order) {
 
         WorkflowLogger.info(log, "retrieveColor","Retrieving color at light sensor...");
 
@@ -118,64 +108,47 @@ public class DeliveryProcessingService {
                 return null;
             }
         }.execute();
+
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "retrieveColor", success.name());
     }
 
     /**
      * This method matches the color of the order to the color retrieved at the light sensor.
      * @param job The job that contains the detected color at the light sensor.
+     * @param order The order to be processed.
      */
     @JobWorker(type = "matchColorToOrder", name = "matchColorToOrderProcessor", autoComplete = false)
-    public void matchColorToOrder(final ActivatedJob job) {
-        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
-        String retrievedColor = (String) job.getVariablesAsMap().get("retrievedColor");
-
-        String orderIdJob = (String) orderFromJob.get("orderId");
-        String orderColorJob = (String) orderFromJob.get("orderColor");
-        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
-
-
-        Order order = OrderRegistry.popNextOrderByColor(retrievedColor);
+    public void matchColorToOrder(final ActivatedJob job, @Variable Order order,
+                                  @Variable String retrievedColor) {
+        Order matchedOrder = OrderRegistry.popNextOrderByColor(retrievedColor);
 
         String orderVariables = null;
-        if (order == null) {
-            WorkflowLogger.info(log, "matchColorToOrder","No order found for color: " + orderColorJob);
+        if (matchedOrder == null) {
+            WorkflowLogger.info(log, "matchColorToOrder","No order found for color: " + retrievedColor);
             OrderRegistry.pop();
-            orderVariables = "{\"matchFound\": \"false\", \"order\": {\"orderColor\": \"" + orderColorJob + "\"," +
-                    "\"orderId\": \"" + orderIdJob + "\"," +
-                    "\"deliveryMethod\": \"" + deliveryMethodJob + "\"}}";
+            orderVariables =
+                    "{\"matchFound\": \"false\", \"order\": {\"orderColor\": \"" + order.getOrderColor() + "\"," +
+                    "\"orderId\": \"" + order.getOrderId() + "\"," +
+                    "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}}";
         } else {
-            WorkflowLogger.info(log, "matchColorToOrder","Order found for color: " + orderColorJob);
-
+            WorkflowLogger.info(log, "matchColorToOrder","Order found for color: " + retrievedColor);
             orderVariables = "{\"matchFound\": \"true\", \"order\": {\"orderColor\": \"" + order.getOrderColor() + "\"," +
                     "\"orderId\": \"" + order.getOrderId() + "\"," +
                     "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}}";
         }
 
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), orderVariables);
+
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "matchColorToOrder", success.name());
     }
 
     /**
      * This method processes the order that has been matched.
-     * @param job The job that contains the matched order.
+     * @param order The order that has been matched.
      */
-    @JobWorker(type = "orderMatched", name = "orderMatchedProcessor", autoComplete = false)
-    public void orderMatched(final ActivatedJob job) {
-        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
-
-        String orderIdJob = (String) orderFromJob.get("orderId");
-        String orderColorJob = (String) orderFromJob.get("orderColor");
-        String deliveryMethodJob = (String) orderFromJob.get("deliveryMethod");
-
-        WorkflowLogger.info(log, "orderMatched","Order matched: " + orderIdJob + " - " + orderColorJob);
-
-        monitorDataProducer.sendMessage(new MonitorUpdateDto().builder()
-                .orderId(orderIdJob)
-                .type("Event")
-                .method("orderMatched")
-                .status("success")
-                .service("delivery")
-                .build());
-
-        camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
+    @JobWorker(type = "orderMatched", name = "orderMatchedProcessor")
+    public void orderMatched(@Variable Order order) {
+        WorkflowLogger.info(log, "orderMatched","Order matched: " + order.getOrderId() + " - " + order.getOrderColor());
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "orderMatched", success.name());
     }
 }
