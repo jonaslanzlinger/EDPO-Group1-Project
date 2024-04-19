@@ -4,12 +4,11 @@ import ch.unisg.order.domain.Order;
 import ch.unisg.order.domain.OrderRegistry;
 import ch.unisg.order.kafka.producer.MonitorDataProducer;
 import io.camunda.zeebe.client.ZeebeClient;
-import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
+import io.camunda.zeebe.spring.client.annotation.Variable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Objects;
 
 import static ch.unisg.order.kafka.producer.MonitorDataProducer.MonitorStatus.*;
@@ -66,90 +65,53 @@ public class ProcessStarterService {
 
     /**
      * This method sends a message to the Zeebe broker to set the progress of an order to "warehouse".
-     * It creates a new complete command, sets the variables, and sends the command.
      *
-     * @param job The job that contains the details of the order.
+     * @param order The order.
      */
-    @JobWorker(type = "setProgressWarehouse", name = "setProgressWarehouseProcessor", autoComplete = false)
-    public void setProgressWarehouse(final ActivatedJob job) {
-        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
-
-        String orderIdJob = (String) orderFromJob.get("orderId");
-
+    @JobWorker(type = "setProgressWarehouse", name = "setProgressWarehouseProcessor")
+    public void setProgressWarehouse(@Variable Order order) {
         sleep(2000);
-        Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("warehouse");
+        Objects.requireNonNull(OrderRegistry.getOrderById(order.getOrderId())).setProgress("warehouse");
 
-        zeebeClient.newCompleteCommand(job.getKey())
-                .variables(job.getVariables())
-                .send()
-                .join(); // join() to synchronously wait for the result, remove for async
-        monitorDataProducer.sendMonitorUpdate(orderIdJob, "setProgressWarehouse", success.name());
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressWarehouse", success.name());
     }
 
     /**
      * This method sends a message to the Zeebe broker to set the progress of an order to "grabber".
-     * It creates a new complete command, sets the variables, and sends the command.
      *
-     * @param job The job that contains the details of the order.
+     * @param order The order.
      */
-    @JobWorker(type = "setProgressGrabber", name = "setProgressGrabberProcessor", autoComplete = false)
-    public void setProgressGripper(final ActivatedJob job) {
-        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
-
-        String orderIdJob = (String) orderFromJob.get("orderId");
-
+    @JobWorker(type = "setProgressGrabber", name = "setProgressGrabberProcessor")
+    public void setProgressGrabber(@Variable Order order) {
         sleep(2000);
-        Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("grabber");
+        Objects.requireNonNull(OrderRegistry.getOrderById(order.getOrderId())).setProgress("grabber");
 
-        zeebeClient.newCompleteCommand(job.getKey())
-                .variables(job.getVariables())
-                .send()
-                .join(); // join() to synchronously wait for the result, remove for async
-        monitorDataProducer.sendMonitorUpdate(orderIdJob, "setProgressGrabber", success.name());
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressGrabber", success.name());
     }
 
     /**
      * This method sends a message to the Zeebe broker to set the progress of an order to "delivery".
-     * It creates a new complete command, sets the variables, and sends the command.
      *
-     * @param job The job that contains the details of the order.
+     * @param order The order.
      */
-    @JobWorker(type = "setProgressDelivery", name = "setProgressDeliveryProcessor", autoComplete = false)
-    public void setProgressDelivery(final ActivatedJob job) {
-        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
-
-        String orderIdJob = (String) orderFromJob.get("orderId");
-
+    @JobWorker(type = "setProgressDelivery", name = "setProgressDeliveryProcessor")
+    public void setProgressDelivery(@Variable Order order) {
         sleep(2000);
-        Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("delivery");
+        Objects.requireNonNull(OrderRegistry.getOrderById(order.getOrderId())).setProgress("delivery");
 
-        zeebeClient.newCompleteCommand(job.getKey())
-                .variables(job.getVariables())
-                .send()
-                .join(); // join() to synchronously wait for the result, remove for async
-        monitorDataProducer.sendMonitorUpdate(orderIdJob, "setProgressDelivery", success.name());
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressDelivery", success.name());
     }
 
     /**
      * This method sends a message to the Zeebe broker to set the progress of an order to "delivered".
-     * It creates a new complete command, sets the variables, and sends the command.
      *
-     * @param job The job that contains the details of the order.
+     * @param order The order.
      */
-    @JobWorker(type = "setProgressDelivered", name = "setProgressDeliveredProcessor", autoComplete = false)
-    public void setProgressDelivered(final ActivatedJob job) {
-        Map<String, Object> orderFromJob = (Map<String, Object>) job.getVariablesAsMap().get("order");
-
-        String orderIdJob = (String) orderFromJob.get("orderId");
-
+    @JobWorker(type = "setProgressDelivered", name = "setProgressDeliveredProcessor")
+    public void setProgressDelivered(@Variable Order order) {
         sleep(2000);
-        Objects.requireNonNull(OrderRegistry.getOrderById(orderIdJob)).setProgress("delivered");
+        Objects.requireNonNull(OrderRegistry.getOrderById(order.getOrderId())).setProgress("delivered");
 
-        zeebeClient.newCompleteCommand(job.getKey())
-                .variables(job.getVariables())
-                .send()
-                .join(); // join() to synchronously wait for the result, remove for async
-
-        monitorDataProducer.sendMonitorUpdate(orderIdJob, "setProgressDelivered", success.name());
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressDelivered", success.name());
     }
 }
