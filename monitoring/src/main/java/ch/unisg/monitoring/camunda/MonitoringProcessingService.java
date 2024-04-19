@@ -3,6 +3,7 @@ package ch.unisg.monitoring.camunda;
 import ch.unisg.monitoring.utils.WorkflowLogger;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
+import io.camunda.zeebe.spring.client.annotation.Variable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,14 +33,10 @@ public class MonitoringProcessingService {
     /**
      * This method processes a new order to monitor.
      *
-     * @param job The job that contains the details of the order.
+     * @param orderId The ID of the order to monitor.
      */
-    @JobWorker(type = "newOrderToMonitor", name = "newOrderToMonitorProcessor", autoComplete = false)
-    public void newOrderToMonitor(final ActivatedJob job) {
-        // Now you can access individual properties within the 'order' object
-        String orderId = (String) job.getVariable("orderId");
-        WorkflowLogger.info(log, "newOrderToMonitor", "Starting Monitoring for order: " + job.getProcessInstanceKey() + " - " + orderId);
-        String orderIdJson = "{\"orderId\": \"" + orderId + "\"}";
-        camundaMessageSenderService.sendCompleteCommand(job.getKey(), orderIdJson);
+    @JobWorker(type = "newOrderToMonitor", name = "newOrderToMonitorProcessor")
+    public void newOrderToMonitor(@Variable String orderId) {
+        WorkflowLogger.info(log, "newOrderToMonitor", "Starting Monitoring for order: - " + orderId);
     }
 }
