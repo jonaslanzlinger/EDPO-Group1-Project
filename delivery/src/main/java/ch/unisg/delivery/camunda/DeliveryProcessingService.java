@@ -67,6 +67,8 @@ public class DeliveryProcessingService {
 
     /**
      * This method retrieves the color of the order at the light sensor.
+     * There is a circuit breaker implemented to handle timeouts.
+     *
      * @param job The job that contains the details of the order.
      * @param order The order to be processed.
      */
@@ -117,6 +119,7 @@ public class DeliveryProcessingService {
      * This method matches the color of the order to the color retrieved at the light sensor.
      * @param job The job that contains the detected color at the light sensor.
      * @param order The order to be processed.
+     * @param retrievedColor The color detected at the light sensor.
      */
     @JobWorker(type = "checkColor", name = "checkColorProcessor", autoComplete = false)
     public void checkColor(final ActivatedJob job, @Variable Order order,
