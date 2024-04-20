@@ -9,12 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * This is a Data Transfer Object (DTO) class for Grabber updates.
- * It uses Lombok's @Data annotation to generate getters, setters, equals, hashCode and toString methods.
- * It uses Lombok's @Builder annotation to provide a builder pattern for object creation.
- * It uses Lombok's @AllArgsConstructor to generate a constructor with all properties.
- * It uses Lombok's @NoArgsConstructor to generate a no-args constructor.
- * It implements Serializable interface to allow this object to be converted into a byte stream.
+ * This is a Data Transfer Object (DTO) class for Monitoring updates.
  */
 @Data
 @Builder
@@ -22,14 +17,19 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class MonitorUpdateDto implements Serializable {
 
+    /* The type of the message (Event, Command) */
     private String type;
 
+    /* The ID of the order to monitor */
     private String orderId;
 
+    /* The method that was called by a service */
     private String method;
 
+    /* The status of the method call (success, failed) */
     private String status;
 
+    /* The service that called the method */
     private String service;
 
     public static MonitorUpdateDto fromJson(String message) {

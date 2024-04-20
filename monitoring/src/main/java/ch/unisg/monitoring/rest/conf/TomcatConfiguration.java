@@ -8,6 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * This is a configuration class for Tomcat.
  * It uses Spring's @Controller annotation to indicate that it is a controller class.
+ * It serves the index.html file when the root URL is accessed.
  */
 @Controller
 public class TomcatConfiguration {

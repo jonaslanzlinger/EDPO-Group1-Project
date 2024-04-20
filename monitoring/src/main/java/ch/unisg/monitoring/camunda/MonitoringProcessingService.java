@@ -1,7 +1,6 @@
 package ch.unisg.monitoring.camunda;
 
 import ch.unisg.monitoring.utils.WorkflowLogger;
-import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
 import io.camunda.zeebe.spring.client.annotation.Variable;
 import lombok.extern.slf4j.Slf4j;
