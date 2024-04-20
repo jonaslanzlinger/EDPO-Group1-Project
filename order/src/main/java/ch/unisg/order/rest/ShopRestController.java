@@ -73,7 +73,7 @@ public class ShopRestController {
      */
     @GetMapping("/api/updates")
     public SseEmitter sendUpdates() {
-        SseEmitter emitter = new SseEmitter();
+        SseEmitter emitter = new SseEmitter(100L);
 
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode jsonArray = mapper.createArrayNode();
@@ -100,7 +100,7 @@ public class ShopRestController {
     @ResponseBody
     @GetMapping("/api/currentStock")
     public SseEmitter sendCurrentStock() {
-        SseEmitter emitter = new SseEmitter();
+        SseEmitter emitter = new SseEmitter(100L);
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode jsonObject1 = mapper.createObjectNode();

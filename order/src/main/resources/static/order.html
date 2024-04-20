@@ -152,11 +152,12 @@
         let evtSource = new EventSource("/api/updates");
         evtSource.onmessage = function(event) {
             let positionDictionary = {
-                "ordered": {x: 10, y: 10},
+                "ordered": {x: 20, y: 50},
                 "warehouse": {x: 200, y: 300},
                 "grabber": {x: 460, y: 400},
                 "delivery": {x: 500, y: 590},
-                "delivered": {x: 50, y: 50}
+                "delivered": {x: 760, y: 50},
+                "failure": {x: 760, y: 125},
             };
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);

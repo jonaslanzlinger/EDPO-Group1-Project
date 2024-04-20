@@ -114,4 +114,19 @@ public class ProcessStarterService {
 
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressDelivered", success.name());
     }
+
+    /**
+     * This method sends a message to the Zeebe broker to set the progress of an order to "failure".
+     *
+     * @param order The order.
+     *
+     */
+    @JobWorker(type = "setProgressFailure", name = "setProgressFailureProcessor")
+    public void setProgressFailure(@Variable Order order) {
+        Objects.requireNonNull(OrderRegistry.getOrderById(order.getOrderId())).setProgress("failure");
+
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressFailure", success.name());
+    }
+
+
 }
