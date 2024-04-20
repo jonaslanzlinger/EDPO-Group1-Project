@@ -5,7 +5,7 @@ A user can order a product, which will be removed from the HighBay Warehouse, tr
 
 ## Services
 The application is built with a microservice architecture and uses Kafka, Camunda and MQTT to communicate between the services.
-The services are:
+The services are (click on the links for their respective READMEs):
 * [Order Service](order/README.md)
 * [Warehouse Service](warehouse/README.md)
 * [Grabber Service](grabber/README.md)
