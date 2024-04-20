@@ -79,4 +79,14 @@ public class CamundaService {
                 .send()
                 .join(); // join() to synchronously wait for the result, remove for async
     }
+
+    /**
+     * Sends a complete command to the Camunda engine.
+     * @param jobKey The key of the job to be completed.
+     */
+    public void sendCompleteCommand(long jobKey) {
+        zeebeClient.newCompleteCommand(jobKey)
+                .send()
+                .join(); // join() to synchronously wait for the result, remove for async
+    }
 }

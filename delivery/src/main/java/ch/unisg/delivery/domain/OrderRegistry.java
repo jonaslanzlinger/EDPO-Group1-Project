@@ -30,33 +30,11 @@ public class OrderRegistry {
 
     /**
      * @return The order that is at the front of the queue.
-     * @throws IndexOutOfBoundsException If there are no orders in the registry.
      */
     public static Order pop() {
         if (orders.isEmpty()) {
             return null;
         }
         return orders.remove(0);
-    }
-
-    /**
-     * @param color The color of the order to be removed.
-     * @return The order that is at the front of the queue with the specified color.
-     */
-    public static Order popNextOrderByColor(String color) {
-        for (Order order : orders) {
-            if (order.getOrderColor().equals(color)) {
-                orders.remove(order);
-                return order;
-            }
-        }
-        return null;
-    }
-
-    public static Order peek() {
-        if (orders.isEmpty()) {
-            return null;
-        }
-        return orders.get(0);
     }
 }

@@ -26,6 +26,7 @@ import java.net.http.HttpResponse;
 
 import java.util.Map;
 
+import static ch.unisg.delivery.kafka.producer.MonitorDataProducer.MonitorStatus.failed;
 import static ch.unisg.delivery.kafka.producer.MonitorDataProducer.MonitorStatus.success;
 
 /**
@@ -97,6 +98,7 @@ public class DeliveryProcessingService {
                 String variables = "{ \"retrievedColor\": \"" + response.body() + "\"}";
 
                 camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
+                monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "retrieveColor", success.name());
                 return null;
             }
 
@@ -105,11 +107,10 @@ public class DeliveryProcessingService {
                 WorkflowLogger.info(log, "retrieveColor","Circuit breaker - Fallback occurred.");
 
                 camundaMessageSenderService.throwErrorCommand("FactoryTimeoutError", "Error retrieving color at light sensor.", job.getKey());
+                monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "retrieveColor", failed.name());
                 return null;
             }
         }.execute();
-
-        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "retrieveColor", success.name());
     }
 
     /**
@@ -117,29 +118,26 @@ public class DeliveryProcessingService {
      * @param job The job that contains the detected color at the light sensor.
      * @param order The order to be processed.
      */
-    @JobWorker(type = "matchColorToOrder", name = "matchColorToOrderProcessor", autoComplete = false)
-    public void matchColorToOrder(final ActivatedJob job, @Variable Order order,
+    @JobWorker(type = "checkColor", name = "checkColorProcessor", autoComplete = false)
+    public void checkColor(final ActivatedJob job, @Variable Order order,
                                   @Variable String retrievedColor) {
-        Order matchedOrder = OrderRegistry.popNextOrderByColor(retrievedColor);
 
-        String orderVariables = null;
-        if (matchedOrder == null) {
-            WorkflowLogger.info(log, "matchColorToOrder","No order found for color: " + retrievedColor);
-            OrderRegistry.pop();
-            orderVariables =
-                    "{\"matchFound\": \"false\", \"order\": {\"orderColor\": \"" + order.getOrderColor() + "\"," +
-                    "\"orderId\": \"" + order.getOrderId() + "\"," +
-                    "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}}";
+        if (retrievedColor.equals(order.getOrderColor())) {
+            WorkflowLogger.info(log, "checkColor",
+                    "Color is correct: " + order.getOrderId() + " - orderColor=" + order.getOrderColor() + " detectedColor=" + retrievedColor);
+
+            camundaMessageSenderService.sendCompleteCommand(job.getKey());
+            monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "checkColor", success.name());
         } else {
-            WorkflowLogger.info(log, "matchColorToOrder","Order found for color: " + retrievedColor);
-            orderVariables = "{\"matchFound\": \"true\", \"order\": {\"orderColor\": \"" + order.getOrderColor() + "\"," +
-                    "\"orderId\": \"" + order.getOrderId() + "\"," +
-                    "\"deliveryMethod\": \"" + order.getDeliveryMethod() + "\"}}";
+            WorkflowLogger.info(log, "checkColor",
+                    "Color is incorrect: " + order.getOrderId() + " - orderColor=" + order.getOrderColor() + " detectedColor=" + retrievedColor);
+
+
+            camundaMessageSenderService.throwErrorCommand("ColorMismatchError",
+                    "Color mismatch between order and detected color at light sensor.", job.getKey());
+            monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "checkColor", failed.name());
+
         }
-
-        camundaMessageSenderService.sendCompleteCommand(job.getKey(), orderVariables);
-
-        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "matchColorToOrder", success.name());
     }
 
     /**

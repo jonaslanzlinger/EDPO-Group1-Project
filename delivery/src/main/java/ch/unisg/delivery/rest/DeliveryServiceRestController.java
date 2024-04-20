@@ -54,7 +54,7 @@ public class DeliveryServiceRestController {
     @GetMapping("/triggerLightSensor")
     public String triggerLightSensor(){
 
-        Order order = OrderRegistry.peek();
+        Order order = OrderRegistry.pop();
         if (order == null) {
             return "No orders to process.";
         }

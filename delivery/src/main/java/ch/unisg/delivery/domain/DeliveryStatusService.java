@@ -36,11 +36,13 @@ public class DeliveryStatusService {
         // TODO don't know which sensor is which. Therefore, listen on both...
         if (vgr_1.isI4_light_barrier() || vgr_1.isI7_light_barrier()) {
             try {
-                WorkflowLogger.info(log, "updateDeliveryStatus","Light sensor triggered.");
+                String orderId = OrderRegistry.pop().getOrderId();
 
-                camundaMessageSenderService.sendMessageCommand("Msg_ProductAtLightSensor");
-            } catch (IndexOutOfBoundsException e) {
-                // no orders in the registry
+                camundaMessageSenderService.sendMessageCommand(
+                        "ProductAtLightSensor",
+                        orderId);
+            } catch (NullPointerException ignore) {} finally {
+                WorkflowLogger.info(log, "updateDeliveryStatus", "Light sensor triggered");
             }
         }
     }
