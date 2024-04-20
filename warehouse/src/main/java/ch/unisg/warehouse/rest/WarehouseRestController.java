@@ -10,12 +10,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 
+/**
+ * This is a REST controller for the warehouse.
+ * It provides endpoints for setting the warehouse status and getting the current stock.
+ */
 @RestController
 @RequiredArgsConstructor
 public class WarehouseRestController {
 
     private final WarehouseService warehouseService;
 
+    /**
+     * This endpoint sets the status of the warehouse.
+     * It creates a new WarehouseUpdateDto with the new status and passes it to the WarehouseService.
+     * @return A string indicating that the warehouse status has been updated.
+     */
     @GetMapping("/setStatus")
     public String setStatus() {
 
@@ -52,7 +61,11 @@ public class WarehouseRestController {
 
         return "Warehouse status updated";
     }
-
+    /**
+     * This endpoint retrieves the current stock of the warehouse.
+     * It calls the getStock method of the WarehouseService and returns the result.
+     * @return A string representation of the current stock of the warehouse.
+     */
     @GetMapping("/stock")
     public String getStock() {
         return warehouseService.getStock();
