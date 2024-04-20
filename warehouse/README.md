@@ -36,6 +36,8 @@ The JobWorker Annotation is used to define the type of task that the method is s
 The method then processes the task and sends the result back to the engine. The autoComplete flag is set to false, since we need to manually handle task completion and specify custom error handling.
 Additionally Zeebe allows us to define @Variable annotations to automatically map the variables that are passed to the task to the method parameters. This reduces boilerplate and increases readability.
 
+![bpmnWarehouse](../images/bpmnWarehouse.png)
+
 ## REST API
 The rest part of this Service is currently under construction. For now the Rest Controller allows the user to manually set the stock of the warehouse and to retrieve the current stock of the warehouse. This is useful for testing and development. 
 In the latter part of this course, we will expand the REST communication to allow the warehouse Service to communicate with the Smart Factory and actually interact and control the warehouse.
