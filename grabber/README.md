@@ -49,4 +49,4 @@ Additionally Zeebe allows us to define @Variable annotations to automatically ma
 passed to the task to the method parameters. This also reduces boilerplate and increases readability.
 For now, this method only prints out a log message and simulates processing time.
 
-![bpmnGrabber.png](..%2Fdocs%2Fimages%2FbpmnGrabber.png)
+![bpmnGrabber.png](..%2Fdocs%2Fimages%2Fbmpns%2FbpmnGrabber.png)

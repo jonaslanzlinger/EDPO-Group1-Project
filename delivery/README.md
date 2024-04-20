@@ -60,7 +60,7 @@ is default set to "true"
 Additionally Zeebe allows us to define @Variable annotations to automatically map the variables that are 
 passed to the task to the method parameters. This also reduces boilerplate and increases readability.
 
-![bpmnDelivery.png](..%2Fdocs%2Fimages%2FbpmnDelivery.png)
+![bpmnDelivery.png](..%2Fdocs%2Fimages%2Fbmpns%2FbpmnDelivery.png)
 
 ## REST API
 The Delivery service also provides a REST API to interact with the service. The API is used to enable 

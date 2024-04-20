@@ -23,7 +23,7 @@ In the following, we will describe the rough flow of the whole process:
 * At each major step in the process, the order service will send a message to the monitoring service to 
   inform it about the current status of the order.
 
-![bpmnOrder.png](..%2Fdocs%2Fimages%2FbpmnOrder.png)
+![bpmnOrder.png](..%2Fdocs%2Fimages%2Fbmpns%2FbpmnOrder.png)
 
 ## Domain
 In the domain we have the necessary classes to represent Orders, the OrderRegistry and a replica of the 
