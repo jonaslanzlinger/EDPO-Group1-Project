@@ -11,7 +11,7 @@ A user can order a product, which will be removed from the HighBay Warehouse, tr
 * BMPN Diagrams: [bmpns](docs%2Fimages%2Fbmpns)
 * Sequence Diagram: [sequence_diagram.pdf](docs%2Fsequence_diagram%2Fsequence_diagram.pdf)
 * Presentation PDF: [intermediate_presentation.pdf](docs%2Fintermediate_presentation.pdf)
-* Word Document, hand-in: 
+* Word Document, hand-in: [intermediate_report.pdf](docs%2Fintermediate_report.pdf)
 * Demo Instructions: Below
 * Previous hand-ins, Exercises 1-4: [https://github.com/KaiTries/EDPO-Group1](https://github.com/KaiTries/EDPO-Group1)
 
