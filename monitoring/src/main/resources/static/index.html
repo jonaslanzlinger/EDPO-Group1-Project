@@ -29,10 +29,7 @@
     <thead class="thead-dark">
     <tr>
         <th>OrderId</th>
-        <th>Service</th>
-        <th>Type</th>
-        <th>Method</th>
-        <th>Status</th>
+        <th>Messages</th>
     </tr>
 </table>
 
@@ -45,29 +42,68 @@
         }
     }
 
-    const table = document.getElementById('eventTable');
+    function groupByOrderId(events) {
+        const grouped = {};
+        events.forEach(item => {
+            if (!grouped[item.orderId]) {
+                grouped[item.orderId] = [];
+            }
+            grouped[item.orderId].push(item);
+        });
+        return grouped;
+    }
+
+    function button(item) {
+        let itemId = `${item.orderId}-${item.method}`;
+        return `<p>
+  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#${itemId}" aria-expanded="false" aria-controls="${itemId}">
+    Payload
+  </button>
+</p>
+<div class="collapse" id=${itemId}>
+  <div class="card card-body">
+    <ul>
+        <li>OrderId: ${item.orderId}</li>
+        <li>Service: ${item.service}</li>
+        <li>Type: ${item.type}</li>
+        <li>Method: ${item.method}</li>
+        <li>Status: ${item.status}</li>
+    </ul>
+  </div>
+</div>`
+    }
+
+    // Generate HTML table from grouped data
+    function createTable(groupedData) {
+        const table = document.getElementById('eventTable');
+        Object.keys(groupedData).forEach(orderId => {
+            const row = table.insertRow();
+            const cellOrder = row.insertCell();
+            cellOrder.textContent = orderId;
+            const cellMessages = row.insertCell();
+            let prefix = '';
+            cellMessages.innerHTML = groupedData[orderId].map(item => {
+                    switch (item.type) {
+                        case 'Event':
+                            prefix = `"alert alert-info"`
+                            break;
+                        case 'Command':
+                            prefix = `"alert alert-danger"`
+                            break;
+                    }
+                    return `<div class=` + prefix + `>` + `<b>${item.type}</b> (from service: ${item.service}) ${item.method}` + button(item) + `</div>`;
+                }
+            ).join('');
+        });
+
+        return table;
+    }
+
     let evtSource = new EventSource("/api/updates");
     evtSource.onmessage = function (event) {
         removeRows();
-        for (let token of JSON.parse(event.data)) {
-            const tablerow = document.createElement('tr');
-            const orderId = document.createElement('td');
-            orderId.innerHTML = token.orderId;
-            const service = document.createElement('td');
-            service.innerHTML = token.service;
-            const type = document.createElement('td');
-            type.innerHTML = token.type;
-            const method = document.createElement('td');
-            method.innerHTML = token.method;
-            const status = document.createElement('td');
-            status.innerHTML = token.status;
-            tablerow.appendChild(orderId);
-            tablerow.appendChild(service);
-            tablerow.appendChild(type);
-            tablerow.appendChild(method);
-            tablerow.appendChild(status);
-            table.appendChild(tablerow);
-        }
+        const groupedData = groupByOrderId(JSON.parse(event.data));
+        const table = createTable(groupedData);
     };
 
 
