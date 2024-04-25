@@ -31,14 +31,18 @@ public class WarehouseService {
 
     /**
      * Updates the warehouse status with the data from the HBW_1 object and sends the updated status to the Kafka topic "warehouse".
+     * Status is only propagated to order service if stock differs from prev stock
      * @param hbw_1 The HBW_1 object containing the new warehouse status.
      */
     public void updateWarehouse(HBW_1 hbw_1) {
+        HBW_1 prevStatus = warehouseStatusService.getLatestStatus();
         warehouseStatusService.updateWarehouseStatus(hbw_1);
-        StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
-                .data(hbw_1.getCurrent_stock())
-                .build();
-        messageProducer.sendMessage(stockUpdateDto);
+        if (!prevStatus.getCurrent_stock().equals(hbw_1.getCurrent_stock())) {
+            StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
+                    .data(hbw_1.getCurrent_stock())
+                    .build();
+            messageProducer.sendMessage(stockUpdateDto);
+        }
     }
 
     /**
@@ -47,6 +51,8 @@ public class WarehouseService {
      * @return The product id of the retrieved product, or null if no product of the specified color is found.
      */
     public String getProduct(String color) {
+        // TODO: HERE IMPLEMENT UNLOAD FACTORY LOGIC
+
         String productId = getProductSlot(color);
         if (productId == null) {
             return null;
