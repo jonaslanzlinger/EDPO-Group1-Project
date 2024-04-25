@@ -1,10 +1,7 @@
 package org.example.mqtt;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +9,6 @@ import java.util.UUID;
 
 
 public class MqttClient {
-    private static final Logger LOGGER = LogManager.getLogger(MqttClient.class);
 
     private static MqttClient factoryClient = null;
 
