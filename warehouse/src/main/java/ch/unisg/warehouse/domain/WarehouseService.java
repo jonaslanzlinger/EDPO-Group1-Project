@@ -7,6 +7,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Map;
 
 /**
@@ -142,5 +147,25 @@ public class WarehouseService {
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
         hbw_1.getCurrent_stock().put(productSlot, color);
         updateWarehouse(hbw_1);
+    }
+
+    /**
+     * Sends a GET request to the endpoint.
+     * Once we receive an answer we know it has been calibrated.
+     */
+    public void positionHBW() throws URISyntaxException {
+        String url = "http://127.0.0.1:5001/hbw/calibrate?machine=hbw_1";
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(url))
+                .timeout(java.time.Duration.ofSeconds(10))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            log.info("Response from calibration: " + response.body());
+        } catch (Exception e) {
+            log.error("Error while calibrating HBW: " + e.getMessage());
+        }
     }
 }
