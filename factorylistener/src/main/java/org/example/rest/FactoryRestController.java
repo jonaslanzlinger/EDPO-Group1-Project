@@ -4,13 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 
-import org.example.messages.MessageSender;
-
-import org.example.mqtt.EventListenerMqttAdapter;
 import org.example.mqtt.MqttClient;
 import org.example.mqtt.MqttDispatcher;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,7 +27,8 @@ public class FactoryRestController {
     @RequestMapping(path = "/send", method = GET)
     public String startSending() {
 
-        MqttClient mqttClient = MqttClient.getInstance(URI.create("tcp://mqtt:1883"), mqttDispatcher);
+        MqttClient mqttClient = MqttClient.getInstance(URI.create("tcp://ftsim.weber.ics.unisg.ch:1883"), mqttDispatcher);
+
 
         try {
             mqttClient.connect();
