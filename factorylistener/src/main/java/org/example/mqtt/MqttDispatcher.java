@@ -12,8 +12,6 @@ import java.util.Set;
 @Component
 public class MqttDispatcher {
 
-    private static final Logger LOGGER = LogManager.getLogger(MqttDispatcher.class);
-
     private final Map<String, MqttListener> router;
 
     private final EventListenerMqttAdapter eventListenerMqttAdapter;
