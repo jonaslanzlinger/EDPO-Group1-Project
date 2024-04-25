@@ -39,6 +39,8 @@ public class MqttClient {
 
         if (factoryClient == null) {
             factoryClient = new MqttClient(brokerAddress, dispatcher);
+
+
         }
         return factoryClient;
     }
@@ -54,7 +56,12 @@ public class MqttClient {
 
     public void connect() throws MqttException {
         mqttClient = new org.eclipse.paho.client.mqttv3.MqttClient(brokerAddress.toASCIIString(), mqttClientId, new MemoryPersistence());
-        mqttClient.connect();
+
+        MqttConnectOptions options = new MqttConnectOptions();
+        options.setUserName("ftsim");
+        options.setPassword("unisg".toCharArray());
+        mqttClient.connect(options);
+
         mqttClient.setCallback(messageReceivedCallback);
 
         subscribeToAllRegisteredTopics();
