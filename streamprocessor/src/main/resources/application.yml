@@ -1,0 +1,8 @@
+server:
+  port: 8087
+
+kafka:
+  bootstrap-address: kafka:9092
+  group-id: streamprocessor
+  trusted-packages: ch.unisg.streamprocessor.kafka.dto
+

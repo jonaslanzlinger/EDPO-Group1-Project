@@ -27,7 +27,7 @@ public class MessageConsumer {
      * It updates the delivery station status with the data from the message.
      * @param message The message from the Kafka topic.
      */
-    @KafkaListener(topics = "VGR_1")
+    @KafkaListener(topics = "VGR_1-processed")
     public void startMessageProcess(DeliveryUpdateDto message){
         WorkflowLogger.info(log,"startMessageProcess", "Received message from Kafka topic: VGR_1");
         deliveryStatusService.updateDeliveryStatus(message.getData());
