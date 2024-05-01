@@ -17,11 +17,24 @@ public class ProcessingTopology {
 
         // TODO here (look at the example gaze project)
         KStream<byte[], String> stream =
-                builder.stream("VGR_1", Consumed.with(Serdes.ByteArray(), Serdes.String()));
-        stream.print(Printed.<byte[], String>toSysOut().withLabel("VGR_1"));
+                builder.stream("factory-all", Consumed.with(Serdes.ByteArray(), Serdes.String()));
+        stream.print(Printed.<byte[], String>toSysOut().withLabel("FACTORY-ALL"));
+
+
+        KStream<byte[], String>[] branches = stream.branch(
+                (key, value) -> value.contains("VGR_1"),
+                (key, value) -> value.contains("HBW_1")
+        );
+
 
         // Write to the output topic
         stream.to("VGR_1-processed",
+                Produced.with(
+                        Serdes.ByteArray(),
+                        Serdes.String()
+                ));
+
+        stream.to("HBW_1-processed",
                 Produced.with(
                         Serdes.ByteArray(),
                         Serdes.String()

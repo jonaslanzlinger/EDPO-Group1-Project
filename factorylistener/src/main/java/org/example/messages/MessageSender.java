@@ -42,7 +42,7 @@ public class MessageSender {
       String jsonMessage = objectMapper.writeValueAsString(m);
 
       // wrap into a proper message for Kafka including a header
-      ProducerRecord<String, String> record = new ProducerRecord<String, String>(m.getType(), jsonMessage);
+      ProducerRecord<String, String> record = new ProducerRecord<String, String>("factory-all", jsonMessage);
       record.headers().add("type", m.getType().getBytes());
       System.out.println("Sending message to topic: " + m.getType());
 

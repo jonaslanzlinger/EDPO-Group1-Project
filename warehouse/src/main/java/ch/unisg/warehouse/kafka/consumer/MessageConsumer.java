@@ -27,7 +27,7 @@ public class MessageConsumer {
      * It updates the warehouse status with the data from the message.
      * @param message The message from the Kafka topic.
      */
-    @KafkaListener(topics = "HBW_1")
+    @KafkaListener(topics = "HBW_1-processed")
     public void startMessageProcess(WarehouseUpdateDto message){
         WorkflowLogger.info(log,"startMessageProcess", "Received message from Kafka topic: HBW_1");
         warehouseService.updateWarehouse(message);
