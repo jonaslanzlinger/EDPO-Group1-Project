@@ -22,19 +22,22 @@ public class ProcessingTopology {
 
 
         KStream<byte[], String>[] branches = stream.branch(
-                (key, value) -> value.contains("VGR_1"),
-                (key, value) -> value.contains("HBW_1")
+                (key, value) -> value.contains("station=VGR_1"),
+                (key, value) -> value.contains("station=HBW_1")
         );
+
+        KStream<byte[], String> vgrStream = branches[0];
+        KStream<byte[], String> hbwStream = branches[1];
 
 
         // Write to the output topic
-        stream.to("VGR_1-processed",
+        vgrStream.to("VGR_1-processed",
                 Produced.with(
                         Serdes.ByteArray(),
                         Serdes.String()
                 ));
 
-        stream.to("HBW_1-processed",
+        hbwStream.to("HBW_1-processed",
                 Produced.with(
                         Serdes.ByteArray(),
                         Serdes.String()
