@@ -12,7 +12,7 @@ public class Message<T> {
   @Setter
   private String id = UUID.randomUUID().toString(); // unique id of this message
   private String source = "FactoryListener";
-  @Setter
+//  @Setter
   @JsonFormat(shape = JsonFormat.Shape.STRING) // ISO-8601 compliant format
   private Instant time = Instant.now();
   @Setter
@@ -28,9 +28,9 @@ public class Message<T> {
   }
 
   @Override
-  public String toString() {
-    return "Message [id=" + id + ", time=" + time + ", data=" + data + "]";
-  }
+    public String toString() {
+        return "Message [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", datacontenttype=" + datacontenttype + ", specversion=" + specversion + "]";
+    }
 
   public String getId() {
     return id;
