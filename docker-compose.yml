@@ -1,5 +1,4 @@
 services:
-
   order:
     hostname: order
     build:
@@ -23,6 +22,8 @@ services:
       - kafka
     networks:
       - edpo
+    environment:
+      - SERVICE_URL=http://host.docker.internal:5001
 
   grabber:
     hostname: grabber

@@ -10,6 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 import static ch.unisg.grabber.kafka.producer.MonitorDataProducer.MonitorStatus.success;
 import static ch.unisg.grabber.utils.Utility.sleep;
 
@@ -47,12 +54,22 @@ public class GrabberProcessingService {
      * @param order The order to process.
      */
     @JobWorker(type = "grabGoods", name = "grabGoodsProcessor")
-    public void grabGoods(@Variable Order order) {
+    public void grabGoods(@Variable Order order) throws URISyntaxException, IOException, InterruptedException {
         WorkflowLogger.info(log, "grabGoods",
                 "Processing order: - " + order.getOrderColor());
-        sleep(5000); // Simulate processing time
+        sleep(55000); // Simulate processing time
         WorkflowLogger.info(log, "grabGoods",
                 "Complete order: - " + order.getOrderColor());
+
+        // while loop to check light sensor
+        String url = "http://host.docker.internal:5001/vgr/pick_up_and_transport?machine=vgr_1&start=high_bay_warehouse&end=color_detection_delivery_pick_up_station";
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(url))
+                .GET()
+                .build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
 
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "grabGoods", success.name());
     }

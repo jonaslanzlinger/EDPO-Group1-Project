@@ -1,7 +1,5 @@
 package org.example.mqtt;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.stereotype.Component;
 
@@ -11,8 +9,6 @@ import java.util.Set;
 
 @Component
 public class MqttDispatcher {
-
-    private static final Logger LOGGER = LogManager.getLogger(MqttDispatcher.class);
 
     private final Map<String, MqttListener> router;
 
@@ -28,7 +24,9 @@ public class MqttDispatcher {
 
     private void initRouter() {
         // TODO: mqtt topic
-        router.put("factory", eventListenerMqttAdapter);
+
+        router.put("FTFactory/HBW_1",eventListenerMqttAdapter);
+        router.put("FTFactory/VGR_1",eventListenerMqttAdapter);
     }
 
     /**

@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import static ch.unisg.warehouse.utils.Utility.*;
 
 /**
@@ -186,8 +189,9 @@ public class WarehouseProcessingService {
     }
 
     @JobWorker(type = "positionHBW", name = "positionHBWProcessor",  autoComplete = false)
-    public void positionHBW(final ActivatedJob job, @Variable Order order) {
+    public void positionHBW(final ActivatedJob job, @Variable Order order) throws URISyntaxException {
         logInfo("positionHBW", "Positioning HBW");
+        warehouseService.positionHBW();
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), job.getVariables());
         monitorSuccessMessage(order.getOrderId(), "positionHBW");
         logInfo("positionHBW", "HBW positioned");
@@ -200,10 +204,8 @@ public class WarehouseProcessingService {
      * @param job The job that contains the details of the order.
      */
     @JobWorker(type = "unloadProduct", name = "unloadProductProcessor",  autoComplete = false)
-    public void unloadProduct(final ActivatedJob job, @Variable Order order) {
+    public void unloadProduct(final ActivatedJob job, @Variable Order order) throws URISyntaxException, InterruptedException, IOException {
         logInfo("unloadProduct", "Unloading product");
-
-        sleep(5000);
 
         String orderColor = order.getOrderColor();
 
