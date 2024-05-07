@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -148,8 +150,19 @@ public class DeliveryProcessingService {
      * @param order The order that has been matched.
      */
     @JobWorker(type = "orderMatched", name = "orderMatchedProcessor")
-    public void orderMatched(@Variable Order order) {
+    public void orderMatched(@Variable Order order) throws URISyntaxException, IOException, InterruptedException {
         WorkflowLogger.info(log, "orderMatched","Order matched: " + order.getOrderId() + " - " + order.getOrderColor());
+
+
+        String url = "http://host.docker.internal:5001/vgr/pick_up_and_transport?machine=vgr_1&start=color_detection_delivery_pick_up_station&end=high_bay_warehouse_delivery_station";
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(url))
+                .GET()
+                .build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "orderMatched", success.name());
     }
 }

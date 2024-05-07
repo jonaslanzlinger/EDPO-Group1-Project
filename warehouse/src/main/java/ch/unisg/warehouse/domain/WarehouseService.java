@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -40,14 +41,16 @@ public class WarehouseService {
      * @param hbw_1 The HBW_1 object containing the new warehouse status.
      */
     public void updateWarehouse(HBW_1 hbw_1) {
-        HBW_1 prevStatus = warehouseStatusService.getLatestStatus();
         warehouseStatusService.updateWarehouseStatus(hbw_1);
+
+        /*
+        HBW_1 prevStatus = warehouseStatusService.getLatestStatus();
         if (!prevStatus.getCurrent_stock().equals(hbw_1.getCurrent_stock())) {
-            StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
+        */    StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
                     .data(hbw_1.getCurrent_stock())
                     .build();
             messageProducer.sendMessage(stockUpdateDto);
-        }
+        //}
     }
 
     /**
@@ -55,7 +58,7 @@ public class WarehouseService {
      * @param color The color of the product to retrieve.
      * @return The product id of the retrieved product, or null if no product of the specified color is found.
      */
-    public String getProduct(String color) {
+    public String getProduct(String color) throws URISyntaxException, InterruptedException, IOException {
         // TODO: HERE IMPLEMENT UNLOAD FACTORY LOGIC
 
         String productId = getProductSlot(color);
@@ -66,6 +69,25 @@ public class WarehouseService {
         if (hbw_1 == null) {
             return null;
         }
+
+        String url = "http://host.docker.internal:5001/process/unload_from_hbw_container?color=" + color;
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(url))
+                .GET()
+                .build();
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
+            // Check response status code or handle response
+            System.out.println("Response status code: " + response.statusCode());
+            System.out.println("Response body: " + response.body());
+            // Call releaseHBW on successful completion of request
+            warehouseStatusService.releaseHBW();
+        }).exceptionally(ex -> {
+            // Handle any exceptions here
+            System.err.println("Request failed: " + ex.getMessage());
+            return null;
+        });
+        // onComplete -> HBW release
         hbw_1.getCurrent_stock().put(productId, "");
         updateWarehouse(hbw_1);
         return productId;
@@ -154,11 +176,10 @@ public class WarehouseService {
      * Once we receive an answer we know it has been calibrated.
      */
     public void positionHBW() throws URISyntaxException {
-        String url = "http://127.0.0.1:5001/hbw/calibrate?machine=hbw_1";
+        String url = "http://host.docker.internal:5001/hbw/calibrate?machine=hbw_1";
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url))
-                .timeout(java.time.Duration.ofSeconds(10))
                 .GET()
                 .build();
         try {
