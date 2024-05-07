@@ -58,3 +58,61 @@ The MQTT messages from the factory will now get relayed to the other services vi
 10. Hint: Check the logs of the services to see the messages being processed.
 11. Hint: Check online through camunda the process instances and tasks.
 12. Hint: Check the monitoring service to see the metrics of the service. (`http://localhost:8086/`)
+
+# TODO Stream processing
+## Single event processors
+### Content filter
+```java
+builder
+    .stream("temperature", Consumed.with(Serdes.Long(), readingSerde))
+    .mapValues(
+        (reading) -> {
+            DeviceTemperature devTemp = new DeviceTemperature();
+            devTemp.setDeviceID(reading.getDeviceID());
+            devTemp.setTemperature(reading.getTemperature());
+            return devTemp;
+        })
+    .to("deviceTemp", Consumed.with(Serdes.Long(), deviceTempSerde));
+```
+könnted ali sensore usefiltere wommer ned bruched
+### Event filter
+```java
+builder
+        .stream("temperature")
+        .filter((key, reading) -> reading.temperature >= 20.5)
+        .to("high_temperature");
+```
+könntemer implementiere zum nume events wiiterleite wo au changes hend
+### Event translation
+```java
+builder
+        .stream("input-topic”)
+        .mapValues((v) -> v.toUpperCase())
+        .to("output-Topic");
+```
+Vielich date ahpasse -> zB sensore nummere zu Farbe mappe
+### Event router
+```java
+StreamsBuilder builder = new StreamsBuilder();
+KStream<Long, Reading> readings = builder.stream("temperature");
+final KStream<Long, Reading>[] branches = readings.branch(
+        (id, reading) -> reading.getTemperature() >= 20.5,
+        (id, reading) -> reading.getTemperature() <19);
+branch[0].to("high_temperature");
+branch[1].to("low_temperature");
+```
+Scho implementiert vom jonas -> route zu versch statione
+### Event splitter
+```java
+builder
+    .stream("sentences")
+    .flatMapValues((k, v) ->
+        Array.asList(v.toLowerCase().split(" "))
+    .to("words");
+```
+gsehni gad nix relevants
+### Event stream Merger
+```java
+KStream<byte[], Tweet> mergedStream = englishStream.merge(translatedStream);
+```
+gsehni au no nix
