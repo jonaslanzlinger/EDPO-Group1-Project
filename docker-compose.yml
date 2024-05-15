@@ -85,6 +85,18 @@ services:
     networks:
       - edpo
 
+  streamprocessor:
+    hostname: streamprocessor
+    build:
+      context: streamprocessor/
+      dockerfile: Dockerfile
+    ports:
+      - 8087:8087
+    depends_on:
+      - kafka
+    networks:
+      - edpo
+
   zookeeper:
     image: "bitnami/zookeeper:latest"
     hostname: zookeeper
