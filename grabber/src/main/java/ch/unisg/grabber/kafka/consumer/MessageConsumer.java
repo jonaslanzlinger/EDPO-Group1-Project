@@ -28,7 +28,7 @@ public class MessageConsumer {
      * It uses Spring's @KafkaListener annotation to listen for messages on the "VGR_1" topic.
      * @param message The received message.
      */
-    @KafkaListener(topics = "VGR_1")
+    @KafkaListener(topics = "VGR_1-processed")
     public void startMessageProcess(GrabberUpdateDto message){
         WorkflowLogger.info(log,"startMessageProcess", "Received message from Kafka topic: VGR_1");
         grabberStatusService.setLatestStatus(message.getData());
