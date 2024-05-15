@@ -1,9 +1,11 @@
 package ch.unisg.grabber.kafka.consumer;
 
+import ch.unisg.grabber.domain.GrabberStatusService;
 import ch.unisg.grabber.kafka.dto.GrabberUpdateDto;
 import ch.unisg.grabber.utils.WorkflowLogger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MessageConsumer {
 
+    @Autowired
+    private GrabberStatusService grabberStatusService;
+
     /**
      * This method starts the message process when a message is received on the "VGR_1" topic.
      * It uses Spring's @KafkaListener annotation to listen for messages on the "VGR_1" topic.
@@ -26,6 +31,7 @@ public class MessageConsumer {
     @KafkaListener(topics = "VGR_1")
     public void startMessageProcess(GrabberUpdateDto message){
         WorkflowLogger.info(log,"startMessageProcess", "Received message from Kafka topic: VGR_1");
+        grabberStatusService.setLatestStatus(message.getData());
     }
 
 }
