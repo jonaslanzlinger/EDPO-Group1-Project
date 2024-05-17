@@ -61,8 +61,6 @@ public class WarehouseService {
      * @return The product id of the retrieved product, or null if no product of the specified color is found.
      */
     public String getProduct(String color) throws URISyntaxException, InterruptedException, IOException {
-        // TODO: HERE IMPLEMENT UNLOAD FACTORY LOGIC
-
         String productId = getProductSlot(color);
         if (productId == null) {
             return null;

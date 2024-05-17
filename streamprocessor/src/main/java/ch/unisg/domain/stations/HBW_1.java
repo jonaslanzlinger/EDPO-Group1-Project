@@ -69,64 +69,64 @@ public class HBW_1 extends Station {
         return i1_light_barrier;
     }
 
-    public void setI1_light_barrier(boolean i1_light_barrier) {
-        this.i1_light_barrier = i1_light_barrier;
+    public void setI1_light_barrier(double i1_light_barrier) {
+        this.i1_light_barrier = i1_light_barrier == 1.0;
     }
 
     public boolean isI2_light_barrier() {
         return i2_light_barrier;
     }
 
-    public void setI2_light_barrier(boolean i2_light_barrier) {
-        this.i2_light_barrier = i2_light_barrier;
+    public void setI2_light_barrier(double i2_light_barrier) {
+        this.i2_light_barrier = i2_light_barrier == 1.0;
     }
 
     public boolean isI3_light_barrier() {
         return i3_light_barrier;
     }
 
-    public void setI3_light_barrier(boolean i3_light_barrier) {
-        this.i3_light_barrier = i3_light_barrier;
+    public void setI3_light_barrier(double i3_light_barrier) {
+        this.i3_light_barrier = i3_light_barrier == 1.0;
     }
 
     public boolean isI4_light_barrier() {
         return i4_light_barrier;
     }
 
-    public void setI4_light_barrier(boolean i4_light_barrier) {
-        this.i4_light_barrier = i4_light_barrier;
+    public void setI4_light_barrier(double i4_light_barrier) {
+        this.i4_light_barrier = i4_light_barrier == 1.0;
     }
 
     public boolean isI5_pos_switch() {
         return i5_pos_switch;
     }
 
-    public void setI5_pos_switch(boolean i5_pos_switch) {
-        this.i5_pos_switch = i5_pos_switch;
+    public void setI5_pos_switch(double i5_pos_switch) {
+        this.i5_pos_switch = i5_pos_switch == 1.0;
     }
 
     public boolean isI6_pos_switch() {
         return i6_pos_switch;
     }
 
-    public void setI6_pos_switch(boolean i6_pos_switch) {
-        this.i6_pos_switch = i6_pos_switch;
+    public void setI6_pos_switch(double i6_pos_switch) {
+        this.i6_pos_switch = i6_pos_switch == 1.0;
     }
 
     public boolean isI7_pos_switch() {
         return i7_pos_switch;
     }
 
-    public void setI7_pos_switch(boolean i7_pos_switch) {
-        this.i7_pos_switch = i7_pos_switch;
+    public void setI7_pos_switch(double i7_pos_switch) {
+        this.i7_pos_switch = i7_pos_switch == 1.0;
     }
 
     public boolean isI8_pos_switch() {
         return i8_pos_switch;
     }
 
-    public void setI8_pos_switch(boolean i8_pos_switch) {
-        this.i8_pos_switch = i8_pos_switch;
+    public void setI8_pos_switch(double i8_pos_switch) {
+        this.i8_pos_switch = i8_pos_switch == 1.0;
     }
 
     public double getM1_speed() {

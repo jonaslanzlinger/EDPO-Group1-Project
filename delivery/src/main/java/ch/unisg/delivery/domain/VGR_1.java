@@ -22,21 +22,21 @@ public class VGR_1 {
     // The timestamp of the VGR unit's status
     private String timestamp;
     // The status of the first position switch
-    private double i1_pos_switch;
+    private boolean i1_pos_switch;
     // The status of the second position switch
-    private double i2_pos_switch;
+    private boolean i2_pos_switch;
     // The status of the third position switch
-    private double i3_pos_switch;
+    private boolean i3_pos_switch;
     // The status of the first light barrier
-    private double i7_light_barrier;
+    private boolean i7_light_barrier;
     // The status of the second light barrier
-    private double i4_light_barrier;
+    private boolean i4_light_barrier;
     // The status of the color sensor
     private double i8_color_sensor;
     // The compressor level
     private double o7_compressor_level;
     // The status of the valve
-    private double o8_valve_open;
+    private boolean o8_valve_open;
     // The speed of the first motor
     private double m1_speed;
     // The speed of the second motor

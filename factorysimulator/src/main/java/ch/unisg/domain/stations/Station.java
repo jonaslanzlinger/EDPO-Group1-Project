@@ -1,18 +1,15 @@
 package ch.unisg.domain.stations;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Station {
-
     String id;
-
     String station;
-
-    public Station(String id, String station) {
-        this.id = id;
-        this.station = station;
-    }
 }

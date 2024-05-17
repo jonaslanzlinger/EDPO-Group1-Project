@@ -88,40 +88,40 @@ public class VGR_1 extends Station {
         return i1_pos_switch;
     }
 
-    public void setI1_pos_switch(boolean i1_pos_switch) {
-        this.i1_pos_switch = i1_pos_switch;
+    public void setI1_pos_switch(double i1_pos_switch) {
+        this.i1_pos_switch = i1_pos_switch == 1.0;
     }
 
     public boolean isI2_pos_switch() {
         return i2_pos_switch;
     }
 
-    public void setI2_pos_switch(boolean i2_pos_switch) {
-        this.i2_pos_switch = i2_pos_switch;
+    public void setI2_pos_switch(double i2_pos_switch) {
+        this.i2_pos_switch = i2_pos_switch == 1.0;
     }
 
     public boolean isI3_pos_switch() {
         return i3_pos_switch;
     }
 
-    public void setI3_pos_switch(boolean i3_pos_switch) {
-        this.i3_pos_switch = i3_pos_switch;
+    public void setI3_pos_switch(double i3_pos_switch) {
+        this.i3_pos_switch = i3_pos_switch == 1.0;
     }
 
     public boolean isI7_light_barrier() {
         return i7_light_barrier;
     }
 
-    public void setI7_light_barrier(boolean i7_light_barrier) {
-        this.i7_light_barrier = i7_light_barrier;
+    public void setI7_light_barrier(double i7_light_barrier) {
+        this.i7_light_barrier = i7_light_barrier == 1.0;
     }
 
     public boolean isI4_light_barrier() {
         return i4_light_barrier;
     }
 
-    public void setI4_light_barrier(boolean i4_light_barrier) {
-        this.i4_light_barrier = i4_light_barrier;
+    public void setI4_light_barrier(double i4_light_barrier) {
+        this.i4_light_barrier = i4_light_barrier == 1.0;
     }
 
     public double getI8_color_sensor() {
@@ -144,8 +144,8 @@ public class VGR_1 extends Station {
         return o8_valve_open;
     }
 
-    public void setO8_valve_open(boolean o8_valve_open) {
-        this.o8_valve_open = o8_valve_open;
+    public void setO8_valve_open(double o8_valve_open) {
+        this.o8_valve_open = o8_valve_open == 1.0;
     }
 
     public double getM1_speed() {

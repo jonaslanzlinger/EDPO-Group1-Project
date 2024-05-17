@@ -24,21 +24,21 @@ public class HBW_1 {
     // The timestamp of the HBW unit's status
     private String timestamp;
     // The status of the first light barrier
-    private double i1_light_barrier;
+    private boolean i1_light_barrier;
     // The status of the second light barrier
-    private double i2_light_barrier;
+    private boolean i2_light_barrier;
     // The status of the third light barrier
-    private double i3_light_barrier;
+    private boolean i3_light_barrier;
     // The status of the fourth light barrier
-    private double i4_light_barrier;
+    private boolean i4_light_barrier;
     // The status of the first position switch
-    private double i5_pos_switch;
+    private boolean i5_pos_switch;
     // The status of the second position switch
-    private double i6_pos_switch;
+    private boolean i6_pos_switch;
     // The status of the third position switch
-    private double i7_pos_switch;
+    private boolean i7_pos_switch;
     // The status of the fourth position switch
-    private double i8_pos_switch;
+    private boolean i8_pos_switch;
     // The speed of the first motor
     private double m1_speed;
     // The speed of the second motor

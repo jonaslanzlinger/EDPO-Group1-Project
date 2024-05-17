@@ -27,7 +27,7 @@ public class FactoryRestController {
     @RequestMapping(path = "/send", method = GET)
     public String startSending() {
 
-        MqttClient mqttClient = MqttClient.getInstance(URI.create("tcp://ftsim.weber.ics.unisg.ch:1883"), mqttDispatcher);
+        MqttClient mqttClient = MqttClient.getInstance(URI.create("tcp://mqtt:1883"), mqttDispatcher);
 
         try {
             mqttClient.connect();
