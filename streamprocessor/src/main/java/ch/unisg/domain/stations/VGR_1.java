@@ -1,5 +1,11 @@
 package ch.unisg.domain.stations;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class VGR_1 extends Station {
 
     private String timestamp;
@@ -49,17 +55,17 @@ public class VGR_1 extends Station {
     private double target_pos_z;
 
 
-    public VGR_1(String id, String station, String timestamp, boolean i1_pos_switch, boolean i2_pos_switch, boolean i3_pos_switch, boolean i7_light_barrier, boolean i4_light_barrier, double i8_color_sensor, double o7_compressor_level, boolean o8_valve_open, double m1_speed, double m2_speed, double m3_speed, String current_state, String current_task, double current_task_duration, String current_sub_task, String failure_label, double current_pos_x, double current_pos_y, double current_pos_z, double target_pos_x, double target_pos_y, double target_pos_z) {
+    public VGR_1(String id, String station, String timestamp, double i1_pos_switch, double i2_pos_switch, double i3_pos_switch, double i7_light_barrier, double i4_light_barrier, double i8_color_sensor, double o7_compressor_level, double o8_valve_open, double m1_speed, double m2_speed, double m3_speed, String current_state, String current_task, double current_task_duration, String current_sub_task, String failure_label, double current_pos_x, double current_pos_y, double current_pos_z, double target_pos_x, double target_pos_y, double target_pos_z) {
         super(id, station);
         this.timestamp = timestamp;
-        this.i1_pos_switch = i1_pos_switch;
-        this.i2_pos_switch = i2_pos_switch;
-        this.i3_pos_switch = i3_pos_switch;
-        this.i7_light_barrier = i7_light_barrier;
-        this.i4_light_barrier = i4_light_barrier;
+        this.i1_pos_switch = i1_pos_switch == 1.0;
+        this.i2_pos_switch = i2_pos_switch== 1.0;
+        this.i3_pos_switch = i3_pos_switch== 1.0;
+        this.i7_light_barrier = i7_light_barrier== 1.0;
+        this.i4_light_barrier = i4_light_barrier== 1.0;
         this.i8_color_sensor = i8_color_sensor;
         this.o7_compressor_level = o7_compressor_level;
-        this.o8_valve_open = o8_valve_open;
+        this.o8_valve_open = o8_valve_open== 1.0;
         this.m1_speed = m1_speed;
         this.m2_speed = m2_speed;
         this.m3_speed = m3_speed;
