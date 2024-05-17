@@ -1,19 +1,14 @@
 package ch.unisg.delivery.camunda;
 
+import ch.unisg.delivery.domain.DeliveryStatusService;
 import ch.unisg.delivery.domain.Order;
 import ch.unisg.delivery.domain.OrderRegistry;
-import ch.unisg.delivery.kafka.dto.MonitorUpdateDto;
 import ch.unisg.delivery.kafka.producer.MonitorDataProducer;
 import ch.unisg.delivery.utils.WorkflowLogger;
 
-import com.google.errorprone.annotations.Var;
-import com.netflix.hystrix.HystrixCommand;
-import com.netflix.hystrix.HystrixCommandGroupKey;
-import com.netflix.hystrix.HystrixCommandProperties;
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
 import io.camunda.zeebe.spring.client.annotation.Variable;
-import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +21,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import java.util.Map;
 
 import static ch.unisg.delivery.kafka.producer.MonitorDataProducer.MonitorStatus.failed;
 import static ch.unisg.delivery.kafka.producer.MonitorDataProducer.MonitorStatus.success;
@@ -40,7 +34,7 @@ import static ch.unisg.delivery.kafka.producer.MonitorDataProducer.MonitorStatus
 public class DeliveryProcessingService {
 
     private final CamundaService camundaMessageSenderService;
-
+    private final DeliveryStatusService deliveryStatusService;
     private final MonitorDataProducer monitorDataProducer;
 
     /**
@@ -50,9 +44,10 @@ public class DeliveryProcessingService {
      * @param monitorDataProducer The MonitorDataProducer instance to be used for sending monitoring data.
      */
     @Autowired
-    public DeliveryProcessingService(CamundaService camundaMessageSenderService, MonitorDataProducer monitorDataProducer) {
+    public DeliveryProcessingService(CamundaService camundaMessageSenderService, MonitorDataProducer monitorDataProducer, DeliveryStatusService deliveryStatusService) {
         this.camundaMessageSenderService = camundaMessageSenderService;
         this.monitorDataProducer = monitorDataProducer;
+        this.deliveryStatusService = deliveryStatusService;
     }
 
     /**
@@ -79,42 +74,21 @@ public class DeliveryProcessingService {
 
         WorkflowLogger.info(log, "retrieveColor","Retrieving color at light sensor...");
 
-        // Wrap calling the color REST endpoint in the factory within a Hystrix Circuit breaker
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://factorysimulator:8085/vgr/read_color"))
-                .GET()
-                .build();
+        double colorReading = deliveryStatusService.getLatestStatus().getI8_color_sensor();
+        String color;
+        if (colorReading > 1500) {
+            color = "blue";
+        } else if(colorReading > 1000) {
+            color = "red";
+        } else {
+            color = "white";
+        }
 
-        HystrixCommand.Setter config = HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("retrieveColor"))
-                .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
-                        .withExecutionTimeoutInMilliseconds(10_000));
+        String variables = "{ \"retrievedColor\": \"" + color + "\"}";
 
-        HttpResponse response = new HystrixCommand<HttpResponse>(config) {
 
-            @Override
-            protected HttpResponse<String> run() throws Exception {
-                HttpClient client = HttpClient.newHttpClient();
-
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-                WorkflowLogger.info(log, "retrievedColor","Color retrieved: " + response.body());
-
-                String variables = "{ \"retrievedColor\": \"" + response.body() + "\"}";
-
-                camundaMessageSenderService.sendCompleteCommand(job.getKey(), variables);
-                monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "retrieveColor", success.name());
-                return null;
-            }
-
-            @Override
-            protected HttpResponse<String> getFallback() {
-                WorkflowLogger.info(log, "retrieveColor","Circuit breaker - Fallback occurred.");
-
-                camundaMessageSenderService.throwErrorCommand("FactoryTimeoutError", "Error retrieving color at light sensor.", job.getKey());
-                monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "retrieveColor", failed.name());
-                return null;
-            }
-        }.execute();
+        camundaMessageSenderService.sendCompleteCommand(job.getKey(),variables);
+        monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "retrieveColor", success.name());
     }
 
     /**

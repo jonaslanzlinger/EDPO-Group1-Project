@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 import static ch.unisg.order.kafka.producer.MonitorDataProducer.MonitorStatus.*;
-import static ch.unisg.order.utils.Utility.sleep;
 
 /**
  * This is a service class for starting processes.
@@ -32,7 +31,7 @@ public class ProcessStarterService {
      * It uses Spring's @Autowired annotation to automatically inject the ZeebeClient.
      *
      * @param zeebeClient         The ZeebeClient for interacting with the Zeebe broker.
-     * @param monitorDataProducer
+     * @param monitorDataProducer Sending monitor updates to monitor service.
      */
     @Autowired
     public ProcessStarterService(ZeebeClient zeebeClient, MonitorDataProducer monitorDataProducer) {
@@ -70,7 +69,6 @@ public class ProcessStarterService {
      */
     @JobWorker(type = "setProgressWarehouse", name = "setProgressWarehouseProcessor")
     public void setProgressWarehouse(@Variable Order order) {
-        sleep(2000);
         Objects.requireNonNull(OrderRegistry.getOrderById(order.getOrderId())).setProgress("warehouse");
 
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressWarehouse", success.name());
@@ -83,7 +81,6 @@ public class ProcessStarterService {
      */
     @JobWorker(type = "setProgressGrabber", name = "setProgressGrabberProcessor")
     public void setProgressGrabber(@Variable Order order) {
-        sleep(2000);
         Objects.requireNonNull(OrderRegistry.getOrderById(order.getOrderId())).setProgress("grabber");
 
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressGrabber", success.name());
@@ -96,7 +93,6 @@ public class ProcessStarterService {
      */
     @JobWorker(type = "setProgressDelivery", name = "setProgressDeliveryProcessor")
     public void setProgressDelivery(@Variable Order order) {
-        sleep(2000);
         Objects.requireNonNull(OrderRegistry.getOrderById(order.getOrderId())).setProgress("delivery");
 
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressDelivery", success.name());
@@ -109,7 +105,6 @@ public class ProcessStarterService {
      */
     @JobWorker(type = "setProgressDelivered", name = "setProgressDeliveredProcessor")
     public void setProgressDelivered(@Variable Order order) {
-        sleep(2000);
         Objects.requireNonNull(OrderRegistry.getOrderById(order.getOrderId())).setProgress("delivered");
 
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "setProgressDelivered", success.name());

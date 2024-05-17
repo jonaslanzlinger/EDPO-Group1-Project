@@ -1,5 +1,6 @@
 package ch.unisg.warehouse.domain;
 
+import ch.unisg.warehouse.camunda.CamundaService;
 import ch.unisg.warehouse.kafka.dto.StockUpdateDto;
 import ch.unisg.warehouse.kafka.dto.WarehouseUpdateDto;
 import ch.unisg.warehouse.kafka.producer.StockUpdateProducer;
@@ -15,6 +16,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
+import static ch.unisg.warehouse.utils.Utility.logInfo;
+
 /**
  * This is a service class that manages the warehouse.
  * It uses the WarehouseStatusService to interact with the warehouse status and the StockUpdateProducer to send messages.
@@ -26,6 +29,7 @@ public class WarehouseService {
 
     private final WarehouseStatusService warehouseStatusService;
     private final StockUpdateProducer messageProducer;
+    private final CamundaService camundaService;
 
     /**
      * Updates the warehouse status with the data from the message and sends the updated status to the Kafka topic "warehouse".
@@ -41,16 +45,14 @@ public class WarehouseService {
      * @param hbw_1 The HBW_1 object containing the new warehouse status.
      */
     public void updateWarehouse(HBW_1 hbw_1) {
-        warehouseStatusService.updateWarehouseStatus(hbw_1);
-
-        /*
         HBW_1 prevStatus = warehouseStatusService.getLatestStatus();
+        warehouseStatusService.updateWarehouseStatus(hbw_1);
         if (!prevStatus.getCurrent_stock().equals(hbw_1.getCurrent_stock())) {
-        */    StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
+            StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
                     .data(hbw_1.getCurrent_stock())
                     .build();
             messageProducer.sendMessage(stockUpdateDto);
-        //}
+        }
     }
 
     /**
@@ -81,7 +83,15 @@ public class WarehouseService {
             System.out.println("Response status code: " + response.statusCode());
             System.out.println("Response body: " + response.body());
             // Call releaseHBW on successful completion of request
-            warehouseStatusService.releaseHBW();
+            String nextProcess = warehouseStatusService.releaseHBW();
+            if (nextProcess != null) {
+                logInfo("freeHBW", "Next process: " + nextProcess);
+                camundaService.sendMessageCommand(
+                        "HBWAvailable",
+                        nextProcess,
+                        "{\"available\":\"true\"}"
+                );
+            }
         }).exceptionally(ex -> {
             // Handle any exceptions here
             System.err.println("Request failed: " + ex.getMessage());

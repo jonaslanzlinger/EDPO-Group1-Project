@@ -2,7 +2,6 @@ package ch.unisg.warehouse.kafka.consumer;
 
 import ch.unisg.warehouse.domain.WarehouseService;
 import ch.unisg.warehouse.kafka.dto.WarehouseUpdateDto;
-import ch.unisg.warehouse.utils.WorkflowLogger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -29,7 +28,6 @@ public class MessageConsumer {
      */
     @KafkaListener(topics = "HBW_1-processed")
     public void startMessageProcess(WarehouseUpdateDto message){
-        WorkflowLogger.info(log,"startMessageProcess", "Received message from Kafka topic: HBW_1");
         warehouseService.updateWarehouse(message);
 
     }

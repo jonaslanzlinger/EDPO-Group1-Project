@@ -49,7 +49,6 @@ public class ProcessingTopology {
         KStream<byte[], FactoryEvent> vgrStream = branches[0];
         KStream<byte[], FactoryEvent> hbwStream = branches[1];
 
-
         // Write to the output topic
         vgrStream.to("VGR_1-processed",
                 Produced.with(

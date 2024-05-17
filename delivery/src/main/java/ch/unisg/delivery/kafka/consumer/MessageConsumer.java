@@ -2,7 +2,6 @@ package ch.unisg.delivery.kafka.consumer;
 
 import ch.unisg.delivery.domain.DeliveryStatusService;
 import ch.unisg.delivery.kafka.dto.DeliveryUpdateDto;
-import ch.unisg.delivery.utils.WorkflowLogger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -29,7 +28,6 @@ public class MessageConsumer {
      */
     @KafkaListener(topics = "VGR_1-processed")
     public void startMessageProcess(DeliveryUpdateDto message){
-        WorkflowLogger.info(log,"startMessageProcess", "Received message from Kafka topic: VGR_1");
         deliveryStatusService.updateDeliveryStatus(message.getData());
     }
 

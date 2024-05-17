@@ -144,7 +144,8 @@ public class WarehouseProcessingService {
     public void lockHBW(final ActivatedJob job, @Variable Order order) {
         String orderId = order.getOrderId();
 
-        sleep((int) (Math.random() * (5000 - 1000) + 1000));
+        // to force a path in the camunda process
+        // sleep((int) (Math.random() * (5000 - 1000) + 1000));
 
         boolean success = warehouseService.setInUse();
 

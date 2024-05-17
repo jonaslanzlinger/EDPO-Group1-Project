@@ -1,4 +1,4 @@
-package ch.unisg.warehouse.domain;
+package ch.unisg.grabber.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,8 +8,11 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
- * This is a data class that represents a High Bay Warehouse (HBW) unit.
- * It uses Lombok annotations for automatic generation of getters, setters, constructors, and builder.
+ * This is a domain class for VGR_1.
+ * It uses Lombok's @Data annotation to generate getters, setters, equals, hashCode and toString methods.
+ * It uses Lombok's @Builder annotation to provide a builder pattern for object creation.
+ * It uses Lombok's @AllArgsConstructor to generate a constructor with all properties.
+ * It uses Lombok's @NoArgsConstructor to generate a no-args constructor.
  */
 @Data
 @Builder

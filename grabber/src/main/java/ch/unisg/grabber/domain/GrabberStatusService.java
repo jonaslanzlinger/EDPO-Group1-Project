@@ -8,13 +8,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public class GrabberStatusService {
 
     // The latest status of the Grabber
-    private final AtomicReference<VGR_1> latestStatus = new AtomicReference<>(new VGR_1());
+    private final AtomicReference<HBW_1> latestStatus = new AtomicReference<>(new HBW_1());
 
-    public void setLatestStatus(VGR_1 vgr1) {
+    public void setLatestStatus(HBW_1 vgr1) {
         latestStatus.set(vgr1);
     }
 
-    public VGR_1 getLatestStatus() {
+    public HBW_1 getLatestStatus() {
         return latestStatus.get();
     }
 

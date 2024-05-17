@@ -6,7 +6,7 @@ and mostly just forwards the received data to the next service in the process.
 
 ## Domain
 In the domain we have the necessary classes that enable us to have a digital representation of the
-"Gripper" station. The [VGR_1](src%2Fmain%2Fjava%2Fch%2Funisg%2Fgrabber%2Fdomain%2FVGR_1.java) class is the Data class that maps to the data received from the smart factory.
+"Gripper" station. The [HBW_1](src%2Fmain%2Fjava%2Fch%2Funisg%2Fgrabber%2Fdomain%2FHBW_1.java) class is the Data class that maps to the data received from the smart factory.
 Since we don't have any business logic in this service, we just added this boilerplate code to have an easy 
 way to start implementing the service if needed.
 
@@ -34,7 +34,6 @@ resilience.
 public void grabGoods(@Variable Order order) {
     WorkflowLogger.info(log, "grabGoods",
     "Processing order: - " + order.getOrderColor());
-    sleep(5000); // Simulate processing time
     WorkflowLogger.info(log, "grabGoods",
     "Complete order: - " + order.getOrderColor());
 

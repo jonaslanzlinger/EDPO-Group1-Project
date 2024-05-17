@@ -1,6 +1,6 @@
 package ch.unisg.grabber.kafka.dto;
 
-import ch.unisg.grabber.domain.VGR_1;
+import ch.unisg.grabber.domain.HBW_1;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,7 +35,7 @@ public class GrabberUpdateDto implements Serializable {
     private String time;
 
     // The data of the Grabber update, represented as a VGR_1 object
-    private VGR_1 data;
+    private HBW_1 data;
 
     // The content type of the data in the Grabber update
     private String datacontenttype;

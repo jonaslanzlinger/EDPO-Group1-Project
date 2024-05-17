@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication
-public class FactorySimulationApplication {
+public class FactoryListenerApplication {
     public static void main(String[] args) {
-        SpringApplication.run(FactorySimulationApplication.class, args);
+        SpringApplication.run(FactoryListenerApplication.class, args);
     }
 }
