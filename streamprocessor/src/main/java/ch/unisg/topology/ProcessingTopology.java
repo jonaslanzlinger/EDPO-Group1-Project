@@ -80,7 +80,7 @@ public class ProcessingTopology {
         vgrStream.to("VGR_1-processed",
                 Produced.with(
                         Serdes.ByteArray(),
-                        new VgrEventSerdes()
+                        new FactoryEventSerdes()
                 ));
 
         hbwStream.to("HBW_1-processed",
