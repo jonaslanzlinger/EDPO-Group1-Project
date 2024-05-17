@@ -86,7 +86,7 @@ public class ProcessingTopology {
         hbwStream.to("HBW_1-processed",
                 Produced.with(
                         Serdes.ByteArray(),
-                        new HbwEventSerdes()
+                        new FactoryEventSerdes()
                 ));
 
         return builder.build();
