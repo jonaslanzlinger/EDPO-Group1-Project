@@ -50,9 +50,6 @@ public class ProcessingTopology {
                     return typedFactoryEvent;
                 });
 
-
-
-
         // branch the stream
         KStream<byte[], FactoryEvent>[] branches = typedStream.branch(
                 (key, value) -> value.getData().toString().contains("VGR_1"),
@@ -103,6 +100,12 @@ public class ProcessingTopology {
                 Produced.with(
                         Serdes.ByteArray(),
                         new HbwEventSerdes()
+                ));
+
+        typedStream.to("monitoring-all",
+                Produced.with(
+                        Serdes.ByteArray(),
+                        new FactoryEventSerdes()
                 ));
 
         return builder.build();
