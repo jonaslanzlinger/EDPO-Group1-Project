@@ -32,7 +32,6 @@ public class EventListenerMqttAdapter implements MqttListener {
             JsonNode data = new ObjectMapper().readTree(payload);
 
             Message<JsonNode> message1 = new Message<>(data);
-
             messageSender.send(message1);
 
         } catch (JsonProcessingException | NullPointerException e) {

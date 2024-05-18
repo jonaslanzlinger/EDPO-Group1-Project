@@ -74,17 +74,8 @@ public class DeliveryProcessingService {
 
         WorkflowLogger.info(log, "retrieveColor","Retrieving color at light sensor...");
 
-        double colorReading = deliveryStatusService.getLatestStatus().getI8_color_sensor();
-        String color;
-        if (colorReading > 1500) {
-            color = "blue";
-        } else if(colorReading > 1000) {
-            color = "red";
-        } else {
-            color = "white";
-        }
 
-        String variables = "{ \"retrievedColor\": \"" + color + "\"}";
+        String variables = "{ \"retrievedColor\": \"" + deliveryStatusService.getLatestStatus().getColor() + "\"}";
 
 
         camundaMessageSenderService.sendCompleteCommand(job.getKey(),variables);

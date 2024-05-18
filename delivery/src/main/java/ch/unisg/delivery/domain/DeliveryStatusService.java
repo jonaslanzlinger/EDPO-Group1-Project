@@ -32,12 +32,9 @@ public class DeliveryStatusService {
      */
     public void updateDeliveryStatus(VGR_1 vgr_1) {
         latestStatus.set(vgr_1);
-
-        // TODO don't know which sensor is which. Therefore, listen on both...
         if (vgr_1.getI8_color_sensor() <= 1550) {
             try {
                 String orderId = OrderRegistry.pop().getOrderId();
-
                 camundaMessageSenderService.sendMessageCommand(
                         "ProductAtLightSensor",
                         orderId);

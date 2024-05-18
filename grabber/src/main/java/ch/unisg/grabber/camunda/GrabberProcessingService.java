@@ -57,7 +57,7 @@ public class GrabberProcessingService {
                 "Complete order: - " + order.getOrderColor());
 
         // while loop to check light sensor
-        while(grabberStatusService.getLatestStatus().getI1_light_barrier() != 0.0) {
+        while(grabberStatusService.getLatestStatus().isI1_light_barrier()) {
             Thread.sleep(100);
         }
         pickUpProduct();

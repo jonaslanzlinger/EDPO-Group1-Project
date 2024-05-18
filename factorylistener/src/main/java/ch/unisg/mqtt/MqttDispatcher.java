@@ -24,7 +24,7 @@ public class MqttDispatcher {
 
     private void initRouter() {
         // TODO: mqtt topic
-
+        router.put("factory",eventListenerMqttAdapter);
         router.put("FTFactory/HBW_1",eventListenerMqttAdapter);
         router.put("FTFactory/VGR_1",eventListenerMqttAdapter);
     }

@@ -4,42 +4,52 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
 
+@Setter
+@Getter
 public class FactoryEvent {
 
-    @Getter
-    @Setter
     @SerializedName("id")
     String id;
 
-    @Getter
-    @Setter
     @SerializedName("source")
     String source;
-
-    @Getter
-    @Setter
-    @SerializedName("time")
-    String time;
-
-    @Getter
-    @Setter
     @SerializedName("data")
     Object data;
 
-    @Getter
-    @Setter
+    @SerializedName("time")
+    String time;
+
     @SerializedName("datacontenttype")
     String datacontenttype;
 
-    @Getter
-    @Setter
     @SerializedName("specversion")
     String specversion;
+
 
     @Override
     public String toString() {
         return "FactoryEvent [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", " +
                 "datacontenttype=" + datacontenttype + ", specversion=" + specversion + "]";
     }
+    public static FactoryEvent toFactory(HbwEvent v) {
+        FactoryEvent event = new FactoryEvent();
+        event.setData(v.getData());
+        event.setId(v.getId());
+        event.setDatacontenttype(v.getDatacontenttype());
+        event.setSource(v.getSource());
+        event.setSpecversion(v.getSpecversion());
+        event.setTime(v.getTime());
+        return event;
+    }
 
+    public static FactoryEvent toFactory(VgrEvent v) {
+        FactoryEvent event = new FactoryEvent();
+        event.setData(v.getData());
+        event.setId(v.getId());
+        event.setDatacontenttype(v.getDatacontenttype());
+        event.setSource(v.getSource());
+        event.setSpecversion(v.getSpecversion());
+        event.setTime(v.getTime());
+        return event;
+    }
 }

@@ -1,5 +1,11 @@
 package ch.unisg.domain.stations;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class VGR_1 extends Station {
 
     private String timestamp;
@@ -15,6 +21,8 @@ public class VGR_1 extends Station {
     private boolean i4_light_barrier;
 
     private double i8_color_sensor;
+
+    private String color;
 
     private double o7_compressor_level;
 
@@ -49,17 +57,18 @@ public class VGR_1 extends Station {
     private double target_pos_z;
 
 
-    public VGR_1(String id, String station, String timestamp, boolean i1_pos_switch, boolean i2_pos_switch, boolean i3_pos_switch, boolean i7_light_barrier, boolean i4_light_barrier, double i8_color_sensor, double o7_compressor_level, boolean o8_valve_open, double m1_speed, double m2_speed, double m3_speed, String current_state, String current_task, double current_task_duration, String current_sub_task, String failure_label, double current_pos_x, double current_pos_y, double current_pos_z, double target_pos_x, double target_pos_y, double target_pos_z) {
+    public VGR_1(String id, String station, String timestamp, double i1_pos_switch, double i2_pos_switch, double i3_pos_switch, double i7_light_barrier, double i4_light_barrier, double i8_color_sensor, String color, double o7_compressor_level, double o8_valve_open, double m1_speed, double m2_speed, double m3_speed, String current_state, String current_task, double current_task_duration, String current_sub_task, String failure_label, double current_pos_x, double current_pos_y, double current_pos_z, double target_pos_x, double target_pos_y, double target_pos_z) {
         super(id, station);
         this.timestamp = timestamp;
-        this.i1_pos_switch = i1_pos_switch;
-        this.i2_pos_switch = i2_pos_switch;
-        this.i3_pos_switch = i3_pos_switch;
-        this.i7_light_barrier = i7_light_barrier;
-        this.i4_light_barrier = i4_light_barrier;
+        this.i1_pos_switch = i1_pos_switch == 1.0;
+        this.i2_pos_switch = i2_pos_switch== 1.0;
+        this.i3_pos_switch = i3_pos_switch== 1.0;
+        this.i7_light_barrier = i7_light_barrier== 1.0;
+        this.i4_light_barrier = i4_light_barrier== 1.0;
         this.i8_color_sensor = i8_color_sensor;
+        this.color = color;
         this.o7_compressor_level = o7_compressor_level;
-        this.o8_valve_open = o8_valve_open;
+        this.o8_valve_open = o8_valve_open== 1.0;
         this.m1_speed = m1_speed;
         this.m2_speed = m2_speed;
         this.m3_speed = m3_speed;
@@ -75,6 +84,9 @@ public class VGR_1 extends Station {
         this.target_pos_y = target_pos_y;
         this.target_pos_z = target_pos_z;
     }
+    public String getColor() {return color;}
+
+    public void setColor(String color) {this.color = color;}
 
     public String getTimestamp() {
         return timestamp;
@@ -88,40 +100,40 @@ public class VGR_1 extends Station {
         return i1_pos_switch;
     }
 
-    public void setI1_pos_switch(boolean i1_pos_switch) {
-        this.i1_pos_switch = i1_pos_switch;
+    public void setI1_pos_switch(double i1_pos_switch) {
+        this.i1_pos_switch = i1_pos_switch == 1.0;
     }
 
     public boolean isI2_pos_switch() {
         return i2_pos_switch;
     }
 
-    public void setI2_pos_switch(boolean i2_pos_switch) {
-        this.i2_pos_switch = i2_pos_switch;
+    public void setI2_pos_switch(double i2_pos_switch) {
+        this.i2_pos_switch = i2_pos_switch == 1.0;
     }
 
     public boolean isI3_pos_switch() {
         return i3_pos_switch;
     }
 
-    public void setI3_pos_switch(boolean i3_pos_switch) {
-        this.i3_pos_switch = i3_pos_switch;
+    public void setI3_pos_switch(double i3_pos_switch) {
+        this.i3_pos_switch = i3_pos_switch == 1.0;
     }
 
     public boolean isI7_light_barrier() {
         return i7_light_barrier;
     }
 
-    public void setI7_light_barrier(boolean i7_light_barrier) {
-        this.i7_light_barrier = i7_light_barrier;
+    public void setI7_light_barrier(double i7_light_barrier) {
+        this.i7_light_barrier = i7_light_barrier == 1.0;
     }
 
     public boolean isI4_light_barrier() {
         return i4_light_barrier;
     }
 
-    public void setI4_light_barrier(boolean i4_light_barrier) {
-        this.i4_light_barrier = i4_light_barrier;
+    public void setI4_light_barrier(double i4_light_barrier) {
+        this.i4_light_barrier = i4_light_barrier == 1.0;
     }
 
     public double getI8_color_sensor() {
@@ -144,8 +156,8 @@ public class VGR_1 extends Station {
         return o8_valve_open;
     }
 
-    public void setO8_valve_open(boolean o8_valve_open) {
-        this.o8_valve_open = o8_valve_open;
+    public void setO8_valve_open(double o8_valve_open) {
+        this.o8_valve_open = o8_valve_open == 1.0;
     }
 
     public double getM1_speed() {

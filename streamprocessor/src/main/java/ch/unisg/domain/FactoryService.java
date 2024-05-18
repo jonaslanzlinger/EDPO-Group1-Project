@@ -38,12 +38,7 @@ public class FactoryService {
         RuntimeTypeAdapterFactory<Station> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
                 .of(Station.class, "station")
                 .registerSubtype(VGR_1.class, "VGR_1")
-                .registerSubtype(MM_1.class, "MM_1")
-                .registerSubtype(HBW_1.class, "HBW_1")
-                .registerSubtype(EC_1.class, "EC_1")
-                .registerSubtype(SM_1.class, "SM_1")
-                .registerSubtype(OV_1.class, "OV_1")
-                .registerSubtype(WT_1.class, "WT_1");
+                .registerSubtype(HBW_1.class, "HBW_1");
 
         Gson gson = new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
 
