@@ -10,13 +10,20 @@ import ch.unisg.serialization.json.hbw.HbwDeserializer;
 import ch.unisg.serialization.json.hbw.HbwEventSerdes;
 import ch.unisg.serialization.json.vgr.VgrDeserializer;
 import ch.unisg.serialization.json.vgr.VgrEventSerdes;
+import ch.unisg.topology.util.PreviousEventFilterHBW;
+import ch.unisg.topology.util.PreviousEventFilterVGR;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
+import org.springframework.kafka.support.serializer.JsonSerde;
+
+import java.nio.charset.StandardCharsets;
 
 
 public class ProcessingTopology {
@@ -26,38 +33,52 @@ public class ProcessingTopology {
     private static final Gson gsonVGR = new GsonBuilder()
             .registerTypeAdapter(VGR_1.class, new VgrDeserializer())
             .create();
+
+
     public static Topology build() {
 
         StreamsBuilder builder = new StreamsBuilder();
 
-
-        builder.addStateStore(
+        StoreBuilder<KeyValueStore<byte[], VgrEvent>> storeBuilderVGR =
                 Stores.keyValueStoreBuilder(
-                        Stores.inMemoryKeyValueStore("PreviousEventStore"),
+                        Stores.persistentKeyValueStore("previous-event-store-vgr"),
                         Serdes.ByteArray(),
-                        Serdes.String() // Assuming getData() returns a String
-                )
-        );
+                        new JsonSerde<>(VgrEvent.class)
+                );
+        StoreBuilder<KeyValueStore<byte[], HbwEvent>> storeBuilderHBW =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("previous-event-store-hbw"),
+                        Serdes.ByteArray(),
+                        new JsonSerde<>(HbwEvent.class)
+                );
 
+
+        builder.addStateStore(storeBuilderVGR);
+        builder.addStateStore(storeBuilderHBW);
 
         KStream<byte[], FactoryEvent> stream =
                 builder.stream("factory-all", Consumed.with(Serdes.ByteArray(), new FactoryEventSerdes()));
 
-        stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("factory-all"));
+        //stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("factory-all"));
 
         // filter out unused stations
         stream.filter((k, v) ->
             v.getData().toString().contains("VGR_1") || v.getData().toString().contains("HBW_1")
         );
 
-
         // branch the stream
         KStream<byte[], FactoryEvent>[] branches = stream.branch(
                 (key, value) -> value.getData().toString().contains("VGR_1"),
                 (key, value) -> value.getData().toString().contains("HBW_1")
         );
+        // Adjusts keys so that they reflect the station
+        KStream<byte[], FactoryEvent> vgrEventRekeyedStream = branches[0].selectKey((oldKey, value) ->
+                "VGR_1".getBytes(StandardCharsets.UTF_8));
+        KStream<byte[], FactoryEvent> hbwEventRekeyedStream = branches[0].selectKey((oldKey, value) ->
+                "HBW_1".getBytes(StandardCharsets.UTF_8));
 
-        KStream<byte[], VgrEvent> vgrTypedStream =  branches[0].mapValues(v -> {
+        // set correct typing
+        KStream<byte[], VgrEvent> vgrTypedStream =  vgrEventRekeyedStream.mapValues(v -> {
             VgrEvent vgrEvent = new VgrEvent();
             vgrEvent.setId(v.getId());
             vgrEvent.setSource(v.getSource());
@@ -73,37 +94,41 @@ public class ProcessingTopology {
 
 
 
-        KStream<byte[], HbwEvent> hbwTypedStream =  branches[1].mapValues(v -> {
+        // set correct typing
+        KStream<byte[], HbwEvent> hbwTypedStream =  hbwEventRekeyedStream.mapValues(v -> {
             HbwEvent hbwEvent = new HbwEvent();
             hbwEvent.setId(v.getId());
             hbwEvent.setTime(v.getTime());
             hbwEvent.setSpecversion(v.getSpecversion());
             hbwEvent.setSource(v.getSource());
             hbwEvent.setDatacontenttype(v.getDatacontenttype());
-
             // Deserialize the data field to HBW_1
             String jsonData = gsonHBW.toJson(v.getData());
             HBW_1 hbwData = gsonHBW.fromJson(jsonData, HBW_1.class);
             hbwEvent.setData(hbwData);
-
             return hbwEvent;
         });
 
+        // custom filtering logic to only let events through that differs from the previous one
+        KStream<byte[], VgrEvent>  vgrTypedFilteredStream =  vgrTypedStream
+                .transform(PreviousEventFilterVGR::new, "previous-event-store-vgr");
+
+        KStream<byte[], HbwEvent>  hbwTypedFilteredStream =  hbwTypedStream
+                .transform(PreviousEventFilterHBW::new, "previous-event-store-hbw");
 
 
         // Write to the output topic
-        vgrTypedStream.to("VGR_1-processed",
+        vgrTypedFilteredStream.to("VGR_1-processed",
                 Produced.with(
                         Serdes.ByteArray(),
                         new VgrEventSerdes()
                 ));
 
-        hbwTypedStream.to("HBW_1-processed",
+        hbwTypedFilteredStream.to("HBW_1-processed",
                 Produced.with(
                         Serdes.ByteArray(),
                         new HbwEventSerdes()
                 ));
-
 
         vgrTypedStream.mapValues(FactoryEvent::toFactory)
                 .merge(hbwTypedStream.mapValues(FactoryEvent::toFactory))

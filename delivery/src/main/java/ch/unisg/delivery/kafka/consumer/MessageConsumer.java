@@ -28,6 +28,7 @@ public class MessageConsumer {
      */
     @KafkaListener(topics = "VGR_1-processed")
     public void startMessageProcess(DeliveryUpdateDto message){
+        System.out.println(message.getData().getColor());
         deliveryStatusService.updateDeliveryStatus(message.getData());
     }
 

@@ -13,14 +13,14 @@ public class HbwDeserializer implements JsonDeserializer<HBW_1> {
         JsonObject jsonObject = json.getAsJsonObject();
         HBW_1 hbw = new HBW_1();
 
-        hbw.setI1_light_barrier(jsonObject.get("i1_light_barrier").getAsDouble());
-        hbw.setI2_light_barrier(jsonObject.get("i2_light_barrier").getAsDouble());
-        hbw.setI3_light_barrier(jsonObject.get("i3_light_barrier").getAsDouble());
-        hbw.setI4_light_barrier(jsonObject.get("i4_light_barrier").getAsDouble());
-        hbw.setI5_pos_switch(jsonObject.get("i5_pos_switch").getAsDouble());
-        hbw.setI6_pos_switch(jsonObject.get("i6_pos_switch").getAsDouble());
-        hbw.setI7_pos_switch(jsonObject.get("i7_pos_switch").getAsDouble());
-        hbw.setI8_pos_switch(jsonObject.get("i8_pos_switch").getAsDouble());
+        hbw.setI1_light_barrier(jsonObject.get("i1_light_barrier").getAsDouble() == 1.0);
+        hbw.setI2_light_barrier(jsonObject.get("i2_light_barrier").getAsDouble() == 1.0);
+        hbw.setI3_light_barrier(jsonObject.get("i3_light_barrier").getAsDouble() == 1.0);
+        hbw.setI4_light_barrier(jsonObject.get("i4_light_barrier").getAsDouble() == 1.0);
+        hbw.setI5_pos_switch(jsonObject.get("i5_pos_switch").getAsDouble() == 1.0);
+        hbw.setI6_pos_switch(jsonObject.get("i6_pos_switch").getAsDouble() == 1.0);
+        hbw.setI7_pos_switch(jsonObject.get("i7_pos_switch").getAsDouble() == 1.0);
+        hbw.setI8_pos_switch(jsonObject.get("i8_pos_switch").getAsDouble() == 1.0);
         hbw.setM1_speed(jsonObject.get("m1_speed").getAsDouble());
         hbw.setM2_speed(jsonObject.get("m2_speed").getAsDouble());
         hbw.setM3_speed(jsonObject.get("m3_speed").getAsDouble());

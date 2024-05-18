@@ -29,9 +29,9 @@ public class MessageSender {
       String jsonMessage = objectMapper.writeValueAsString(m);
 
       // wrap into a proper message for Kafka including a header
-      ProducerRecord<String, String> record = new ProducerRecord<String, String>(TOPIC, jsonMessage);
+      ProducerRecord<String, String> record = new ProducerRecord<String, String>(TOPIC,"mqtt",jsonMessage);
 
-      System.out.println("Sending message to topic: " + TOPIC);
+      System.out.println("Sending message to topic: " + TOPIC + " with key: " + record.key());
 
       // and send it
       kafkaTemplate.send(record);
