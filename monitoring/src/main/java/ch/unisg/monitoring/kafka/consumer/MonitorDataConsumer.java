@@ -35,4 +35,13 @@ public class MonitorDataConsumer {
         monitoringStore.addMessage(monitorUpdateDto);
     }
 
+    @Transactional
+    @KafkaListener(id = "order", topics = "monitoring-all")
+    public void startMessageAllProcess(String message) {
+        info(log, "MonitorDataConsumer", "Received message from Kafka topic: monitoring-all");
+       //TODO: Is this really needed for stream processing ?
+        //info(log, "MonitorDataConsumer", "OrderId: " + monitorUpdateDto.getOrderId() + " Type: " + monitorUpdateDto.getType() + " Service: " + monitorUpdateDto.getService() + " Method: " + monitorUpdateDto.getMethod() + " Status: " + monitorUpdateDto.getStatus());
+        //monitoringStore.addMessage(monitorUpdateDto);
+    }
+
 }
