@@ -56,9 +56,6 @@ public class ProcessingTopology {
                 (key, value) -> value.getData().toString().contains("HBW_1")
         );
 
-        KStream<byte[], FactoryEvent> vgrStream = branches[0];
-        KStream<byte[], FactoryEvent> hbwStream = branches[1];
-
         KStream<byte[], VgrEvent> vgrTypedStream =  branches[0].mapValues(v -> {
             VgrEvent vgrEvent = new VgrEvent();
             vgrEvent.setId(v.getId());
