@@ -8,18 +8,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class HbwEvent {
-
     @SerializedName("id")
     String id;
 
     @SerializedName("source")
     String source;
+    @SerializedName("data")
+    HBW_1 data;
 
     @SerializedName("time")
     String time;
-
-    @SerializedName("data")
-    HBW_1 data;
 
     @SerializedName("datacontenttype")
     String datacontenttype;
@@ -27,10 +25,10 @@ public class HbwEvent {
     @SerializedName("specversion")
     String specversion;
 
+
     @Override
     public String toString() {
-        return "HbwEvent [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", " +
+        return "FactoryEvent [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", " +
                 "datacontenttype=" + datacontenttype + ", specversion=" + specversion + "]";
     }
-
 }

@@ -13,12 +13,13 @@ import ch.unisg.serialization.json.vgr.VgrEventSerdes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Printed;
-import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.Stores;
 
 
 public class ProcessingTopology {
@@ -32,26 +33,29 @@ public class ProcessingTopology {
 
         StreamsBuilder builder = new StreamsBuilder();
 
+
+        builder.addStateStore(
+                Stores.keyValueStoreBuilder(
+                        Stores.inMemoryKeyValueStore("PreviousEventStore"),
+                        Serdes.ByteArray(),
+                        Serdes.String() // Assuming getData() returns a String
+                )
+        );
+
+
         KStream<byte[], FactoryEvent> stream =
                 builder.stream("factory-all", Consumed.with(Serdes.ByteArray(), new FactoryEventSerdes()));
 
         stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("factory-all"));
 
-        // Create the respective Data Types
-        KStream<byte[], FactoryEvent> typedStream = stream.mapValues(
-                (factoryEvent) -> {
-                    FactoryEvent typedFactoryEvent = new FactoryEvent();
-                    typedFactoryEvent.setId(factoryEvent.getId());
-                    typedFactoryEvent.setSource(factoryEvent.getSource());
-                    typedFactoryEvent.setTime(factoryEvent.getTime());
-                    typedFactoryEvent.setData(factoryEvent.getData());
-                    typedFactoryEvent.setDatacontenttype(factoryEvent.getDatacontenttype());
-                    typedFactoryEvent.setSpecversion(factoryEvent.getSpecversion());
-                    return typedFactoryEvent;
-                });
+        // filter out unused stations
+        stream.filter((k, v) ->
+            v.getData().toString().contains("VGR_1") || v.getData().toString().contains("HBW_1")
+        );
+
 
         // branch the stream
-        KStream<byte[], FactoryEvent>[] branches = typedStream.branch(
+        KStream<byte[], FactoryEvent>[] branches = stream.branch(
                 (key, value) -> value.getData().toString().contains("VGR_1"),
                 (key, value) -> value.getData().toString().contains("HBW_1")
         );
@@ -70,6 +74,8 @@ public class ProcessingTopology {
             return vgrEvent;
         });
 
+
+
         KStream<byte[], HbwEvent> hbwTypedStream =  branches[1].mapValues(v -> {
             HbwEvent hbwEvent = new HbwEvent();
             hbwEvent.setId(v.getId());
@@ -86,6 +92,8 @@ public class ProcessingTopology {
             return hbwEvent;
         });
 
+
+
         // Write to the output topic
         vgrTypedStream.to("VGR_1-processed",
                 Produced.with(
@@ -99,13 +107,16 @@ public class ProcessingTopology {
                         new HbwEventSerdes()
                 ));
 
-        typedStream.to("monitoring-all",
-                Produced.with(
-                        Serdes.ByteArray(),
-                        new FactoryEventSerdes()
-                ));
+
+        vgrTypedStream.mapValues(FactoryEvent::toFactory)
+                .merge(hbwTypedStream.mapValues(FactoryEvent::toFactory))
+                .to("monitoring-all",
+                        Produced.with(Serdes.ByteArray(),
+                                new FactoryEventSerdes()));
+
 
         return builder.build();
     }
+
 
 }

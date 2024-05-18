@@ -18,6 +18,19 @@ public class VgrDeserializer implements JsonDeserializer<VGR_1> {
         vgr.setI7_light_barrier(jsonObject.get("i7_light_barrier").getAsDouble());
         vgr.setI4_light_barrier(jsonObject.get("i4_light_barrier").getAsDouble());
         vgr.setI8_color_sensor(jsonObject.get("i8_color_sensor").getAsDouble());
+
+        double colorReading = vgr.getI8_color_sensor();
+        String color;
+        if (colorReading > 1550) {
+            color = "none";
+        } else if (colorReading > 1500) {
+            color = "blue";
+        } else if(colorReading > 1000) {
+            color = "red";
+        } else {
+            color = "white";
+        }
+        vgr.setColor(color);
         vgr.setO7_compressor_level(jsonObject.get("o7_compressor_level").getAsDouble());
         vgr.setO8_valve_open(jsonObject.get("o8_valve_open").getAsDouble());
         vgr.setM1_speed(jsonObject.get("m1_speed").getAsDouble());

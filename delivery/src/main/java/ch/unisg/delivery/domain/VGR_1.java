@@ -33,6 +33,8 @@ public class VGR_1 {
     private boolean i4_light_barrier;
     // The status of the color sensor
     private double i8_color_sensor;
+    // color string
+    private String color;
     // The compressor level
     private double o7_compressor_level;
     // The status of the valve

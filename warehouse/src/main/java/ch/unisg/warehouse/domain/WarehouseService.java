@@ -47,7 +47,7 @@ public class WarehouseService {
     public void updateWarehouse(HBW_1 hbw_1) {
         HBW_1 prevStatus = warehouseStatusService.getLatestStatus();
         warehouseStatusService.updateWarehouseStatus(hbw_1);
-        if (!prevStatus.getCurrent_stock().equals(hbw_1.getCurrent_stock())) {
+        if (prevStatus.getCurrent_stock() == null ||!prevStatus.getCurrent_stock().equals(hbw_1.getCurrent_stock())) {
             StockUpdateDto stockUpdateDto = StockUpdateDto.builder()
                     .data(hbw_1.getCurrent_stock())
                     .build();

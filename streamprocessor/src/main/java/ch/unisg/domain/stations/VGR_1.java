@@ -22,6 +22,8 @@ public class VGR_1 extends Station {
 
     private double i8_color_sensor;
 
+    private String color;
+
     private double o7_compressor_level;
 
     private boolean o8_valve_open;
@@ -55,7 +57,7 @@ public class VGR_1 extends Station {
     private double target_pos_z;
 
 
-    public VGR_1(String id, String station, String timestamp, double i1_pos_switch, double i2_pos_switch, double i3_pos_switch, double i7_light_barrier, double i4_light_barrier, double i8_color_sensor, double o7_compressor_level, double o8_valve_open, double m1_speed, double m2_speed, double m3_speed, String current_state, String current_task, double current_task_duration, String current_sub_task, String failure_label, double current_pos_x, double current_pos_y, double current_pos_z, double target_pos_x, double target_pos_y, double target_pos_z) {
+    public VGR_1(String id, String station, String timestamp, double i1_pos_switch, double i2_pos_switch, double i3_pos_switch, double i7_light_barrier, double i4_light_barrier, double i8_color_sensor, String color, double o7_compressor_level, double o8_valve_open, double m1_speed, double m2_speed, double m3_speed, String current_state, String current_task, double current_task_duration, String current_sub_task, String failure_label, double current_pos_x, double current_pos_y, double current_pos_z, double target_pos_x, double target_pos_y, double target_pos_z) {
         super(id, station);
         this.timestamp = timestamp;
         this.i1_pos_switch = i1_pos_switch == 1.0;
@@ -64,6 +66,7 @@ public class VGR_1 extends Station {
         this.i7_light_barrier = i7_light_barrier== 1.0;
         this.i4_light_barrier = i4_light_barrier== 1.0;
         this.i8_color_sensor = i8_color_sensor;
+        this.color = color;
         this.o7_compressor_level = o7_compressor_level;
         this.o8_valve_open = o8_valve_open== 1.0;
         this.m1_speed = m1_speed;
@@ -81,6 +84,9 @@ public class VGR_1 extends Station {
         this.target_pos_y = target_pos_y;
         this.target_pos_z = target_pos_z;
     }
+    public String getColor() {return color;}
+
+    public void setColor(String color) {this.color = color;}
 
     public String getTimestamp() {
         return timestamp;
