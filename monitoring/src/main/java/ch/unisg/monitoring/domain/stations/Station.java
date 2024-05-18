@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 public class Station {
 
     String id;
-    String station;
 
-    public Station(String id, String station) {
+    public Station(String id) {
         this.id = id;
-        this.station = station;
     }
 }

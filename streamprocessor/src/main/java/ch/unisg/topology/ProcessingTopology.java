@@ -136,6 +136,12 @@ public class ProcessingTopology {
                         Produced.with(Serdes.ByteArray(),
                                 new FactoryEventSerdes()));
 
+        // DEBUG
+        // Print both streams to the console
+        vgrTypedStream.mapValues(FactoryEvent::toFactory)
+                .merge(hbwTypedStream.mapValues(FactoryEvent::toFactory))
+                .print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
+
 
         return builder.build();
     }

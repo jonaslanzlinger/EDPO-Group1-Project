@@ -8,11 +8,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class HbwEvent {
+
     @SerializedName("id")
     String id;
 
     @SerializedName("source")
     String source;
+
     @SerializedName("data")
     HBW_1 data;
 

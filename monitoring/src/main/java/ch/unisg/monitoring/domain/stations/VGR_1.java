@@ -42,8 +42,6 @@ public class VGR_1 extends Station {
 
     private String current_sub_task;
 
-    private String failure_label;
-
     private double current_pos_x;
 
     private double current_pos_y;
@@ -57,18 +55,24 @@ public class VGR_1 extends Station {
     private double target_pos_z;
 
 
-    public VGR_1(String id, String station, String timestamp, double i1_pos_switch, double i2_pos_switch, double i3_pos_switch, double i7_light_barrier, double i4_light_barrier, double i8_color_sensor, String color, double o7_compressor_level, double o8_valve_open, double m1_speed, double m2_speed, double m3_speed, String current_state, String current_task, double current_task_duration, String current_sub_task, String failure_label, double current_pos_x, double current_pos_y, double current_pos_z, double target_pos_x, double target_pos_y, double target_pos_z) {
-        super(id, station);
+    public VGR_1(String id, String timestamp, boolean i1_pos_switch, boolean i2_pos_switch,
+                 boolean i3_pos_switch, boolean i7_light_barrier, boolean i4_light_barrier,
+                 double i8_color_sensor, String color, double o7_compressor_level, boolean o8_valve_open,
+                 double m1_speed, double m2_speed, double m3_speed, String current_state,
+                 String current_task, double current_task_duration, String current_sub_task,
+                 double current_pos_x, double current_pos_y, double current_pos_z, double target_pos_x,
+                 double target_pos_y, double target_pos_z) {
+        super(id);
         this.timestamp = timestamp;
-        this.i1_pos_switch = i1_pos_switch == 1.0;
-        this.i2_pos_switch = i2_pos_switch== 1.0;
-        this.i3_pos_switch = i3_pos_switch== 1.0;
-        this.i7_light_barrier = i7_light_barrier== 1.0;
-        this.i4_light_barrier = i4_light_barrier== 1.0;
+        this.i1_pos_switch = i1_pos_switch;
+        this.i2_pos_switch = i2_pos_switch;
+        this.i3_pos_switch = i3_pos_switch;
+        this.i7_light_barrier = i7_light_barrier;
+        this.i4_light_barrier = i4_light_barrier;
         this.i8_color_sensor = i8_color_sensor;
         this.color = color;
         this.o7_compressor_level = o7_compressor_level;
-        this.o8_valve_open = o8_valve_open== 1.0;
+        this.o8_valve_open = o8_valve_open;
         this.m1_speed = m1_speed;
         this.m2_speed = m2_speed;
         this.m3_speed = m3_speed;
@@ -76,7 +80,6 @@ public class VGR_1 extends Station {
         this.current_task = current_task;
         this.current_task_duration = current_task_duration;
         this.current_sub_task = current_sub_task;
-        this.failure_label = failure_label;
         this.current_pos_x = current_pos_x;
         this.current_pos_y = current_pos_y;
         this.current_pos_z = current_pos_z;
@@ -100,40 +103,40 @@ public class VGR_1 extends Station {
         return i1_pos_switch;
     }
 
-    public void setI1_pos_switch(double i1_pos_switch) {
-        this.i1_pos_switch = i1_pos_switch == 1.0;
+    public void setI1_pos_switch(boolean i1_pos_switch) {
+        this.i1_pos_switch = i1_pos_switch;
     }
 
     public boolean isI2_pos_switch() {
         return i2_pos_switch;
     }
 
-    public void setI2_pos_switch(double i2_pos_switch) {
-        this.i2_pos_switch = i2_pos_switch == 1.0;
+    public void setI2_pos_switch(boolean i2_pos_switch) {
+        this.i2_pos_switch = i2_pos_switch;
     }
 
     public boolean isI3_pos_switch() {
         return i3_pos_switch;
     }
 
-    public void setI3_pos_switch(double i3_pos_switch) {
-        this.i3_pos_switch = i3_pos_switch == 1.0;
+    public void setI3_pos_switch(boolean i3_pos_switch) {
+        this.i3_pos_switch = i3_pos_switch;
     }
 
     public boolean isI7_light_barrier() {
         return i7_light_barrier;
     }
 
-    public void setI7_light_barrier(double i7_light_barrier) {
-        this.i7_light_barrier = i7_light_barrier == 1.0;
+    public void setI7_light_barrier(boolean i7_light_barrier) {
+        this.i7_light_barrier = i7_light_barrier;
     }
 
     public boolean isI4_light_barrier() {
         return i4_light_barrier;
     }
 
-    public void setI4_light_barrier(double i4_light_barrier) {
-        this.i4_light_barrier = i4_light_barrier == 1.0;
+    public void setI4_light_barrier(boolean i4_light_barrier) {
+        this.i4_light_barrier = i4_light_barrier;
     }
 
     public double getI8_color_sensor() {
@@ -156,8 +159,8 @@ public class VGR_1 extends Station {
         return o8_valve_open;
     }
 
-    public void setO8_valve_open(double o8_valve_open) {
-        this.o8_valve_open = o8_valve_open == 1.0;
+    public void setO8_valve_open(boolean o8_valve_open) {
+        this.o8_valve_open = o8_valve_open;
     }
 
     public double getM1_speed() {
@@ -216,14 +219,6 @@ public class VGR_1 extends Station {
         this.current_sub_task = current_sub_task;
     }
 
-    public String getFailure_label() {
-        return failure_label;
-    }
-
-    public void setFailure_label(String failure_label) {
-        this.failure_label = failure_label;
-    }
-
     public double getCurrent_pos_x() {
         return current_pos_x;
     }
@@ -238,14 +233,6 @@ public class VGR_1 extends Station {
 
     public void setCurrent_pos_y(double current_pos_y) {
         this.current_pos_y = current_pos_y;
-    }
-
-    public double getCurrent_pos_z() {
-        return current_pos_z;
-    }
-
-    public void setCurrent_pos_z(double current_pos_z) {
-        this.current_pos_z = current_pos_z;
     }
 
     public double getTarget_pos_x() {
@@ -264,6 +251,14 @@ public class VGR_1 extends Station {
         this.target_pos_y = target_pos_y;
     }
 
+    public double getCurrent_pos_z() {
+        return current_pos_z;
+    }
+
+    public void setCurrent_pos_z(double current_pos_z) {
+        this.current_pos_z = current_pos_z;
+    }
+
     public double getTarget_pos_z() {
         return target_pos_z;
     }
@@ -271,4 +266,5 @@ public class VGR_1 extends Station {
     public void setTarget_pos_z(double target_pos_z) {
         this.target_pos_z = target_pos_z;
     }
+
 }

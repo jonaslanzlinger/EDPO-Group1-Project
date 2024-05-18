@@ -14,13 +14,15 @@ import com.google.gson.GsonBuilder;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Printed;
+import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.springframework.kafka.support.serializer.JsonSerde;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Arrays;
 
 
 public class ProcessingTopology {
@@ -53,16 +55,19 @@ public class ProcessingTopology {
 
         KStream<byte[], FactoryEvent> stream = builder.stream("monitoring-all", Consumed.with(Serdes.ByteArray(), new FactoryEventSerdes()));
 
-        stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
+        // DEBUG
+        // stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
+        // KStream<byte[], FactoryEvent> peekedStream = stream.peek((key, value) -> System.out.println("Key:
+        // " + Arrays.toString(key)));
 
-        stream.filter((k, v) -> v.getData().toString().contains("VGR_1") || v.getData().toString().contains("HBW_1"));
-
-
-        // branch the stream
         KStream<byte[], FactoryEvent>[] branches = stream.branch(
-                (key, value) -> value.getData().toString().contains("VGR_1"),
-                (key, value) -> value.getData().toString().contains("HBW_1")
+                (key, value) -> Arrays.equals(key, "VGR_1".getBytes(StandardCharsets.UTF_8)),
+                (key, value) -> Arrays.equals(key, "HBW_1".getBytes(StandardCharsets.UTF_8))
         );
+
+        // DEBUG: check if the branch is working
+        // branches[0].print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("VGR_1"));
+        // branches[1].print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("HBW_1"));
 
         KStream<byte[], VgrEvent> vgrTypedStream =  branches[0].mapValues(v -> {
             VgrEvent vgrEvent = new VgrEvent();
@@ -78,7 +83,6 @@ public class ProcessingTopology {
             return vgrEvent;
         });
 
-
         KStream<byte[], HbwEvent> hbwTypedStream =  branches[1].mapValues(v -> {
             HbwEvent hbwEvent = new HbwEvent();
             hbwEvent.setId(v.getId());
@@ -93,6 +97,37 @@ public class ProcessingTopology {
 
             return hbwEvent;
         });
+
+        // DEBUG: print vgrTypedStream to console
+         vgrTypedStream.print(Printed.<byte[], VgrEvent>toSysOut().withLabel("vgrTypedStream"));
+
+        // DEBUG: print hbwTypedStream to console
+         hbwTypedStream.print(Printed.<byte[], HbwEvent>toSysOut().withLabel("hbwTypedStream"));
+
+
+        // Define a hopping window of 10 seconds with a 5 seconds advance
+        TimeWindows hoppingWindow = TimeWindows.of(Duration.ofSeconds(10)).advanceBy(Duration.ofSeconds(5));
+
+        // Count the number of VGR_1 events in the hopping window
+        KTable<Windowed<byte[]>, Long> vgrCount =
+                vgrTypedStream
+                        .groupByKey()
+                        .windowedBy(hoppingWindow)
+                        .count(Materialized.as("vgr-count-store"))
+                        .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
+
+        // Count the number of HBW_1 events in the hopping window
+        KTable<Windowed<byte[]>, Long> hbwCount =
+                hbwTypedStream
+                        .groupByKey()
+                        .windowedBy(hoppingWindow)
+                        .count(Materialized.as("hbw-count-store"))
+                        .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
+
+        vgrCount.toStream().print(Printed.<Windowed<byte[]>, Long>toSysOut().withLabel("vgr-count-store"));
+        hbwCount.toStream().print(Printed.<Windowed<byte[]>, Long>toSysOut().withLabel("hbw-count-store"));
+
+
 
         return builder.build();
     }

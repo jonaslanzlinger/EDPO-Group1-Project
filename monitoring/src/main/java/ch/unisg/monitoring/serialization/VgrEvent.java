@@ -8,11 +8,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VgrEvent {
+
     @SerializedName("id")
     String id;
 
     @SerializedName("source")
     String source;
+
     @SerializedName("data")
     VGR_1 data;
 
