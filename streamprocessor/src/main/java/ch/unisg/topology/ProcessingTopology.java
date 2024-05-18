@@ -74,7 +74,7 @@ public class ProcessingTopology {
         // Adjusts keys so that they reflect the station
         KStream<byte[], FactoryEvent> vgrEventRekeyedStream = branches[0].selectKey((oldKey, value) ->
                 "VGR_1".getBytes(StandardCharsets.UTF_8));
-        KStream<byte[], FactoryEvent> hbwEventRekeyedStream = branches[0].selectKey((oldKey, value) ->
+        KStream<byte[], FactoryEvent> hbwEventRekeyedStream = branches[1].selectKey((oldKey, value) ->
                 "HBW_1".getBytes(StandardCharsets.UTF_8));
 
         // set correct typing

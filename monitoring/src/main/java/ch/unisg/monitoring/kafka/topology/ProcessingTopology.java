@@ -6,6 +6,7 @@ import ch.unisg.monitoring.domain.stations.VGR_1;
 import ch.unisg.monitoring.serialization.FactoryEvent;
 import ch.unisg.monitoring.serialization.HbwEvent;
 import ch.unisg.monitoring.serialization.VgrEvent;
+import ch.unisg.monitoring.serialization.json.FactoryEventSerdes;
 import ch.unisg.monitoring.serialization.json.hbw.HbwDeserializer;
 import ch.unisg.monitoring.serialization.json.vgr.VgrDeserializer;
 import com.google.gson.Gson;
@@ -13,9 +14,13 @@ import com.google.gson.GsonBuilder;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Printed;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
+import org.springframework.kafka.support.serializer.JsonSerde;
 
 
 public class ProcessingTopology {
@@ -29,15 +34,24 @@ public class ProcessingTopology {
 
         StreamsBuilder builder = new StreamsBuilder();
 
-        builder.addStateStore(
+        StoreBuilder<KeyValueStore<byte[], VgrEvent>> storeBuilderVGR =
                 Stores.keyValueStoreBuilder(
-                        Stores.inMemoryKeyValueStore("PreviousEventStore"),
+                        Stores.persistentKeyValueStore("previous-event-store-vgr"),
                         Serdes.ByteArray(),
-                        Serdes.String() // Assuming getData() returns a String
-                )
-        );
+                        new JsonSerde<>(VgrEvent.class)
+                );
+        StoreBuilder<KeyValueStore<byte[], HbwEvent>> storeBuilderHBW =
+                Stores.keyValueStoreBuilder(
+                        Stores.persistentKeyValueStore("previous-event-store-hbw"),
+                        Serdes.ByteArray(),
+                        new JsonSerde<>(HbwEvent.class)
+                );
 
-        KStream<byte[], FactoryEvent> stream = builder.stream("monitoring-all");
+
+        builder.addStateStore(storeBuilderVGR);
+        builder.addStateStore(storeBuilderHBW);
+
+        KStream<byte[], FactoryEvent> stream = builder.stream("monitoring-all", Consumed.with(Serdes.ByteArray(), new FactoryEventSerdes()));
 
         stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
 
