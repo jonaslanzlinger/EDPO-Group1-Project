@@ -1,6 +1,6 @@
-package ch.unisg.monitoring.serialization.json.vgr;
+package ch.unisg.monitoring.kafka.serialization.json.hbw;
 
-import ch.unisg.monitoring.serialization.VgrEvent;
+import ch.unisg.monitoring.kafka.serialization.HbwEvent;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,13 +8,13 @@ import org.apache.kafka.common.serialization.Deserializer;
 
 import java.nio.charset.StandardCharsets;
 
-public class VgrEventDeserializer implements Deserializer<VgrEvent> {
+public class HbwEventDeserializer implements Deserializer<HbwEvent> {
     private final Gson gson =
         new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
 
     @Override
-    public VgrEvent deserialize(String topic, byte[] bytes) {
+    public HbwEvent deserialize(String topic, byte[] bytes) {
         if (bytes == null) return null;
-        return gson.fromJson(new String(bytes, StandardCharsets.UTF_8), VgrEvent.class);
+        return gson.fromJson(new String(bytes, StandardCharsets.UTF_8), HbwEvent.class);
     }
 }

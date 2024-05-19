@@ -1,6 +1,6 @@
-package ch.unisg.monitoring.serialization.json.vgr;
+package ch.unisg.monitoring.kafka.serialization.json.vgr;
 
-import ch.unisg.monitoring.serialization.VgrEvent;
+import ch.unisg.monitoring.kafka.serialization.VgrEvent;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;

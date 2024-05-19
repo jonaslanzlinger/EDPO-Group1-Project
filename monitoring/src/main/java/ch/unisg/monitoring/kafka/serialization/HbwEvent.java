@@ -1,4 +1,4 @@
-package ch.unisg.monitoring.serialization;
+package ch.unisg.monitoring.kafka.serialization;
 
 import ch.unisg.monitoring.domain.stations.HBW_1;
 import com.google.gson.annotations.SerializedName;
@@ -30,7 +30,7 @@ public class HbwEvent {
 
     @Override
     public String toString() {
-        return "FactoryEvent [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", " +
+        return "HbwEvent [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", " +
                 "datacontenttype=" + datacontenttype + ", specversion=" + specversion + "]";
     }
 }

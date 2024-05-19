@@ -1,16 +1,15 @@
 package ch.unisg.monitoring.kafka.topology;
 
-import ch.unisg.monitoring.serialization.HbwEvent;
-import ch.unisg.monitoring.serialization.VgrEvent;
+import ch.unisg.monitoring.kafka.serialization.HbwEvent;
+import ch.unisg.monitoring.kafka.serialization.VgrEvent;
 
-import ch.unisg.monitoring.serialization.json.hbw.HbwEventSerdes;
-import ch.unisg.monitoring.serialization.json.vgr.VgrEventSerdes;
+import ch.unisg.monitoring.kafka.serialization.json.hbw.HbwEventSerdes;
+import ch.unisg.monitoring.kafka.serialization.json.vgr.VgrEventSerdes;
 import org.apache.kafka.common.serialization.Serdes;
 
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
-import org.springframework.kafka.support.serializer.JsonSerde;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -22,8 +21,9 @@ public class ProcessingTopology {
 
         StreamsBuilder builder = new StreamsBuilder();
 
+        Consumed<byte[], byte[]> consumedWithTimestampExtractor = Consumed.with(Serdes.ByteArray(), Serdes.ByteArray());
 
-        KStream<byte[], byte[]> stream = builder.stream("monitoring-all", Consumed.with(Serdes.ByteArray(), Serdes.ByteArray()));
+        KStream<byte[], byte[]> stream = builder.stream("monitoring-all", consumedWithTimestampExtractor);
 
         // DEBUG
         // stream.print(Printed.<byte[], byte[]>toSysOut().withLabel("monitoring-all"));
@@ -49,6 +49,7 @@ public class ProcessingTopology {
         KStream<byte[], HbwEvent> hbwTypedStream =  branches[1].mapValues(v ->
                 hbwEventSerdes.deserializer().deserialize("HBW_1", v)
         );
+
 
         // DEBUG: print vgrTypedStream to console
         vgrTypedStream.print(Printed.<byte[], VgrEvent>toSysOut().withLabel("vgrTypedStream"));
@@ -84,7 +85,7 @@ public class ProcessingTopology {
         // Note: Also here the output appears only after the kafka commits the messages (30 seconds default).
         vgrTypedStream
                 .groupBy((key, value) -> value.getData().getColor(),
-                        Grouped.with(Serdes.String(), new JsonSerde<>(VgrEvent.class)))
+                        Grouped.with(Serdes.String(), vgrEventSerdes))
                 .count()
                 .toStream()
                 .foreach((key, count) -> System.out.println("Key: " + key + ", Count: " + count));

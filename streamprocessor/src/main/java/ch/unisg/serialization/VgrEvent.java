@@ -1,6 +1,5 @@
 package ch.unisg.serialization;
 
-import ch.unisg.domain.stations.HBW_1;
 import ch.unisg.domain.stations.VGR_1;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
@@ -29,7 +28,7 @@ public class VgrEvent {
 
     @Override
     public String toString() {
-        return "FactoryEvent [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", " +
+        return "VgrEvent [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", " +
                 "datacontenttype=" + datacontenttype + ", specversion=" + specversion + "]";
     }
 
