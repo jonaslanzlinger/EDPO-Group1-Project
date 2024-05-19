@@ -1,18 +1,11 @@
 package ch.unisg.monitoring.kafka.topology;
 
-import ch.unisg.monitoring.domain.stations.HBW_1;
-import ch.unisg.monitoring.domain.stations.VGR_1;
 
-import ch.unisg.monitoring.kafka.serialization.FactoryEvent;
 import ch.unisg.monitoring.kafka.serialization.HbwEvent;
 import ch.unisg.monitoring.kafka.serialization.VgrEvent;
-import ch.unisg.monitoring.kafka.serialization.json.FactoryEventSerdes;
-import ch.unisg.monitoring.kafka.serialization.json.hbw.HbwDeserializer;
-import ch.unisg.monitoring.kafka.serialization.json.vgr.VgrDeserializer;
+import ch.unisg.monitoring.kafka.serialization.json.hbw.HbwEventSerdes;
 import ch.unisg.monitoring.kafka.serialization.json.vgr.VgrEventSerdes;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
@@ -21,35 +14,29 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
-import org.springframework.kafka.support.serializer.JsonSerde;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Arrays;
 
 import static ch.unisg.monitoring.kafka.serialization.json.json.JsonSerdes.jsonSerde;
 
 
 public class ProcessingTopology {
-    private static final Gson gsonHBW = new GsonBuilder()
-            .registerTypeAdapter(HBW_1 .class, new HbwDeserializer())
-            .create();
-    private static final Gson gsonVGR = new GsonBuilder()
-            .registerTypeAdapter(VGR_1.class, new VgrDeserializer())
-            .create();
+
     public static Topology build() {
 
         StreamsBuilder builder = new StreamsBuilder();
         Serde<ColorStats> colorStatsSerde = jsonSerde(ColorStats.class);
+        HbwEventSerdes hbwEventSerdes = new HbwEventSerdes();
+        VgrEventSerdes vgrEventSerdes = new VgrEventSerdes();
 
-        KStream<String, FactoryEvent> stream = builder.stream("monitoring-all", Consumed.with(Serdes.String(), new FactoryEventSerdes()));
+        KStream<String, byte[]> stream = builder.stream("monitoring-all", Consumed.with(Serdes.String(), Serdes.ByteArray()));
 
         // DEBUG
         // stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
         // KStream<byte[], FactoryEvent> peekedStream = stream.peek((key, value) -> System.out.println("Key:
         // " + Arrays.toString(key)));
 
-        KStream<String, FactoryEvent>[] branches = stream.branch(
+        KStream<String,  byte[]>[] branches = stream.branch(
                 (key, value) -> key.equals("VGR_1"),
                 (key, value) -> key.equals("HBW_1")
         );
@@ -58,33 +45,13 @@ public class ProcessingTopology {
         // branches[0].print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("VGR_1"));
         // branches[1].print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("HBW_1"));
 
-        KStream<String, VgrEvent> vgrTypedStream =  branches[0].mapValues(v -> {
-            VgrEvent vgrEvent = new VgrEvent();
-            vgrEvent.setId(v.getId());
-            vgrEvent.setSource(v.getSource());
-            vgrEvent.setTime(v.getTime());
-            vgrEvent.setDatacontenttype(v.getDatacontenttype());
-            vgrEvent.setSpecversion(v.getSpecversion());
-            // Deserialize the data field to VGR_1
-            String jsonData = gsonVGR.toJson(v.getData());
-            VGR_1 vgrData = gsonVGR.fromJson(jsonData, VGR_1.class);
-            vgrEvent.setData(vgrData);
-            return vgrEvent;
-        });
+        KStream<String, VgrEvent> vgrTypedStream =  branches[0].mapValues(v ->
+                vgrEventSerdes.deserializer().deserialize("VGR_1",v)
+        );
 
-        KStream<String, HbwEvent> hbwTypedStream =  branches[1].mapValues(v -> {
-            HbwEvent hbwEvent = new HbwEvent();
-            hbwEvent.setId(v.getId());
-            hbwEvent.setTime(v.getTime());
-            hbwEvent.setSpecversion(v.getSpecversion());
-            hbwEvent.setSource(v.getSource());
-            hbwEvent.setDatacontenttype(v.getDatacontenttype());
-            // Deserialize the data field to HBW_1
-            String jsonData = gsonHBW.toJson(v.getData());
-            HBW_1 hbwData = gsonHBW.fromJson(jsonData, HBW_1.class);
-            hbwEvent.setData(hbwData);
-            return hbwEvent;
-        });
+        KStream<String, HbwEvent> hbwTypedStream =  branches[1].mapValues(v ->
+            hbwEventSerdes.deserializer().deserialize("HBW_1",v)
+        );
 
         // DEBUG: print vgrTypedStream to console
         vgrTypedStream.print(Printed.<String, VgrEvent>toSysOut().withLabel("vgrTypedStream"));
@@ -142,7 +109,7 @@ public class ProcessingTopology {
         // Note: Also here the output appears only after the kafka commits the messages (30 seconds default).
         vgrTypedStream
                 .groupBy((key, value) -> value.getData().getColor(),
-                        Grouped.with(Serdes.String(),new VgrEventSerdes()))
+                        Grouped.with(Serdes.String(),vgrEventSerdes))
                 .count()
                 .toStream()
                 .foreach((key, count) -> System.out.println("Key: " + key + ", Count: " + count));

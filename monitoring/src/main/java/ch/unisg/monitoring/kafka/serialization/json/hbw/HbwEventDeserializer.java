@@ -11,13 +11,10 @@ import org.apache.kafka.common.serialization.Deserializer;
 import java.nio.charset.StandardCharsets;
 
 public class HbwEventDeserializer implements Deserializer<HbwEvent> {
-    private final Gson gson =
-        new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-
 
     private static final Gson gsonHBW = new GsonBuilder()
             .registerTypeAdapter(HBW_1.class, new HbwDeserializer())
-            .create();
+            .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
   
     public HbwEvent deserialize(String topic, byte[] bytes) {
         if (bytes == null) return null;
