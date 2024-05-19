@@ -2,12 +2,16 @@ package ch.unisg.monitoring.rest;
 
 import ch.unisg.monitoring.domain.MonitoringStore;
 import ch.unisg.monitoring.kafka.dto.MonitorUpdateDto;
+import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -23,6 +27,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 public class MonitoringRestController {
 
     private final MonitoringStore monitoringStore;
+    private final ReadOnlyKeyValueStore<String, ColorStats> colorStatsStore;
 
     //TODO: Status codes
     @RequestMapping(path = "/api/monitoring/{orderId}", method = GET, produces = "application/json")
@@ -58,5 +63,23 @@ public class MonitoringRestController {
         }
         emitter.complete();
         return emitter;
+    }
+    @GetMapping("/colorStats")
+    public String getColorStats() {
+        Map<String, ColorStats> mapColors = new HashMap<>();
+
+        var range = colorStatsStore.all();
+
+        while(range.hasNext()) {
+            var next = range.next();
+            String color = next.key;
+            var colorStats = next.value;
+            System.out.println(colorStats.getAverageColorValue());
+            mapColors.put(color,colorStats);
+        }
+
+
+
+        return mapColors.toString();
     }
 }

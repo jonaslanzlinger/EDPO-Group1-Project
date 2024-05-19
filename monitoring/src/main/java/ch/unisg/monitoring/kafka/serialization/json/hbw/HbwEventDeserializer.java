@@ -1,5 +1,7 @@
 package ch.unisg.monitoring.kafka.serialization.json.hbw;
 
+
+import ch.unisg.monitoring.domain.stations.HBW_1;
 import ch.unisg.monitoring.kafka.serialization.HbwEvent;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -12,9 +14,13 @@ public class HbwEventDeserializer implements Deserializer<HbwEvent> {
     private final Gson gson =
         new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
 
-    @Override
+
+    private static final Gson gsonHBW = new GsonBuilder()
+            .registerTypeAdapter(HBW_1.class, new HbwDeserializer())
+            .create();
+  
     public HbwEvent deserialize(String topic, byte[] bytes) {
         if (bytes == null) return null;
-        return gson.fromJson(new String(bytes, StandardCharsets.UTF_8), HbwEvent.class);
+        return gsonHBW.fromJson(new String(bytes, StandardCharsets.UTF_8), HbwEvent.class);
     }
 }
