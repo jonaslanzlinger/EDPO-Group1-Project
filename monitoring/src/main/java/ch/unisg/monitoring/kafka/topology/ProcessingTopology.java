@@ -99,7 +99,7 @@ public class ProcessingTopology {
         Initializer<ColorStats> aggregateInitializer = () -> new ColorStats(0,0,0);
 
         Aggregator<String, Double, ColorStats> aggregateAggregator = (key, value, colorStats) -> {
-            long newTotalCount = colorStats.getColorCount() + 1;
+            long newTotalCount = colorStats.getTotalReadings() + 1;
             double newTotalOccurrences = colorStats.getTotalColorValues() + value;
             double newAverageColorVal = newTotalOccurrences / newTotalCount;
             return new ColorStats(newTotalCount,newTotalOccurrences,newAverageColorVal);

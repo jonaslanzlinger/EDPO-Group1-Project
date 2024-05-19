@@ -9,14 +9,14 @@ import lombok.Setter;
 public class ColorStats {
 
     @SerializedName("ColorCount")
-    private long colorCount;
+    private long totalReadings;
     @SerializedName("TotalColorValues")
     private double totalColorValues;
     @SerializedName("AverageColorValue")
     private double averageColorValue;
 
-    public ColorStats(long colorCount, double totalColorValues, double averageColorValue) {
-        this.colorCount = colorCount;
+    public ColorStats(long totalReadings, double totalColorValues, double averageColorValue) {
+        this.totalReadings = totalReadings;
         this.totalColorValues = totalColorValues;
         this.averageColorValue = averageColorValue;
     }
@@ -25,7 +25,7 @@ public class ColorStats {
     @Override
     public String toString() {
         return "ColorStats{" +
-                "colorCount=" + colorCount +
+                "totalReadings=" + totalReadings +
                 ", totalColorValues=" + totalColorValues +
                 ", averageColorValue=" + averageColorValue +
                 '}';
