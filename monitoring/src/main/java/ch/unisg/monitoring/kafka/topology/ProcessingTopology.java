@@ -50,7 +50,7 @@ public class ProcessingTopology {
         );
 
         KStream<String, HbwEvent> hbwTypedStream =  branches[1].mapValues(v ->
-            hbwEventSerdes.deserializer().deserialize("HBW_1",v)
+                hbwEventSerdes.deserializer().deserialize("HBW_1",v)
         );
 
         // DEBUG: print vgrTypedStream to console
@@ -59,6 +59,7 @@ public class ProcessingTopology {
         // DEBUG: print hbwTypedStream to console
         hbwTypedStream.print(Printed.<String, HbwEvent>toSysOut().withLabel("hbwTypedStream"));
 
+        // Create Stream of Color, ColorValues
         KStream<String, Double> colorSensorStream = vgrTypedStream.map((key, vgrEvent) ->
                 new KeyValue<>(vgrEvent.getData().getColor(), vgrEvent.getData().getI8_color_sensor())
         );
@@ -73,16 +74,16 @@ public class ProcessingTopology {
             return new ColorStats(newTotalCount,newTotalOccurrences,newAverageColorVal);
         };
 
-        KTable<String, ColorStats> averageColorSensor =
-                colorSensorStream
-                        .groupBy((key, value) -> key, Grouped.with(Serdes.String(), Serdes.Double()))
-                        .aggregate(
-                                aggregateInitializer,
-                                aggregateAggregator,
-                                Materialized.<String, ColorStats, KeyValueStore<Bytes,byte[]>>
-                                                as("colorStats")
-                                        .withKeySerde(Serdes.String())
-                                        .withValueSerde(colorStatsSerde));
+        // KTable that exposes the ColorStats for each color
+        colorSensorStream
+                .groupBy((key, value) -> key, Grouped.with(Serdes.String(), Serdes.Double()))
+                .aggregate(
+                        aggregateInitializer,
+                        aggregateAggregator,
+                        Materialized.<String, ColorStats, KeyValueStore<Bytes,byte[]>>
+                                        as("colorStats")
+                                .withKeySerde(Serdes.String())
+                                .withValueSerde(colorStatsSerde));
 
         // Note:
         // The outputs of the windows only appear in the console when kafka commits the messages.
