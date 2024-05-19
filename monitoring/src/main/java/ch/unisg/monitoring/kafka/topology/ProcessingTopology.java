@@ -99,13 +99,13 @@ public class ProcessingTopology {
         });
 
         // DEBUG: print vgrTypedStream to console
-         vgrTypedStream.print(Printed.<byte[], VgrEvent>toSysOut().withLabel("vgrTypedStream"));
+        vgrTypedStream.print(Printed.<byte[], VgrEvent>toSysOut().withLabel("vgrTypedStream"));
 
         // DEBUG: print hbwTypedStream to console
-         hbwTypedStream.print(Printed.<byte[], HbwEvent>toSysOut().withLabel("hbwTypedStream"));
+        hbwTypedStream.print(Printed.<byte[], HbwEvent>toSysOut().withLabel("hbwTypedStream"));
 
 
-         // Note:
+        // Note:
         // The outputs of the windows only appear in the console when kafka commits the messages.
         // By default this is set to 30 seconds. After the first 30 seconds you can see 3 window outputs,
         // because we have set the window size to 10 seconds and grace period to 0 second.
