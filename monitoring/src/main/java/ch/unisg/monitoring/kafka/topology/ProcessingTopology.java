@@ -128,6 +128,16 @@ public class ProcessingTopology {
                 StandardCharsets.UTF_8) + ", Window: " + key.window() + ", Count: " + count));
 
 
+        // Count the number of messages grouped by the color field.
+        // Note: Also here the output appears only after the kafka commits the messages (30 seconds default).
+        vgrTypedStream
+                .groupBy((key, value) -> value.getData().getColor(),
+                        Grouped.with(Serdes.String(), new JsonSerde<>(VgrEvent.class)))
+                .count()
+                .toStream()
+                .foreach((key, count) -> System.out.println("Key: " + key + ", Count: " + count));
+
+
 
         return builder.build();
     }
