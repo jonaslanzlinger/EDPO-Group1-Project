@@ -1,5 +1,6 @@
 package ch.unisg.monitoring.configuration;
 
+import ch.unisg.monitoring.kafka.topology.FactoryStats;
 import ch.unisg.monitoring.kafka.topology.ProcessingTopology;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import org.apache.kafka.streams.KafkaStreams;
@@ -38,5 +39,10 @@ public class MonitoringKafkaApplication {
     @Bean
     public ReadOnlyKeyValueStore<String, ColorStats> colorStatsStore(KafkaStreams streams) {
         return streams.store(StoreQueryParameters.fromNameAndType("colorStats", QueryableStoreTypes.keyValueStore()));
+    }
+
+    @Bean
+    public ReadOnlyKeyValueStore<String, FactoryStats> factoryStatsStore(KafkaStreams streams) {
+        return streams.store(StoreQueryParameters.fromNameAndType("factoryStats", QueryableStoreTypes.keyValueStore()));
     }
 }
