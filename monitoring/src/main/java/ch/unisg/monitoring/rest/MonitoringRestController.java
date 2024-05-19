@@ -2,6 +2,7 @@ package ch.unisg.monitoring.rest;
 
 import ch.unisg.monitoring.domain.MonitoringStore;
 import ch.unisg.monitoring.kafka.dto.MonitorUpdateDto;
+import ch.unisg.monitoring.kafka.topology.FactoryStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import lombok.AllArgsConstructor;
@@ -31,6 +32,7 @@ public class MonitoringRestController {
     private final MonitoringStore monitoringStore;
     private final ReadOnlyKeyValueStore<String, ColorStats> colorStatsStore;
     private final ReadOnlySessionStore<String, TimeDifferenceAggregation> lightSensorStore;
+    private final ReadOnlyKeyValueStore<String, FactoryStats> factoryStatsStore;
 
     //TODO: Status codes
     @RequestMapping(path = "/api/monitoring/{orderId}", method = GET, produces = "application/json")
@@ -90,7 +92,7 @@ public class MonitoringRestController {
         emitter.complete();
         return emitter;
     }
-
+  
     @GetMapping("/lightSensor")
     public SseEmitter getLightSensor() {
         SseEmitter emitter = new SseEmitter(100L);
@@ -108,6 +110,24 @@ public class MonitoringRestController {
 
         try {
             emitter.send(SseEmitter.event().name("message").data(mapColors));
+
+    @GetMapping("/factoryStats")
+    public SseEmitter getFactoryStats() {
+        SseEmitter emitter = new SseEmitter(100L);
+
+        Map<String, FactoryStats> mapFactory = new HashMap<>();
+
+        var range = factoryStatsStore.all();
+
+        while(range.hasNext()) {
+            var next = range.next();
+            String factory = next.key;
+            var factoryStats = next.value;
+            mapFactory.put(factory,factoryStats);
+        }
+
+        try {
+            emitter.send(SseEmitter.event().name("message").data(mapFactory));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

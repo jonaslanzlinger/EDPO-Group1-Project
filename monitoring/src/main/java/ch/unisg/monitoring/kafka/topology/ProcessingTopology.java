@@ -33,6 +33,7 @@ public class ProcessingTopology {
         Serde<TimeDifferenceAggregation> timeDifferenceAggregationSerde = jsonSerde(TimeDifferenceAggregation.class);
         HbwEventSerdes hbwEventSerdes = new HbwEventSerdes();
         VgrEventSerdes vgrEventSerdes = new VgrEventSerdes();
+        Serde<FactoryStats> factoryStatsSerde = jsonSerde(FactoryStats.class);
 
         KStream<String, byte[]> stream = builder.stream("monitoring-all", Consumed.with(Serdes.String(), Serdes.ByteArray()));
 
@@ -117,28 +118,96 @@ public class ProcessingTopology {
         TimeWindows tumblingWindow = TimeWindows.ofSizeAndGrace(Duration.ofSeconds(10),
                 Duration.ofSeconds(0));
 
-        TimeWindowedKStream<String, VgrEvent> windowedVgr = vgrTypedStream
+
+        /* JOINING VGR AND HBW STREAMS */
+
+        // Specify key by the timestamp of the event
+        KStream<String, VgrEvent> vgrTimestampKey = vgrTypedStream.map((key, value) ->
+                new KeyValue<>(value.getTime().substring(0, 18), value)
+        );
+
+        // Specify key by the timestamp of the event
+        KStream<String, HbwEvent> hbwTimestampKey = hbwTypedStream.map((key, value) ->
+                new KeyValue<>(value.getTime().substring(0, 18), value)
+        );
+
+        // Specify how to join the two streams interms of serde
+        StreamJoined<String, VgrEvent, HbwEvent> joinParams =
+                StreamJoined.with(
+                        Serdes.String(),
+                        new VgrEventSerdes(),
+                        new HbwEventSerdes()
+                );
+
+        // Define the temporal boundaries within which records from the two streams will be considered for joining
+        JoinWindows joinWindows =
+                JoinWindows.ofTimeDifferenceAndGrace(
+                        Duration.ofSeconds(5),
+                        Duration.ofSeconds(1)
+                );
+
+        // Join the two streams
+        KStream<String, FactoryStats> factoryStatsStream =
+                vgrTimestampKey.join(
+                        hbwTimestampKey,
+                        FactoryStats::new,
+                        joinWindows,
+                        joinParams
+                );
+
+        // DEBUG: print factoryStatsStream to console
+         factoryStatsStream.print(Printed.<String, FactoryStats>toSysOut().withLabel("factoryStatsStream"));
+
+        // Create a KTable that stores the latest FactoryStats for each key
+        KTable<String, FactoryStats> factoryStatsTable = factoryStatsStream
                 .groupByKey()
-                .windowedBy(tumblingWindow);
+                .reduce((aggValue, newValue) -> newValue,
+                        Materialized.<String, FactoryStats, KeyValueStore<Bytes, byte[]>>
+                                as("factoryStats")
+                                .withKeySerde(Serdes.String())
+                                .withValueSerde(factoryStatsSerde));
 
-        TimeWindowedKStream<String, HbwEvent> windowedHbw = hbwTypedStream
-                .groupByKey()
-                .windowedBy(tumblingWindow);
-
-        // Count the number of VGR_1 events in the tumbling window
-        windowedVgr.count().toStream().foreach((key, count) -> System.out.println("Key: " + key.key() + ", Window: " + key.window() + ", Count: " + count));
-        // Count the number of HBW_1 events in the tumbling window
-        windowedHbw.count().toStream().foreach((key, count) -> System.out.println("Key: " + key.key() + ", Window: " + key.window() + ", Count: " + count));
+        // DEBUG: print factoryStatsTable to console
+        // factoryStatsTable.toStream().print(Printed.<String, FactoryStats>toSysOut().withLabel(
+        //        "factoryStatsTable"));
 
 
-        // Count the number of messages grouped by the color field.
-        // Note: Also here the output appears only after the kafka commits the messages (30 seconds default).
-        vgrTypedStream
-                .groupBy((key, value) -> value.getData().getColor(),
-                        Grouped.with(Serdes.String(),vgrEventSerdes))
-                .count()
-                .toStream()
-                .foreach((key, count) -> System.out.println("Key: " + key + ", Count: " + count));
+
+
+
+
+        /* MAYBE REMOVE?!? */
+
+
+//        // Note:
+//        // The outputs of the windows only appear in the console when kafka commits the messages.
+//        // By default this is set to 30 seconds. After the first 30 seconds you can see 3 window outputs,
+//        // because we have set the window size to 10 seconds and grace period to 0 second.
+//        TimeWindows tumblingWindow = TimeWindows.ofSizeAndGrace(Duration.ofSeconds(10),
+//                Duration.ofSeconds(0));
+//
+//        TimeWindowedKStream<String, VgrEvent> windowedVgr = vgrTypedStream
+//                .groupByKey()
+//                .windowedBy(tumblingWindow);
+//
+//        TimeWindowedKStream<String, HbwEvent> windowedHbw = hbwTypedStream
+//                .groupByKey()
+//                .windowedBy(tumblingWindow);
+//
+//        // Count the number of VGR_1 events in the tumbling window
+//        windowedVgr.count().toStream().foreach((key, count) -> System.out.println("Key: " + key.key() + ", Window: " + key.window() + ", Count: " + count));
+//        // Count the number of HBW_1 events in the tumbling window
+//        windowedHbw.count().toStream().foreach((key, count) -> System.out.println("Key: " + key.key() + ", Window: " + key.window() + ", Count: " + count));
+//
+//
+//        // Count the number of messages grouped by the color field.
+//        // Note: Also here the output appears only after the kafka commits the messages (30 seconds default).
+//        vgrTypedStream
+//                .groupBy((key, value) -> value.getData().getColor(),
+//                        Grouped.with(Serdes.String(),vgrEventSerdes))
+//                .count()
+//                .toStream()
+//                .foreach((key, count) -> System.out.println("Key: " + key + ", Count: " + count));
 
 
 
