@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlySessionStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -95,20 +97,25 @@ public class MonitoringRestController {
   
     @GetMapping("/lightSensor")
     public SseEmitter getLightSensor() {
+        Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
+
         SseEmitter emitter = new SseEmitter(100L);
 
         Map<String, ColorStats> mapColors = new HashMap<>();
 
-
+        long fetchStartTime = System.currentTimeMillis();
         var range = lightSensorStore.fetch("i4_light_sensor");
-
+        long fetchEndTime = System.currentTimeMillis();
         while(range.hasNext()) {
             var next = range.next();
-            System.out.println("Wohooo");
             System.out.println(next.key.key());
-            System.out.println(next.value.getTimeDifference());
+            System.out.println(next.value.getFirstTimestamp());
+            System.out.println(next.value.getLastTimestamp());
         }
         range.close();
+
+        logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
+
         try {
             emitter.send(SseEmitter.event().name("message").data(mapColors));
         } catch (IOException e) {

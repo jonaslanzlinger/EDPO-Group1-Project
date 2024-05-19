@@ -15,26 +15,32 @@ public class TimeDifferenceAggregation {
     @SerializedName("LastTimestamp")
     private Instant lastTimestamp;
 
+    public TimeDifferenceAggregation() {
+        this.firstTimestamp = null;
+        this.lastTimestamp = null;
+    }
+
+    public TimeDifferenceAggregation(Instant firstTimestamp, Instant lastTimestamp) {
+        this.firstTimestamp = firstTimestamp;
+        this.lastTimestamp = lastTimestamp;
+    }
 
     public TimeDifferenceAggregation add(HbwEvent event) {
         Instant timestamp = Instant.parse(event.getTime());
-        if (firstTimestamp == null || timestamp.isBefore(firstTimestamp)) {
-            firstTimestamp = timestamp;
-        }
-        if (lastTimestamp == null || timestamp.isAfter(lastTimestamp)) {
-            lastTimestamp = timestamp;
-        }
-        return this;
+
+        Instant newFirstTimestamp = (firstTimestamp == null || timestamp.isBefore(firstTimestamp)) ? timestamp : firstTimestamp;
+        Instant newLastTimestamp = (lastTimestamp == null || timestamp.isAfter(lastTimestamp)) ? timestamp : lastTimestamp;
+
+        return new TimeDifferenceAggregation(newFirstTimestamp, newLastTimestamp);
     }
 
     public TimeDifferenceAggregation add(TimeDifferenceAggregation agg2) {
-        if (firstTimestamp == null || agg2.firstTimestamp.isBefore(firstTimestamp)) {
-            firstTimestamp = agg2.firstTimestamp;
-        }
-        if (lastTimestamp == null || agg2.lastTimestamp.isAfter(lastTimestamp)) {
-            lastTimestamp = agg2.lastTimestamp;
-        }
-        return this;
+        if (agg2 == null) return this;
+
+        Instant newFirstTimestamp = (firstTimestamp == null || (agg2.firstTimestamp != null && agg2.firstTimestamp.isBefore(firstTimestamp))) ? agg2.firstTimestamp : firstTimestamp;
+        Instant newLastTimestamp = (lastTimestamp == null || (agg2.lastTimestamp != null && agg2.lastTimestamp.isAfter(lastTimestamp))) ? agg2.lastTimestamp : lastTimestamp;
+
+        return new TimeDifferenceAggregation(newFirstTimestamp, newLastTimestamp);
     }
 
     public long getTimeDifference() {

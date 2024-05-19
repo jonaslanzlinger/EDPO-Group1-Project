@@ -21,6 +21,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.SessionStore;
 
 import java.time.Duration;
+import java.util.Map;
 
 import static ch.unisg.monitoring.kafka.serialization.json.json.JsonSerdes.jsonSerde;
 
@@ -62,10 +63,10 @@ public class ProcessingTopology {
         );
 
         // DEBUG: print vgrTypedStream to console
-        vgrTypedStream.print(Printed.<String, VgrEvent>toSysOut().withLabel("vgrTypedStream"));
+        // vgrTypedStream.print(Printed.<String, VgrEvent>toSysOut().withLabel("vgrTypedStream"));
 
         // DEBUG: print hbwTypedStream to console
-        hbwTypedStream.print(Printed.<String, HbwEvent>toSysOut().withLabel("hbwTypedStream"));
+        // hbwTypedStream.print(Printed.<String, HbwEvent>toSysOut().withLabel("hbwTypedStream"));
 
         // Create Stream of Color, ColorValues
         KStream<String, Double> colorSensorStream = vgrTypedStream.map((key, vgrEvent) ->
@@ -97,27 +98,28 @@ public class ProcessingTopology {
         // Windowed streams of length light barrier broken
         KStream<String, HbwEvent> lightBarrierBrokenHBW = hbwTypedStream.filterNot((k, v) -> {
             HBW_1 hbw1 = v.getData();
-            return hbw1.isI1_light_barrier() || hbw1.isI2_light_barrier() || hbw1.isI3_light_barrier() || hbw1.isI4_light_barrier();
+            boolean isLightBarrierBroken = !hbw1.isI1_light_barrier() || !hbw1.isI2_light_barrier() || !hbw1.isI3_light_barrier() || !hbw1.isI4_light_barrier();
+            return !isLightBarrierBroken;
         });
         SessionWindows sessionWindow = SessionWindows.ofInactivityGapWithNoGrace(Duration.ofMinutes(1));
 
         SessionWindowedKStream<String, HbwEvent> sessionizedHbwEvent = lightBarrierBrokenHBW
                 .groupBy((k, v) -> {
-                    if(!v.getData().isI4_light_barrier()) {
-                        return "i4_light_sensor";
+                    String sensorKey = "unknown";
+                    if (!v.getData().isI4_light_barrier()) {
+                        sensorKey = "i4_light_sensor";
+                    } else if (!v.getData().isI3_light_barrier()) {
+                        sensorKey = "i3_light_sensor";
+                    } else if (!v.getData().isI2_light_barrier()) {
+                        sensorKey = "i2_light_sensor";
+                    } else if (!v.getData().isI1_light_barrier()) {
+                        sensorKey = "i1_light_sensor";
                     }
-                    if(!v.getData().isI3_light_barrier()) {
-                        return "i3_light_sensor";
-                    }
-                    if(!v.getData().isI2_light_barrier()) {
-                        return "i2_light_sensor";
-                    }
-                    if(!v.getData().isI1_light_barrier()) {
-                        return "i1_light_sensor";
-                    }
-                    return "unknown";
+                    System.out.println("GroupBy: " + k + " -> " + sensorKey);
+                    return sensorKey;
                 }, Grouped.with(Serdes.String(), hbwEventSerdes))
                 .windowedBy(sessionWindow);
+
 
         sessionizedHbwEvent.aggregate(
                 TimeDifferenceAggregation::new,
@@ -126,6 +128,8 @@ public class ProcessingTopology {
                 Materialized.<String, TimeDifferenceAggregation, SessionStore<Bytes, byte[]>>as("lightSensor")
                         .withKeySerde(Serdes.String())
                         .withValueSerde(timeDifferenceAggregationSerde)
+                        .withCachingEnabled()
+                        .withLoggingEnabled(Map.of("retention.ms", "172800000")) // 2 days retention
         ).suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
 
 
@@ -181,42 +185,6 @@ public class ProcessingTopology {
         // factoryStatsTable.toStream().print(Printed.<String, FactoryStats>toSysOut().withLabel(
         //        "factoryStatsTable"));
 
-
-
-
-        /* MAYBE REMOVE?!? */
-
-/*
-        // Note:
-        // The outputs of the windows only appear in the console when kafka commits the messages.
-        // By default this is set to 30 seconds. After the first 30 seconds you can see 3 window outputs,
-        // because we have set the window size to 10 seconds and grace period to 0 second.
-        TimeWindows tumblingWindow = TimeWindows.ofSizeAndGrace(Duration.ofSeconds(10),
-                Duration.ofSeconds(0));
-
-        TimeWindowedKStream<String, VgrEvent> windowedVgr = vgrTypedStream
-                .groupByKey()
-                .windowedBy(tumblingWindow);
-
-        TimeWindowedKStream<String, HbwEvent> windowedHbw = hbwTypedStream
-                .groupByKey()
-                .windowedBy(tumblingWindow);
-
-        // Count the number of VGR_1 events in the tumbling window
-        windowedVgr.count().toStream().foreach((key, count) -> System.out.println("Key: " + key.key() + ", Window: " + key.window() + ", Count: " + count));
-        // Count the number of HBW_1 events in the tumbling window
-        windowedHbw.count().toStream().foreach((key, count) -> System.out.println("Key: " + key.key() + ", Window: " + key.window() + ", Count: " + count));
-
-
-        // Count the number of messages grouped by the color field.
-        // Note: Also here the output appears only after the kafka commits the messages (30 seconds default).
-        vgrTypedStream
-                .groupBy((key, value) -> value.getData().getColor(),
-                        Grouped.with(Serdes.String(),vgrEventSerdes))
-                .count()
-                .toStream()
-                .foreach((key, count) -> System.out.println("Key: " + key + ", Count: " + count));
-*/
 
 
         return builder.build();
