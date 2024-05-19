@@ -65,7 +65,9 @@ public class MonitoringRestController {
         return emitter;
     }
     @GetMapping("/colorStats")
-    public String getColorStats() {
+    public SseEmitter getColorStats() {
+        SseEmitter emitter = new SseEmitter(100L);
+
         Map<String, ColorStats> mapColors = new HashMap<>();
 
         var range = colorStatsStore.all();
@@ -74,12 +76,15 @@ public class MonitoringRestController {
             var next = range.next();
             String color = next.key;
             var colorStats = next.value;
-            System.out.println(colorStats.getAverageColorValue());
             mapColors.put(color,colorStats);
         }
 
-
-
-        return mapColors.toString();
+        try {
+            emitter.send(SseEmitter.event().name("message").data(mapColors));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        emitter.complete();
+        return emitter;
     }
 }
