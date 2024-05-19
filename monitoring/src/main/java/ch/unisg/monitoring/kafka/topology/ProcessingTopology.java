@@ -12,6 +12,7 @@ import ch.unisg.monitoring.serialization.json.vgr.VgrDeserializer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
@@ -94,7 +95,6 @@ public class ProcessingTopology {
             String jsonData = gsonHBW.toJson(v.getData());
             HBW_1 hbwData = gsonHBW.fromJson(jsonData, HBW_1.class);
             hbwEvent.setData(hbwData);
-
             return hbwEvent;
         });
 
@@ -105,32 +105,30 @@ public class ProcessingTopology {
          hbwTypedStream.print(Printed.<byte[], HbwEvent>toSysOut().withLabel("hbwTypedStream"));
 
 
-        // Define a hopping window of 10 seconds with a 5 seconds advance
-        TimeWindows hoppingWindow = TimeWindows.of(Duration.ofSeconds(10)).advanceBy(Duration.ofSeconds(5));
+         // Note:
+        // The outputs of the windows only appear in the console when kafka commits the messages.
+        // By default this is set to 30 seconds. After the first 30 seconds you can see 3 window outputs,
+        // because we have set the window size to 10 seconds and grace period to 0 second.
+        TimeWindows tumblingWindow = TimeWindows.ofSizeAndGrace(Duration.ofSeconds(10),
+                Duration.ofSeconds(0));
 
-        // Count the number of VGR_1 events in the hopping window
-        KTable<Windowed<byte[]>, Long> vgrCount =
-                vgrTypedStream
-                        .groupByKey()
-                        .windowedBy(hoppingWindow)
-                        .count(Materialized.as("vgr-count-store"))
-                        .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
+        TimeWindowedKStream<byte[], VgrEvent> windowedVgr = vgrTypedStream
+                .groupByKey()
+                .windowedBy(tumblingWindow);
 
-        // Count the number of HBW_1 events in the hopping window
-        KTable<Windowed<byte[]>, Long> hbwCount =
-                hbwTypedStream
-                        .groupByKey()
-                        .windowedBy(hoppingWindow)
-                        .count(Materialized.as("hbw-count-store"))
-                        .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
+        TimeWindowedKStream<byte[], HbwEvent> windowedHbw = hbwTypedStream
+                .groupByKey()
+                .windowedBy(tumblingWindow);
 
-        vgrCount.toStream().print(Printed.<Windowed<byte[]>, Long>toSysOut().withLabel("vgr-count-store"));
-        hbwCount.toStream().print(Printed.<Windowed<byte[]>, Long>toSysOut().withLabel("hbw-count-store"));
+        // Count the number of VGR_1 events in the tumbling window
+        windowedVgr.count().toStream().foreach((key, count) -> System.out.println("Key: " + new String(key.key(),
+                StandardCharsets.UTF_8) + ", Window: " + key.window() + ", Count: " + count));
+        // Count the number of HBW_1 events in the tumbling window
+        windowedHbw.count().toStream().foreach((key, count) -> System.out.println("Key: " + new String(key.key(),
+                StandardCharsets.UTF_8) + ", Window: " + key.window() + ", Count: " + count));
 
 
 
         return builder.build();
     }
-
-
 }
