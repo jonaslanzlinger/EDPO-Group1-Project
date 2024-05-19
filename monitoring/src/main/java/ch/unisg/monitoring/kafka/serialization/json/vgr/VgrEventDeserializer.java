@@ -21,4 +21,5 @@ public class VgrEventDeserializer implements Deserializer<VgrEvent> {
     public VgrEvent deserialize(String topic, byte[] bytes) {
         if (bytes == null) return null;
         return gsonVGR.fromJson(new String(bytes, StandardCharsets.UTF_8), VgrEvent.class);
+    }
 }
