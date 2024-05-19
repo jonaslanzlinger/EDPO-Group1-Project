@@ -2,7 +2,7 @@ package ch.unisg.monitoring.rest;
 
 import ch.unisg.monitoring.domain.MonitoringStore;
 import ch.unisg.monitoring.kafka.dto.MonitorUpdateDto;
-import ch.unisg.monitoring.kafka.topology.FactoryStats;
+import ch.unisg.monitoring.kafka.topology.aggregations.FactoryStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import lombok.AllArgsConstructor;
@@ -110,6 +110,12 @@ public class MonitoringRestController {
 
         try {
             emitter.send(SseEmitter.event().name("message").data(mapColors));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        emitter.complete();
+        return emitter;
+    }
 
     @GetMapping("/factoryStats")
     public SseEmitter getFactoryStats() {

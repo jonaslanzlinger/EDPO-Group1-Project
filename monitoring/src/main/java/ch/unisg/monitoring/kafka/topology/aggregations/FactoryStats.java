@@ -1,4 +1,4 @@
-package ch.unisg.monitoring.kafka.topology;
+package ch.unisg.monitoring.kafka.topology.aggregations;
 
 import ch.unisg.monitoring.kafka.serialization.HbwEvent;
 import ch.unisg.monitoring.kafka.serialization.VgrEvent;
