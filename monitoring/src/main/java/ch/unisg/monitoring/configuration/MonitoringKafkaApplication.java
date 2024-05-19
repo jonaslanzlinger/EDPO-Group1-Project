@@ -2,6 +2,7 @@ package ch.unisg.monitoring.configuration;
 
 import ch.unisg.monitoring.kafka.topology.ProcessingTopology;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
+import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsConfig;
@@ -9,6 +10,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
+import org.apache.kafka.streams.state.ReadOnlySessionStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,5 +40,9 @@ public class MonitoringKafkaApplication {
     @Bean
     public ReadOnlyKeyValueStore<String, ColorStats> colorStatsStore(KafkaStreams streams) {
         return streams.store(StoreQueryParameters.fromNameAndType("colorStats", QueryableStoreTypes.keyValueStore()));
+    }
+    @Bean
+    public ReadOnlySessionStore<String, TimeDifferenceAggregation> lightSensorStore(KafkaStreams streams) {
+        return streams.store(StoreQueryParameters.fromNameAndType("lightSensor", QueryableStoreTypes.sessionStore()));
     }
 }

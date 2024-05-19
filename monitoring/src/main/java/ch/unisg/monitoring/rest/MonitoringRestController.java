@@ -3,9 +3,11 @@ package ch.unisg.monitoring.rest;
 import ch.unisg.monitoring.domain.MonitoringStore;
 import ch.unisg.monitoring.kafka.dto.MonitorUpdateDto;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
+import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
+import org.apache.kafka.streams.state.ReadOnlySessionStore;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -28,6 +30,7 @@ public class MonitoringRestController {
 
     private final MonitoringStore monitoringStore;
     private final ReadOnlyKeyValueStore<String, ColorStats> colorStatsStore;
+    private final ReadOnlySessionStore<String, TimeDifferenceAggregation> lightSensorStore;
 
     //TODO: Status codes
     @RequestMapping(path = "/api/monitoring/{orderId}", method = GET, produces = "application/json")
@@ -77,6 +80,30 @@ public class MonitoringRestController {
             String color = next.key;
             var colorStats = next.value;
             mapColors.put(color,colorStats);
+        }
+
+        try {
+            emitter.send(SseEmitter.event().name("message").data(mapColors));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        emitter.complete();
+        return emitter;
+    }
+
+    @GetMapping("/lightSensor")
+    public SseEmitter getLightSensor() {
+        SseEmitter emitter = new SseEmitter(100L);
+
+        Map<String, ColorStats> mapColors = new HashMap<>();
+
+        var range = lightSensorStore.fetch("HBW_1");
+
+        while(range.hasNext()) {
+            var next = range.next();
+            System.out.println("Wohooo");
+            System.out.println(next.key.key());
+            System.out.println(next.value.getTimeDifference());
         }
 
         try {
