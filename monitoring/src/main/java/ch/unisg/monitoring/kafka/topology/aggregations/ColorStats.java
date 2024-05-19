@@ -24,10 +24,10 @@ public class ColorStats {
 
     @Override
     public String toString() {
-        return "FixationStats{" +
-                "fixationCount=" + colorCount +
-                ", totalFixationDuration=" + totalColorValues +
-                ", averageFixationDuration=" + averageColorValue +
+        return "ColorStats{" +
+                "colorCount=" + colorCount +
+                ", totalColorValues=" + totalColorValues +
+                ", averageColorValue=" + averageColorValue +
                 '}';
     }
 }
