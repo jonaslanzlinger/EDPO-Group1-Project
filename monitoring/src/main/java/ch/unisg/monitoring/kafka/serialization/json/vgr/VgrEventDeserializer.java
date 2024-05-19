@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.kafka.common.serialization.Deserializer;
 
+
 import java.nio.charset.StandardCharsets;
 
 public class VgrEventDeserializer implements Deserializer<VgrEvent> {
