@@ -87,4 +87,17 @@ public class MonitoringRestController {
         emitter.complete();
         return emitter;
     }
+
+    @GetMapping("/factoryStats")
+    public SseEmitter getFactoryStats() {
+        SseEmitter emitter = new SseEmitter(100L);
+
+        try {
+            emitter.send(SseEmitter.event().name("message").data("Factory Stats"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        emitter.complete();
+        return emitter;
+    }
 }
