@@ -1,6 +1,7 @@
 package ch.unisg.monitoring.kafka.topology;
 
 import ch.unisg.monitoring.kafka.topology.aggregations.FactoryStats;
+import ch.unisg.monitoring.domain.stations.HBW_1;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import org.apache.kafka.common.serialization.Serde;
 
@@ -94,11 +95,28 @@ public class ProcessingTopology {
 
 
         // Windowed streams of length light barrier broken
-        KStream<String, HbwEvent> lightBarrierBrokenHBW = hbwTypedStream.filterNot((k, v) -> v.getData().isI4_light_barrier());
+        KStream<String, HbwEvent> lightBarrierBrokenHBW = hbwTypedStream.filterNot((k, v) -> {
+            HBW_1 hbw1 = v.getData();
+            return hbw1.isI1_light_barrier() || hbw1.isI2_light_barrier() || hbw1.isI3_light_barrier() || hbw1.isI4_light_barrier();
+        });
         SessionWindows sessionWindow = SessionWindows.ofInactivityGapWithNoGrace(Duration.ofMinutes(1));
 
         SessionWindowedKStream<String, HbwEvent> sessionizedHbwEvent = lightBarrierBrokenHBW
-                .groupByKey()
+                .groupBy((k, v) -> {
+                    if(!v.getData().isI4_light_barrier()) {
+                        return "i4_light_sensor";
+                    }
+                    if(!v.getData().isI3_light_barrier()) {
+                        return "i3_light_sensor";
+                    }
+                    if(!v.getData().isI2_light_barrier()) {
+                        return "i2_light_sensor";
+                    }
+                    if(!v.getData().isI1_light_barrier()) {
+                        return "i1_light_sensor";
+                    }
+                    return "unknown";
+                }, Grouped.with(Serdes.String(), hbwEventSerdes))
                 .windowedBy(sessionWindow);
 
         sessionizedHbwEvent.aggregate(

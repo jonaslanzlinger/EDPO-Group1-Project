@@ -7,16 +7,12 @@ import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.streams.kstream.Windowed;
-import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlySessionStore;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -104,7 +100,7 @@ public class MonitoringRestController {
         Map<String, ColorStats> mapColors = new HashMap<>();
 
 
-        var range = lightSensorStore.fetch("HBW_1");
+        var range = lightSensorStore.fetch("i4_light_sensor");
 
         while(range.hasNext()) {
             var next = range.next();
