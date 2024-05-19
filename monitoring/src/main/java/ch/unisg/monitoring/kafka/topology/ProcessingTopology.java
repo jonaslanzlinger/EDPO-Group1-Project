@@ -9,6 +9,7 @@ import ch.unisg.monitoring.kafka.serialization.VgrEvent;
 import ch.unisg.monitoring.kafka.serialization.json.FactoryEventSerdes;
 import ch.unisg.monitoring.kafka.serialization.json.hbw.HbwDeserializer;
 import ch.unisg.monitoring.kafka.serialization.json.vgr.VgrDeserializer;
+import ch.unisg.monitoring.kafka.serialization.json.vgr.VgrEventSerdes;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -41,23 +42,23 @@ public class ProcessingTopology {
         StreamsBuilder builder = new StreamsBuilder();
         Serde<ColorStats> colorStatsSerde = jsonSerde(ColorStats.class);
 
-        KStream<byte[], FactoryEvent> stream = builder.stream("monitoring-all", Consumed.with(Serdes.ByteArray(), new FactoryEventSerdes()));
+        KStream<String, FactoryEvent> stream = builder.stream("monitoring-all", Consumed.with(Serdes.String(), new FactoryEventSerdes()));
 
         // DEBUG
         // stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
         // KStream<byte[], FactoryEvent> peekedStream = stream.peek((key, value) -> System.out.println("Key:
         // " + Arrays.toString(key)));
 
-        KStream<byte[], FactoryEvent>[] branches = stream.branch(
-                (key, value) -> Arrays.equals(key, "VGR_1".getBytes(StandardCharsets.UTF_8)),
-                (key, value) -> Arrays.equals(key, "HBW_1".getBytes(StandardCharsets.UTF_8))
+        KStream<String, FactoryEvent>[] branches = stream.branch(
+                (key, value) -> key.equals("VGR_1"),
+                (key, value) -> key.equals("HBW_1")
         );
 
         // DEBUG: check if the branch is working
         // branches[0].print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("VGR_1"));
         // branches[1].print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("HBW_1"));
 
-        KStream<byte[], VgrEvent> vgrTypedStream =  branches[0].mapValues(v -> {
+        KStream<String, VgrEvent> vgrTypedStream =  branches[0].mapValues(v -> {
             VgrEvent vgrEvent = new VgrEvent();
             vgrEvent.setId(v.getId());
             vgrEvent.setSource(v.getSource());
@@ -71,7 +72,7 @@ public class ProcessingTopology {
             return vgrEvent;
         });
 
-        KStream<byte[], HbwEvent> hbwTypedStream =  branches[1].mapValues(v -> {
+        KStream<String, HbwEvent> hbwTypedStream =  branches[1].mapValues(v -> {
             HbwEvent hbwEvent = new HbwEvent();
             hbwEvent.setId(v.getId());
             hbwEvent.setTime(v.getTime());
@@ -86,10 +87,10 @@ public class ProcessingTopology {
         });
 
         // DEBUG: print vgrTypedStream to console
-        vgrTypedStream.print(Printed.<byte[], VgrEvent>toSysOut().withLabel("vgrTypedStream"));
+        vgrTypedStream.print(Printed.<String, VgrEvent>toSysOut().withLabel("vgrTypedStream"));
 
         // DEBUG: print hbwTypedStream to console
-        hbwTypedStream.print(Printed.<byte[], HbwEvent>toSysOut().withLabel("hbwTypedStream"));
+        hbwTypedStream.print(Printed.<String, HbwEvent>toSysOut().withLabel("hbwTypedStream"));
 
         KStream<String, Double> colorSensorStream = vgrTypedStream.map((key, vgrEvent) ->
                 new KeyValue<>(vgrEvent.getData().getColor(), vgrEvent.getData().getI8_color_sensor())
@@ -123,27 +124,25 @@ public class ProcessingTopology {
         TimeWindows tumblingWindow = TimeWindows.ofSizeAndGrace(Duration.ofSeconds(10),
                 Duration.ofSeconds(0));
 
-        TimeWindowedKStream<byte[], VgrEvent> windowedVgr = vgrTypedStream
+        TimeWindowedKStream<String, VgrEvent> windowedVgr = vgrTypedStream
                 .groupByKey()
                 .windowedBy(tumblingWindow);
 
-        TimeWindowedKStream<byte[], HbwEvent> windowedHbw = hbwTypedStream
+        TimeWindowedKStream<String, HbwEvent> windowedHbw = hbwTypedStream
                 .groupByKey()
                 .windowedBy(tumblingWindow);
 
         // Count the number of VGR_1 events in the tumbling window
-        windowedVgr.count().toStream().foreach((key, count) -> System.out.println("Key: " + new String(key.key(),
-                StandardCharsets.UTF_8) + ", Window: " + key.window() + ", Count: " + count));
+        windowedVgr.count().toStream().foreach((key, count) -> System.out.println("Key: " + key.key() + ", Window: " + key.window() + ", Count: " + count));
         // Count the number of HBW_1 events in the tumbling window
-        windowedHbw.count().toStream().foreach((key, count) -> System.out.println("Key: " + new String(key.key(),
-                StandardCharsets.UTF_8) + ", Window: " + key.window() + ", Count: " + count));
+        windowedHbw.count().toStream().foreach((key, count) -> System.out.println("Key: " + key.key() + ", Window: " + key.window() + ", Count: " + count));
 
 
         // Count the number of messages grouped by the color field.
         // Note: Also here the output appears only after the kafka commits the messages (30 seconds default).
         vgrTypedStream
                 .groupBy((key, value) -> value.getData().getColor(),
-                        Grouped.with(Serdes.String(), new JsonSerde<>(VgrEvent.class)))
+                        Grouped.with(Serdes.String(),new VgrEventSerdes()))
                 .count()
                 .toStream()
                 .foreach((key, count) -> System.out.println("Key: " + key + ", Count: " + count));
