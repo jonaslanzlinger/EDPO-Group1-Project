@@ -1,12 +1,14 @@
 package ch.unisg.monitoring.kafka.topology;
 
+import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
+import org.apache.kafka.common.serialization.Serde;
+
 
 import ch.unisg.monitoring.kafka.serialization.HbwEvent;
 import ch.unisg.monitoring.kafka.serialization.VgrEvent;
 import ch.unisg.monitoring.kafka.serialization.json.hbw.HbwEventSerdes;
 import ch.unisg.monitoring.kafka.serialization.json.vgr.VgrEventSerdes;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
-import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
@@ -14,6 +16,7 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.SessionStore;
 
 import java.time.Duration;
 
@@ -25,7 +28,9 @@ public class ProcessingTopology {
     public static Topology build() {
 
         StreamsBuilder builder = new StreamsBuilder();
+
         Serde<ColorStats> colorStatsSerde = jsonSerde(ColorStats.class);
+        Serde<TimeDifferenceAggregation> timeDifferenceAggregationSerde = jsonSerde(TimeDifferenceAggregation.class);
         HbwEventSerdes hbwEventSerdes = new HbwEventSerdes();
         VgrEventSerdes vgrEventSerdes = new VgrEventSerdes();
 
@@ -84,6 +89,26 @@ public class ProcessingTopology {
                                         as("colorStats")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(colorStatsSerde));
+
+
+        // Windowed streams of length light barrier broken
+        KStream<String, HbwEvent> lightBarrierBrokenHBW = hbwTypedStream.filterNot((k, v) -> v.getData().isI4_light_barrier());
+        SessionWindows sessionWindow = SessionWindows.ofInactivityGapWithNoGrace(Duration.ofMinutes(1));
+
+        SessionWindowedKStream<String, HbwEvent> sessionizedHbwEvent = lightBarrierBrokenHBW
+                .groupByKey()
+                .windowedBy(sessionWindow);
+
+        sessionizedHbwEvent.aggregate(
+                TimeDifferenceAggregation::new,
+                (key, newValue, agg) -> agg.add(newValue),
+                (aggKey, agg1, agg2) -> agg1.add(agg2),
+                Materialized.<String, TimeDifferenceAggregation, SessionStore<Bytes, byte[]>>as("lightSensor")
+                        .withKeySerde(Serdes.String())
+                        .withValueSerde(timeDifferenceAggregationSerde)
+        ).suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
+
+
 
         // Note:
         // The outputs of the windows only appear in the console when kafka commits the messages.
