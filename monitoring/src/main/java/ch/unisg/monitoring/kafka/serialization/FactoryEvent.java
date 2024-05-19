@@ -1,4 +1,4 @@
-package ch.unisg.monitoring.serialization;
+package ch.unisg.monitoring.kafka.serialization;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package ch.unisg.monitoring.serialization.json.vgr;
+package ch.unisg.monitoring.kafka.serialization.json.vgr;
 
 
 import ch.unisg.monitoring.domain.stations.VGR_1;

@@ -1,4 +1,4 @@
-package ch.unisg.monitoring.serialization.json.hbw;
+package ch.unisg.monitoring.kafka.serialization.json.hbw;
 
 import ch.unisg.monitoring.domain.stations.HBW_1;
 import com.google.gson.*;

@@ -1,17 +1,17 @@
-package ch.unisg.monitoring.serialization.json.hbw;
+package ch.unisg.monitoring.kafka.serialization.json.vgr;
 
-import ch.unisg.monitoring.serialization.HbwEvent;
+import ch.unisg.monitoring.kafka.serialization.VgrEvent;
 import com.google.gson.Gson;
 import org.apache.kafka.common.serialization.Serializer;
 
 import java.nio.charset.StandardCharsets;
 
-public class HbwEventSerializer implements Serializer<HbwEvent> {
+public class VgrEventSerializer implements Serializer<VgrEvent> {
 
     private final Gson gson = new Gson();
 
     @Override
-    public byte[] serialize(String topic, HbwEvent factoryEvent) {
+    public byte[] serialize(String topic, VgrEvent factoryEvent) {
         if (factoryEvent == null) return null;
         return gson.toJson(factoryEvent).getBytes(StandardCharsets.UTF_8);
     }

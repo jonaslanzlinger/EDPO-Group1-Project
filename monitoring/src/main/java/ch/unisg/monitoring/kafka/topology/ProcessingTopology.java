@@ -3,27 +3,30 @@ package ch.unisg.monitoring.kafka.topology;
 import ch.unisg.monitoring.domain.stations.HBW_1;
 import ch.unisg.monitoring.domain.stations.VGR_1;
 
-import ch.unisg.monitoring.serialization.FactoryEvent;
-import ch.unisg.monitoring.serialization.HbwEvent;
-import ch.unisg.monitoring.serialization.VgrEvent;
-import ch.unisg.monitoring.serialization.json.FactoryEventSerdes;
-import ch.unisg.monitoring.serialization.json.hbw.HbwDeserializer;
-import ch.unisg.monitoring.serialization.json.vgr.VgrDeserializer;
+import ch.unisg.monitoring.kafka.serialization.FactoryEvent;
+import ch.unisg.monitoring.kafka.serialization.HbwEvent;
+import ch.unisg.monitoring.kafka.serialization.VgrEvent;
+import ch.unisg.monitoring.kafka.serialization.json.FactoryEventSerdes;
+import ch.unisg.monitoring.kafka.serialization.json.hbw.HbwDeserializer;
+import ch.unisg.monitoring.kafka.serialization.json.vgr.VgrDeserializer;
+import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.streams.state.StoreBuilder;
-import org.apache.kafka.streams.state.Stores;
 import org.springframework.kafka.support.serializer.JsonSerde;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
+
+import static ch.unisg.monitoring.kafka.serialization.json.json.JsonSerdes.jsonSerde;
 
 
 public class ProcessingTopology {
@@ -36,23 +39,7 @@ public class ProcessingTopology {
     public static Topology build() {
 
         StreamsBuilder builder = new StreamsBuilder();
-
-        StoreBuilder<KeyValueStore<byte[], VgrEvent>> storeBuilderVGR =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("previous-event-store-vgr"),
-                        Serdes.ByteArray(),
-                        new JsonSerde<>(VgrEvent.class)
-                );
-        StoreBuilder<KeyValueStore<byte[], HbwEvent>> storeBuilderHBW =
-                Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore("previous-event-store-hbw"),
-                        Serdes.ByteArray(),
-                        new JsonSerde<>(HbwEvent.class)
-                );
-
-
-        builder.addStateStore(storeBuilderVGR);
-        builder.addStateStore(storeBuilderHBW);
+        Serde<ColorStats> colorStatsSerde = jsonSerde(ColorStats.class);
 
         KStream<byte[], FactoryEvent> stream = builder.stream("monitoring-all", Consumed.with(Serdes.ByteArray(), new FactoryEventSerdes()));
 
@@ -104,6 +91,30 @@ public class ProcessingTopology {
         // DEBUG: print hbwTypedStream to console
         hbwTypedStream.print(Printed.<byte[], HbwEvent>toSysOut().withLabel("hbwTypedStream"));
 
+        KStream<String, Double> colorSensorStream = vgrTypedStream.map((key, vgrEvent) ->
+                new KeyValue<>(vgrEvent.getData().getColor(), vgrEvent.getData().getI8_color_sensor())
+        );
+
+
+        Initializer<ColorStats> aggregateInitializer = () -> new ColorStats(0,0,0);
+
+        Aggregator<String, Double, ColorStats> aggregateAggregator = (key, value, colorStats) -> {
+            long newTotalCount = colorStats.getColorCount() + 1;
+            double newTotalOccurrences = colorStats.getTotalColorValues() + value;
+            double newAverageColorVal = newTotalOccurrences / newTotalCount;
+            return new ColorStats(newTotalCount,newTotalOccurrences,newAverageColorVal);
+        };
+
+        KTable<String, ColorStats> averageColorSensor =
+                colorSensorStream
+                        .groupBy((key, value) -> key, Grouped.with(Serdes.String(), Serdes.Double()))
+                        .aggregate(
+                                aggregateInitializer,
+                                aggregateAggregator,
+                                Materialized.<String, ColorStats, KeyValueStore<Bytes,byte[]>>
+                                                as("colorStats")
+                                        .withKeySerde(Serdes.String())
+                                        .withValueSerde(colorStatsSerde));
 
         // Note:
         // The outputs of the windows only appear in the console when kafka commits the messages.

@@ -1,6 +1,6 @@
-package ch.unisg.monitoring.serialization.json;
+package ch.unisg.monitoring.kafka.serialization.json;
 
-import ch.unisg.monitoring.serialization.FactoryEvent;
+import ch.unisg.monitoring.kafka.serialization.FactoryEvent;
 import com.google.gson.Gson;
 import org.apache.kafka.common.serialization.Serializer;
 

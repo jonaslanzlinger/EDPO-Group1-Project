@@ -1,7 +1,7 @@
-package ch.unisg.monitoring.serialization.json.hbw;
+package ch.unisg.monitoring.kafka.serialization.json.hbw;
 
 import ch.unisg.monitoring.domain.stations.HBW_1;
-import ch.unisg.monitoring.serialization.HbwEvent;
+import ch.unisg.monitoring.kafka.serialization.HbwEvent;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

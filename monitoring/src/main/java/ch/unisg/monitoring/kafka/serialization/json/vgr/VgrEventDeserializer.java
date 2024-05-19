@@ -1,7 +1,7 @@
-package ch.unisg.monitoring.serialization.json.vgr;
+package ch.unisg.monitoring.kafka.serialization.json.vgr;
 
 import ch.unisg.monitoring.domain.stations.VGR_1;
-import ch.unisg.monitoring.serialization.VgrEvent;
+import ch.unisg.monitoring.kafka.serialization.VgrEvent;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
