@@ -103,7 +103,28 @@ public class MonitoringRestController {
         Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
 
         long fetchStartTime = System.currentTimeMillis();
+        var range = lightSensorStore.backwardFetch("i4_light_sensor");
+        range.close();
+        long fetchEndTime = System.currentTimeMillis();
+
+        logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
+
+        range.forEachRemaining(n -> {
+            System.out.println(n.key.key());
+            System.out.println(n.value.getFirstTimestamp());
+            System.out.println(n.value.getLastTimestamp());
+        });
+
+        return "successs";
+    }
+
+    @GetMapping("/test2")
+    public String getTest2() {
+        Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
+
+        long fetchStartTime = System.currentTimeMillis();
         var range = lightSensorStore.fetch("i4_light_sensor");
+        range.close();
         long fetchEndTime = System.currentTimeMillis();
 
         logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
@@ -114,7 +135,7 @@ public class MonitoringRestController {
             System.out.println(next.value.getFirstTimestamp());
             System.out.println(next.value.getLastTimestamp());
         }
-        range.close();
+
         return "successs";
     }
 
@@ -132,8 +153,7 @@ public class MonitoringRestController {
         long fetchEndTime = System.currentTimeMillis();
         // Logging system resource utilization (example using OperatingSystemMXBean)
         OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
-        if (osBean instanceof com.sun.management.OperatingSystemMXBean) {
-            com.sun.management.OperatingSystemMXBean sunOsBean = (com.sun.management.OperatingSystemMXBean) osBean;
+        if (osBean instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
             logger.info("System CPU load: {}%", sunOsBean.getSystemCpuLoad() * 100);
             logger.info("Process CPU load: {}%", sunOsBean.getProcessCpuLoad() * 100);
             logger.info("Free physical memory: {} MB", sunOsBean.getFreePhysicalMemorySize() / (1024 * 1024));

@@ -1,7 +1,6 @@
 package ch.unisg.monitoring.kafka.topology;
 
 import ch.unisg.monitoring.kafka.topology.aggregations.FactoryStats;
-import ch.unisg.monitoring.domain.stations.HBW_1;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import org.apache.kafka.common.serialization.Serde;
 
@@ -21,7 +20,6 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.SessionStore;
 
 import java.time.Duration;
-import java.util.Map;
 
 import static ch.unisg.monitoring.kafka.serialization.json.json.JsonSerdes.jsonSerde;
 
@@ -101,10 +99,10 @@ public class ProcessingTopology {
                     System.out.println("GroupBy: " + k + " -> " + sensorKey);
                     return sensorKey;
                 }, Grouped.with(Serdes.String(), hbwEventSerdes))
-                .windowedBy(SessionWindows.ofInactivityGapWithNoGrace(Duration.ofMinutes(1)));
+                .windowedBy(SessionWindows.ofInactivityGapAndGrace(Duration.ofSeconds(2),Duration.ofMillis(500)));
 
 
-        sessionizedHbwEvent.aggregate(
+        KTable<Windowed<String>, TimeDifferenceAggregation> test = sessionizedHbwEvent.aggregate(
                 TimeDifferenceAggregation::new,
                 TimeDifferenceAggregation::add,
                 TimeDifferenceAggregation::merge,
@@ -112,8 +110,12 @@ public class ProcessingTopology {
                         .withKeySerde(Serdes.String())
                         .withValueSerde(timeDifferenceAggregationSerde)
                         .withCachingEnabled()
-        );
+                ).suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
 
+        test
+                .toStream()
+                .map((k, v) -> KeyValue.pair(k.key(), v))
+                .print(Printed.<String, TimeDifferenceAggregation>toSysOut().withLabel("TimeDifferenceAggregation"));
 
         /* JOINING VGR AND HBW STREAMS */
 
