@@ -7,6 +7,8 @@ import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlySessionStore;
 import org.slf4j.Logger;
@@ -15,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,6 +73,7 @@ public class MonitoringRestController {
         emitter.complete();
         return emitter;
     }
+
     @GetMapping("/colorStats")
     public SseEmitter getColorStats() {
         SseEmitter emitter = new SseEmitter(100L);
@@ -103,62 +104,37 @@ public class MonitoringRestController {
         Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
 
         long fetchStartTime = System.currentTimeMillis();
-        var range = lightSensorStore.backwardFetch("i4_light_sensor");
-        range.close();
+        KeyValueIterator<Windowed<String>, TimeDifferenceAggregation> range = lightSensorStore.backwardFetch("i4_light_sensor");
         long fetchEndTime = System.currentTimeMillis();
 
         logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
 
-        range.forEachRemaining(n -> {
-            System.out.println(n.key.key());
-            System.out.println(n.value.getFirstTimestamp());
-            System.out.println(n.value.getLastTimestamp());
-        });
+        long processStartTime = System.currentTimeMillis();
 
-        return "successs";
-    }
+        range.forEachRemaining(n ->
+                logger.info("Key: {}, First Timestamp: {}, Last Timestamp: {}", n.key.key(), n.value.getFirstTimestamp(), n.value.getLastTimestamp()));
 
-    @GetMapping("/test2")
-    public String getTest2() {
-        Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
-
-        long fetchStartTime = System.currentTimeMillis();
-        var range = lightSensorStore.fetch("i4_light_sensor");
         range.close();
-        long fetchEndTime = System.currentTimeMillis();
 
-        logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
+        long processEndTime = System.currentTimeMillis();
+        logger.info("Processing time: {} ms", (processEndTime - processStartTime));
 
-        while(range.hasNext()) {
-            var next = range.next();
-            System.out.println(next.key.key());
-            System.out.println(next.value.getFirstTimestamp());
-            System.out.println(next.value.getLastTimestamp());
-        }
+        long responseTime = System.currentTimeMillis();
+        logger.info("Total response time: {} ms", (responseTime - fetchStartTime));
 
-        return "successs";
+        return "success";
     }
 
 
     @GetMapping("/lightSensor")
     public SseEmitter getLightSensor() {
-        Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
-
         SseEmitter emitter = new SseEmitter(100L);
 
         Map<String, ColorStats> mapColors = new HashMap<>();
 
-        long fetchStartTime = System.currentTimeMillis();
+
         var range = lightSensorStore.fetch("i4_light_sensor");
-        long fetchEndTime = System.currentTimeMillis();
-        // Logging system resource utilization (example using OperatingSystemMXBean)
-        OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
-        if (osBean instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
-            logger.info("System CPU load: {}%", sunOsBean.getSystemCpuLoad() * 100);
-            logger.info("Process CPU load: {}%", sunOsBean.getProcessCpuLoad() * 100);
-            logger.info("Free physical memory: {} MB", sunOsBean.getFreePhysicalMemorySize() / (1024 * 1024));
-            logger.info("Total physical memory: {} MB", sunOsBean.getTotalPhysicalMemorySize() / (1024 * 1024));
-        }
+
         while(range.hasNext()) {
             var next = range.next();
             System.out.println(next.key.key());
@@ -166,8 +142,6 @@ public class MonitoringRestController {
             System.out.println(next.value.getLastTimestamp());
         }
         range.close();
-
-        logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
 
         try {
             emitter.send(SseEmitter.event().name("message").data(mapColors));
