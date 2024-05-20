@@ -121,12 +121,12 @@ public class ProcessingTopology {
 
         // Specify key by the timestamp of the event
         KStream<String, VgrEvent> vgrTimestampKey = vgrTypedStream.map((key, value) ->
-                new KeyValue<>(value.getTime().substring(0, 18), value)
+                new KeyValue<>(value.getTime().toString(), value)
         );
 
         // Specify key by the timestamp of the event
         KStream<String, HbwEvent> hbwTimestampKey = hbwTypedStream.map((key, value) ->
-                new KeyValue<>(value.getTime().substring(0, 18), value)
+                new KeyValue<>(value.getTime().toString(), value)
         );
 
         // Specify how to join the two streams in terms of serde

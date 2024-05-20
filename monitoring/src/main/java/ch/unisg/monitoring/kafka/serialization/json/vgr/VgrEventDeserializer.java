@@ -2,6 +2,7 @@ package ch.unisg.monitoring.kafka.serialization.json.vgr;
 
 
 import ch.unisg.monitoring.domain.stations.VGR_1;
+import ch.unisg.monitoring.kafka.serialization.InstantTypeAdapter;
 import ch.unisg.monitoring.kafka.serialization.VgrEvent;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -10,9 +11,11 @@ import org.apache.kafka.common.serialization.Deserializer;
 
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 
 public class VgrEventDeserializer implements Deserializer<VgrEvent> {
     private static final Gson gsonVGR = new GsonBuilder()
+            .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
             .registerTypeAdapter(VGR_1.class, new VgrDeserializer())
             .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
 
