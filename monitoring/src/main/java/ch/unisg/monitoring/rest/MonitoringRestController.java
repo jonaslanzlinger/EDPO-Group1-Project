@@ -7,8 +7,7 @@ import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.streams.kstream.Windowed;
-import org.apache.kafka.streams.state.KeyValueIterator;
+
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlySessionStore;
 import org.slf4j.Logger;
@@ -18,7 +17,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -37,6 +38,7 @@ public class MonitoringRestController {
     private final ReadOnlyKeyValueStore<String, ColorStats> colorStatsStore;
     private final ReadOnlySessionStore<String, TimeDifferenceAggregation> lightSensorStore;
     private final ReadOnlyKeyValueStore<String, FactoryStats> factoryStatsStore;
+    private static final Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
 
     //TODO: Status codes
     @RequestMapping(path = "/api/monitoring/{orderId}", method = GET, produces = "application/json")
@@ -82,11 +84,11 @@ public class MonitoringRestController {
 
         var range = colorStatsStore.all();
 
-        while(range.hasNext()) {
+        while (range.hasNext()) {
             var next = range.next();
             String color = next.key;
             var colorStats = next.value;
-            mapColors.put(color,colorStats);
+            mapColors.put(color, colorStats);
         }
 
         range.close();
@@ -99,32 +101,58 @@ public class MonitoringRestController {
         return emitter;
     }
 
-    @GetMapping("/test")
-    public String getTest() {
-        Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
+    @GetMapping("/test/{sensor}")
+    public String getTest(@PathVariable String sensor) {
 
         long fetchStartTime = System.currentTimeMillis();
-        KeyValueIterator<Windowed<String>, TimeDifferenceAggregation> range = lightSensorStore.backwardFetch("i4_light_sensor");
+
+        var range = lightSensorStore.backwardFetch(sensor);
+
         long fetchEndTime = System.currentTimeMillis();
 
         logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
 
-        long processStartTime = System.currentTimeMillis();
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-        range.forEachRemaining(n ->
-                logger.info("Key: {}, First Timestamp: {}, Last Timestamp: {}", n.key.key(), n.value.getFirstTimestamp(), n.value.getLastTimestamp()));
-
-        range.close();
-
-        long processEndTime = System.currentTimeMillis();
-        logger.info("Processing time: {} ms", (processEndTime - processStartTime));
-
-        long responseTime = System.currentTimeMillis();
-        logger.info("Total response time: {} ms", (responseTime - fetchStartTime));
-
-        return "success";
+        try {
+            while (true) {
+                var n = fetchNextWithTimeout(range, executorService);
+                if (n == null) {
+                    range.close();
+                    return"lol";
+                }
+                logger.info("Key: {}, First Timestamp: {}, Last Timestamp: {}",
+                        n.key.key(), n.value.getFirstTimestamp(), n.value.getLastTimestamp());
+            }
+        } finally {
+            shutdownExecutorService(executorService);
+        }
     }
 
+    private static <T> T fetchNextWithTimeout(Iterator<T> iterator, ScheduledExecutorService executorService) {
+        Future<T> future = executorService.submit(() -> {
+            if (iterator.hasNext()) {
+                return iterator.next();
+            } else {
+                return null;
+            }
+        });
+
+        try {
+            return future.get(50L, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            return null;
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Fetching next element was interrupted or failed.", e);
+            return null;
+        }
+    }
+
+    private void shutdownExecutorService(ScheduledExecutorService executorService) {
+        executorService.shutdownNow();
+        Thread.currentThread().interrupt();
+    }
 
     @GetMapping("/lightSensor")
     public SseEmitter getLightSensor() {
@@ -135,7 +163,7 @@ public class MonitoringRestController {
 
         var range = lightSensorStore.fetch("i4_light_sensor");
 
-        while(range.hasNext()) {
+        while (range.hasNext()) {
             var next = range.next();
             System.out.println(next.key.key());
             System.out.println(next.value.getFirstTimestamp());
@@ -160,11 +188,11 @@ public class MonitoringRestController {
 
         var range = factoryStatsStore.all();
 
-        while(range.hasNext()) {
+        while (range.hasNext()) {
             var next = range.next();
             String factory = next.key;
             var factoryStats = next.value;
-            mapFactory.put(factory,factoryStats);
+            mapFactory.put(factory, factoryStats);
         }
         range.close();
         try {
