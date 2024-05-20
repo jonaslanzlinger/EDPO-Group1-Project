@@ -39,33 +39,19 @@ public class ProcessingTopology {
 
         KStream<String, byte[]> stream = builder.stream("monitoring-all", Consumed.with(Serdes.String(), Serdes.ByteArray()));
 
-        // DEBUG
-        // stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
-        // KStream<byte[], FactoryEvent> peekedStream = stream.peek((key, value) -> System.out.println("Key:
-        // " + Arrays.toString(key)));
+        var branches = stream.split(Named.as("branch-"))
+                .branch((k, v) -> k.equals("VGR_1"),Branched.as("vgr1"))
+                .branch((k, v) -> k.equals("HBW_1"), Branched.as("hbw1"))
+                .defaultBranch(Branched.as("other"));
 
-        KStream<String,  byte[]>[] branches = stream.branch(
-                (key, value) -> key.equals("VGR_1"),
-                (key, value) -> key.equals("HBW_1")
-        );
 
-        // DEBUG: check if the branch is working
-        // branches[0].print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("VGR_1"));
-        // branches[1].print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("HBW_1"));
-
-        KStream<String, VgrEvent> vgrTypedStream =  branches[0].mapValues(v ->
+        KStream<String, VgrEvent> vgrTypedStream = branches.get("branch-vgr1").mapValues(v ->
                 vgrEventSerdes.deserializer().deserialize("VGR_1",v)
         );
 
-        KStream<String, HbwEvent> hbwTypedStream =  branches[1].mapValues(v ->
+        KStream<String, HbwEvent> hbwTypedStream =  branches.get("branch-hbw1").mapValues(v ->
                 hbwEventSerdes.deserializer().deserialize("HBW_1",v)
         );
-
-        // DEBUG: print vgrTypedStream to console
-        // vgrTypedStream.print(Printed.<String, VgrEvent>toSysOut().withLabel("vgrTypedStream"));
-
-        // DEBUG: print hbwTypedStream to console
-        // hbwTypedStream.print(Printed.<String, HbwEvent>toSysOut().withLabel("hbwTypedStream"));
 
         // Create Stream of Color, ColorValues
         KStream<String, Double> colorSensorStream = vgrTypedStream.map((key, vgrEvent) ->
@@ -84,11 +70,11 @@ public class ProcessingTopology {
                                 .withValueSerde(colorStatsSerde));
 
 
-        // Windowed streams of length light barrier broken
+        // Stream of events with broken light barriers
         KStream<String, HbwEvent> lightBarrierBrokenHBW = hbwTypedStream.filterNot((k, v) ->
                 v.getData().isI1_light_barrier() && v.getData().isI4_light_barrier());
 
-
+        // grouped by light barrier and windowed by session
         SessionWindowedKStream<String, HbwEvent> sessionizedHbwEvent = lightBarrierBrokenHBW
                 .groupBy((k, v) -> {
                     String sensorKey = "unknown";
@@ -102,8 +88,8 @@ public class ProcessingTopology {
                 }, Grouped.with(Serdes.String(), hbwEventSerdes))
                 .windowedBy(SessionWindows.ofInactivityGapAndGrace(Duration.ofSeconds(2),Duration.ofMillis(500)));
 
-
-        KTable<Windowed<String>, TimeDifferenceAggregation> test = sessionizedHbwEvent.aggregate(
+        // aggregated by timedifference of each session
+        sessionizedHbwEvent.aggregate(
                 TimeDifferenceAggregation::new,
                 TimeDifferenceAggregation::add,
                 TimeDifferenceAggregation::merge,
@@ -113,10 +99,6 @@ public class ProcessingTopology {
                         .withCachingEnabled()
                 ).suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
 
-        test
-                .toStream()
-                .map((k, v) -> KeyValue.pair(k.key(), v))
-                .print(Printed.<String, TimeDifferenceAggregation>toSysOut().withLabel("TimeDifferenceAggregation"));
 
         /* JOINING VGR AND HBW STREAMS */
 
@@ -158,9 +140,6 @@ public class ProcessingTopology {
                         joinParams
                 );
 
-        // DEBUG: print factoryStatsStream to console
-        // factoryStatsStream.print(Printed.<String, FactoryStats>toSysOut().withLabel("factoryStatsStream"));
-
         // Create a KTable that stores the latest FactoryStats for each key
         factoryStatsStream
                 .groupByKey()
@@ -169,12 +148,6 @@ public class ProcessingTopology {
                                 as("factoryStats")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(factoryStatsSerde));
-
-        // DEBUG: print factoryStatsTable to console
-        // factoryStatsTable.toStream().print(Printed.<String, FactoryStats>toSysOut().withLabel(
-        //        "factoryStatsTable"));
-
-
 
         return builder.build();
     }
