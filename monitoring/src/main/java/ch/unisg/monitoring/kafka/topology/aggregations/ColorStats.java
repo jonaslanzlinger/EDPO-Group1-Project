@@ -4,6 +4,8 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.awt.*;
+
 @Setter
 @Getter
 public class ColorStats {
@@ -15,10 +17,23 @@ public class ColorStats {
     @SerializedName("AverageColorValue")
     private double averageColorValue;
 
+    public ColorStats() {
+        totalReadings = 0;
+        totalColorValues = 0;
+        averageColorValue = 0;
+    }
+
     public ColorStats(long totalReadings, double totalColorValues, double averageColorValue) {
         this.totalReadings = totalReadings;
         this.totalColorValues = totalColorValues;
         this.averageColorValue = averageColorValue;
+    }
+
+    public static ColorStats aggregate(String key, Double value, ColorStats agg) {
+        long newTotalCount = agg.getTotalReadings() + 1;
+        double newTotalOccurrences = agg.getTotalColorValues() + value;
+        double newAverageColorVal = newTotalOccurrences / newTotalCount;
+        return new ColorStats(newTotalCount,newTotalOccurrences,newAverageColorVal);
     }
 
 

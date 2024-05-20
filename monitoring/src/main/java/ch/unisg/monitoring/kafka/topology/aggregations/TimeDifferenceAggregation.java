@@ -25,23 +25,39 @@ public class TimeDifferenceAggregation {
         this.lastTimestamp = lastTimestamp;
     }
 
-    public TimeDifferenceAggregation add(HbwEvent event) {
-        Instant timestamp = Instant.parse(event.getTime());
+    public static TimeDifferenceAggregation add(String Key, HbwEvent event, TimeDifferenceAggregation agg) {
+        Instant newTime = Instant.parse(event.getTime());
 
-        Instant newFirstTimestamp = (firstTimestamp == null || timestamp.isBefore(firstTimestamp)) ? timestamp : firstTimestamp;
-        Instant newLastTimestamp = (lastTimestamp == null || timestamp.isAfter(lastTimestamp)) ? timestamp : lastTimestamp;
+        Instant newFirstTimestamp = (agg.firstTimestamp == null || newTime.isBefore(agg.firstTimestamp)) ? newTime : agg.firstTimestamp;
+        Instant newLastTimestamp = (agg.lastTimestamp == null || newTime.isAfter(agg.lastTimestamp)) ? newTime : agg.lastTimestamp;
+
+        return new TimeDifferenceAggregation(newFirstTimestamp, newLastTimestamp);
+    }
+
+    public static TimeDifferenceAggregation merge(String Key, TimeDifferenceAggregation agg1, TimeDifferenceAggregation agg2) {
+        Instant newFirstTimestamp;
+        Instant newLastTimestamp;
+
+        if (agg1.firstTimestamp != null && agg2.firstTimestamp != null) {
+            newFirstTimestamp = agg1.firstTimestamp.isBefore(agg2.firstTimestamp) ? agg1.firstTimestamp : agg2.firstTimestamp;
+        } else if (agg1.firstTimestamp != null) {
+            newFirstTimestamp = agg1.firstTimestamp;
+        } else {
+            newFirstTimestamp = agg2.firstTimestamp;
+        }
+
+        if (agg1.lastTimestamp != null && agg2.lastTimestamp != null) {
+            newLastTimestamp = agg1.lastTimestamp.isAfter(agg2.lastTimestamp) ? agg1.lastTimestamp : agg2.lastTimestamp;
+        } else if (agg1.lastTimestamp != null) {
+            newLastTimestamp = agg1.lastTimestamp;
+        } else {
+            newLastTimestamp = agg2.lastTimestamp;
+        }
 
         return new TimeDifferenceAggregation(newFirstTimestamp, newLastTimestamp);
     }
 
-    public TimeDifferenceAggregation add(TimeDifferenceAggregation agg2) {
-        if (agg2 == null) return this;
 
-        Instant newFirstTimestamp = (firstTimestamp == null || (agg2.firstTimestamp != null && agg2.firstTimestamp.isBefore(firstTimestamp))) ? agg2.firstTimestamp : firstTimestamp;
-        Instant newLastTimestamp = (lastTimestamp == null || (agg2.lastTimestamp != null && agg2.lastTimestamp.isAfter(lastTimestamp))) ? agg2.lastTimestamp : lastTimestamp;
-
-        return new TimeDifferenceAggregation(newFirstTimestamp, newLastTimestamp);
-    }
 
     public long getTimeDifference() {
         if (firstTimestamp != null && lastTimestamp != null) {

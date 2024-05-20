@@ -27,8 +27,6 @@ public class MonitoringKafkaApplication {
         Properties config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "monitoring");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
-        config.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10 * 1024 * 1024L); // 10MB cache
-
 
         KafkaStreams streams = new KafkaStreams(topology, config);
 

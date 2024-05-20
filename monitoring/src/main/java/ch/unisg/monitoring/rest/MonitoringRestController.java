@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -106,6 +108,15 @@ public class MonitoringRestController {
         long fetchStartTime = System.currentTimeMillis();
         var range = lightSensorStore.fetch("i4_light_sensor");
         long fetchEndTime = System.currentTimeMillis();
+        // Logging system resource utilization (example using OperatingSystemMXBean)
+        OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
+        if (osBean instanceof com.sun.management.OperatingSystemMXBean) {
+            com.sun.management.OperatingSystemMXBean sunOsBean = (com.sun.management.OperatingSystemMXBean) osBean;
+            logger.info("System CPU load: {}%", sunOsBean.getSystemCpuLoad() * 100);
+            logger.info("Process CPU load: {}%", sunOsBean.getProcessCpuLoad() * 100);
+            logger.info("Free physical memory: {} MB", sunOsBean.getFreePhysicalMemorySize() / (1024 * 1024));
+            logger.info("Total physical memory: {} MB", sunOsBean.getTotalPhysicalMemorySize() / (1024 * 1024));
+        }
         while(range.hasNext()) {
             var next = range.next();
             System.out.println(next.key.key());

@@ -73,22 +73,12 @@ public class ProcessingTopology {
                 new KeyValue<>(vgrEvent.getData().getColor(), vgrEvent.getData().getI8_color_sensor())
         );
 
-
-        Initializer<ColorStats> aggregateInitializer = () -> new ColorStats(0,0,0);
-
-        Aggregator<String, Double, ColorStats> aggregateAggregator = (key, value, colorStats) -> {
-            long newTotalCount = colorStats.getTotalReadings() + 1;
-            double newTotalOccurrences = colorStats.getTotalColorValues() + value;
-            double newAverageColorVal = newTotalOccurrences / newTotalCount;
-            return new ColorStats(newTotalCount,newTotalOccurrences,newAverageColorVal);
-        };
-
         // KTable that exposes the ColorStats for each color
         colorSensorStream
                 .groupBy((key, value) -> key, Grouped.with(Serdes.String(), Serdes.Double()))
                 .aggregate(
-                        aggregateInitializer,
-                        aggregateAggregator,
+                        ColorStats::new,
+                        ColorStats::aggregate,
                         Materialized.<String, ColorStats, KeyValueStore<Bytes,byte[]>>
                                         as("colorStats")
                                 .withKeySerde(Serdes.String())
@@ -123,14 +113,13 @@ public class ProcessingTopology {
 
         sessionizedHbwEvent.aggregate(
                 TimeDifferenceAggregation::new,
-                (key, newValue, agg) -> agg.add(newValue),
-                (aggKey, agg1, agg2) -> agg1.add(agg2),
+                TimeDifferenceAggregation::add,
+                TimeDifferenceAggregation::merge,
                 Materialized.<String, TimeDifferenceAggregation, SessionStore<Bytes, byte[]>>as("lightSensor")
                         .withKeySerde(Serdes.String())
                         .withValueSerde(timeDifferenceAggregationSerde)
                         .withCachingEnabled()
-                        .withLoggingEnabled(Map.of("retention.ms", "172800000")) // 2 days retention
-        ).suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
+        );
 
 
         /* JOINING VGR AND HBW STREAMS */
