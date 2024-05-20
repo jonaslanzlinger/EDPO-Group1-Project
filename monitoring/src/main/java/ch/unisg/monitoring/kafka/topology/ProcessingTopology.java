@@ -20,7 +20,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.SessionStore;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
+
 
 import static ch.unisg.monitoring.kafka.serialization.json.json.JsonSerdes.jsonSerde;
 
