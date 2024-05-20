@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Getter
 @Setter
 public class VgrEvent {
@@ -19,7 +21,7 @@ public class VgrEvent {
     VGR_1 data;
 
     @SerializedName("time")
-    String time;
+    Instant time;
 
     @SerializedName("datacontenttype")
     String datacontenttype;

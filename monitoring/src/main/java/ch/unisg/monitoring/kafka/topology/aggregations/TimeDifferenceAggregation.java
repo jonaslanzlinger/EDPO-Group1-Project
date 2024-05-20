@@ -26,7 +26,7 @@ public class TimeDifferenceAggregation {
     }
 
     public static TimeDifferenceAggregation add(String Key, HbwEvent event, TimeDifferenceAggregation agg) {
-        Instant newTime = Instant.parse(event.getTime());
+        Instant newTime = event.getTime();
 
         Instant newFirstTimestamp = (agg.firstTimestamp == null || newTime.isBefore(agg.firstTimestamp)) ? newTime : agg.firstTimestamp;
         Instant newLastTimestamp = (agg.lastTimestamp == null || newTime.isAfter(agg.lastTimestamp)) ? newTime : agg.lastTimestamp;

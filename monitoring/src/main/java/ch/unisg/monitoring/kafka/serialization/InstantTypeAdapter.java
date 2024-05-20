@@ -2,6 +2,7 @@ package ch.unisg.monitoring.kafka.serialization;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
@@ -14,16 +15,16 @@ public class InstantTypeAdapter extends TypeAdapter<Instant> {
         if (value == null) {
             out.nullValue();
         } else {
-            out.value(value.toEpochMilli());
+            out.value(value.toString());
         }
     }
 
     @Override
     public Instant read(JsonReader in) throws IOException {
-        if (in != null) {
-            long timestamp = in.nextLong();
-            return Instant.ofEpochMilli(timestamp);
+        if (in.peek() == JsonToken.NULL) {
+            in.nextNull();
+            return null;
         }
-        return null;
+        return Instant.parse(in.nextString());
     }
 }
