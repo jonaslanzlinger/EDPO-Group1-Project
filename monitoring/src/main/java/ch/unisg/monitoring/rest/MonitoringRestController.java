@@ -88,6 +88,7 @@ public class MonitoringRestController {
             mapColors.put(color,colorStats);
         }
 
+        range.close();
         try {
             emitter.send(SseEmitter.event().name("message").data(mapColors));
         } catch (IOException e) {
@@ -96,7 +97,28 @@ public class MonitoringRestController {
         emitter.complete();
         return emitter;
     }
-  
+
+    @GetMapping("/test")
+    public String getTest() {
+        Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
+
+        long fetchStartTime = System.currentTimeMillis();
+        var range = lightSensorStore.fetch("i4_light_sensor");
+        long fetchEndTime = System.currentTimeMillis();
+
+        logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
+
+        while(range.hasNext()) {
+            var next = range.next();
+            System.out.println(next.key.key());
+            System.out.println(next.value.getFirstTimestamp());
+            System.out.println(next.value.getLastTimestamp());
+        }
+        range.close();
+        return "successs";
+    }
+
+
     @GetMapping("/lightSensor")
     public SseEmitter getLightSensor() {
         Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
@@ -150,7 +172,7 @@ public class MonitoringRestController {
             var factoryStats = next.value;
             mapFactory.put(factory,factoryStats);
         }
-
+        range.close();
         try {
             emitter.send(SseEmitter.event().name("message").data(mapFactory));
         } catch (IOException e) {
