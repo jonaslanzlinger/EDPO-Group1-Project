@@ -5,6 +5,8 @@ import ch.unisg.monitoring.kafka.dto.MonitorUpdateDto;
 import ch.unisg.monitoring.kafka.topology.aggregations.FactoryStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,9 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -103,26 +105,30 @@ public class MonitoringRestController {
 
     @GetMapping("/test/{sensor}")
     public String getTest(@PathVariable String sensor) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+                .withZone(ZoneId.systemDefault());
+        List<String> timestamps = new ArrayList<>();
 
-        long fetchStartTime = System.currentTimeMillis();
 
         var range = lightSensorStore.backwardFetch(sensor);
 
-        long fetchEndTime = System.currentTimeMillis();
-
-        logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
-
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
         try {
             while (true) {
                 var n = fetchNextWithTimeout(range, executorService);
                 if (n == null) {
                     range.close();
-                    return"lol";
+                    ObjectMapper mapper = new ObjectMapper();
+                    String jsonArray;
+                    try {
+                        jsonArray = mapper.writeValueAsString(timestamps);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return jsonArray;
                 }
-                logger.info("Key: {}, First Timestamp: {}, Last Timestamp: {}",
-                        n.key.key(), n.value.getFirstTimestamp(), n.value.getLastTimestamp());
+                timestamps.add(formatter.format(n.value.getFirstTimestamp()));
+                timestamps.add(formatter.format(n.value.getLastTimestamp()));
             }
         } finally {
             shutdownExecutorService(executorService);
