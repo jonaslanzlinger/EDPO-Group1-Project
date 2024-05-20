@@ -86,29 +86,22 @@ public class ProcessingTopology {
 
 
         // Windowed streams of length light barrier broken
-        KStream<String, HbwEvent> lightBarrierBrokenHBW = hbwTypedStream.filterNot((k, v) -> {
-            HBW_1 hbw1 = v.getData();
-            boolean isLightBarrierBroken = !hbw1.isI1_light_barrier() || !hbw1.isI2_light_barrier() || !hbw1.isI3_light_barrier() || !hbw1.isI4_light_barrier();
-            return !isLightBarrierBroken;
-        });
-        SessionWindows sessionWindow = SessionWindows.ofInactivityGapWithNoGrace(Duration.ofMinutes(1));
+        KStream<String, HbwEvent> lightBarrierBrokenHBW = hbwTypedStream.filterNot((k, v) ->
+                v.getData().isI1_light_barrier() && v.getData().isI4_light_barrier());
+
 
         SessionWindowedKStream<String, HbwEvent> sessionizedHbwEvent = lightBarrierBrokenHBW
                 .groupBy((k, v) -> {
                     String sensorKey = "unknown";
                     if (!v.getData().isI4_light_barrier()) {
                         sensorKey = "i4_light_sensor";
-                    } else if (!v.getData().isI3_light_barrier()) {
-                        sensorKey = "i3_light_sensor";
-                    } else if (!v.getData().isI2_light_barrier()) {
-                        sensorKey = "i2_light_sensor";
                     } else if (!v.getData().isI1_light_barrier()) {
                         sensorKey = "i1_light_sensor";
                     }
                     System.out.println("GroupBy: " + k + " -> " + sensorKey);
                     return sensorKey;
                 }, Grouped.with(Serdes.String(), hbwEventSerdes))
-                .windowedBy(sessionWindow);
+                .windowedBy(SessionWindows.ofInactivityGapWithNoGrace(Duration.ofMinutes(1)));
 
 
         sessionizedHbwEvent.aggregate(
@@ -162,7 +155,7 @@ public class ProcessingTopology {
         // factoryStatsStream.print(Printed.<String, FactoryStats>toSysOut().withLabel("factoryStatsStream"));
 
         // Create a KTable that stores the latest FactoryStats for each key
-        KTable<String, FactoryStats> factoryStatsTable = factoryStatsStream
+        factoryStatsStream
                 .groupByKey()
                 .reduce((aggValue, newValue) -> newValue,
                         Materialized.<String, FactoryStats, KeyValueStore<Bytes, byte[]>>

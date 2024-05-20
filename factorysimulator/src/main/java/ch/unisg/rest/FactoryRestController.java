@@ -33,7 +33,7 @@ public class FactoryRestController {
         try {
             for (Station station : stations) {
                 String jsonStation = factoryService.stationToJson(station);
-                Thread.sleep(1000);
+                Thread.sleep(100);
                 mqttClient.publish("factory", jsonStation);
             }
         } catch (MqttException | InterruptedException e) {
