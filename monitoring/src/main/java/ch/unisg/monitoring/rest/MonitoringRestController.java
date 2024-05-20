@@ -9,10 +9,14 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlySessionStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -95,18 +99,33 @@ public class MonitoringRestController {
   
     @GetMapping("/lightSensor")
     public SseEmitter getLightSensor() {
+        Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
+
         SseEmitter emitter = new SseEmitter(100L);
 
         Map<String, ColorStats> mapColors = new HashMap<>();
 
-        var range = lightSensorStore.fetch("HBW_1");
-
+        long fetchStartTime = System.currentTimeMillis();
+        var range = lightSensorStore.fetch("i4_light_sensor");
+        long fetchEndTime = System.currentTimeMillis();
+        // Logging system resource utilization (example using OperatingSystemMXBean)
+        OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
+        if (osBean instanceof com.sun.management.OperatingSystemMXBean) {
+            com.sun.management.OperatingSystemMXBean sunOsBean = (com.sun.management.OperatingSystemMXBean) osBean;
+            logger.info("System CPU load: {}%", sunOsBean.getSystemCpuLoad() * 100);
+            logger.info("Process CPU load: {}%", sunOsBean.getProcessCpuLoad() * 100);
+            logger.info("Free physical memory: {} MB", sunOsBean.getFreePhysicalMemorySize() / (1024 * 1024));
+            logger.info("Total physical memory: {} MB", sunOsBean.getTotalPhysicalMemorySize() / (1024 * 1024));
+        }
         while(range.hasNext()) {
             var next = range.next();
-            System.out.println("Wohooo");
             System.out.println(next.key.key());
-            System.out.println(next.value.getTimeDifference());
+            System.out.println(next.value.getFirstTimestamp());
+            System.out.println(next.value.getLastTimestamp());
         }
+        range.close();
+
+        logger.info("Fetch and process time: {} ms", (fetchEndTime - fetchStartTime));
 
         try {
             emitter.send(SseEmitter.event().name("message").data(mapColors));

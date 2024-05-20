@@ -15,27 +15,49 @@ public class TimeDifferenceAggregation {
     @SerializedName("LastTimestamp")
     private Instant lastTimestamp;
 
-
-    public TimeDifferenceAggregation add(HbwEvent event) {
-        Instant timestamp = Instant.parse(event.getTime());
-        if (firstTimestamp == null || timestamp.isBefore(firstTimestamp)) {
-            firstTimestamp = timestamp;
-        }
-        if (lastTimestamp == null || timestamp.isAfter(lastTimestamp)) {
-            lastTimestamp = timestamp;
-        }
-        return this;
+    public TimeDifferenceAggregation() {
+        this.firstTimestamp = null;
+        this.lastTimestamp = null;
     }
 
-    public TimeDifferenceAggregation add(TimeDifferenceAggregation agg2) {
-        if (firstTimestamp == null || agg2.firstTimestamp.isBefore(firstTimestamp)) {
-            firstTimestamp = agg2.firstTimestamp;
-        }
-        if (lastTimestamp == null || agg2.lastTimestamp.isAfter(lastTimestamp)) {
-            lastTimestamp = agg2.lastTimestamp;
-        }
-        return this;
+    public TimeDifferenceAggregation(Instant firstTimestamp, Instant lastTimestamp) {
+        this.firstTimestamp = firstTimestamp;
+        this.lastTimestamp = lastTimestamp;
     }
+
+    public static TimeDifferenceAggregation add(String Key, HbwEvent event, TimeDifferenceAggregation agg) {
+        Instant newTime = Instant.parse(event.getTime());
+
+        Instant newFirstTimestamp = (agg.firstTimestamp == null || newTime.isBefore(agg.firstTimestamp)) ? newTime : agg.firstTimestamp;
+        Instant newLastTimestamp = (agg.lastTimestamp == null || newTime.isAfter(agg.lastTimestamp)) ? newTime : agg.lastTimestamp;
+
+        return new TimeDifferenceAggregation(newFirstTimestamp, newLastTimestamp);
+    }
+
+    public static TimeDifferenceAggregation merge(String Key, TimeDifferenceAggregation agg1, TimeDifferenceAggregation agg2) {
+        Instant newFirstTimestamp;
+        Instant newLastTimestamp;
+
+        if (agg1.firstTimestamp != null && agg2.firstTimestamp != null) {
+            newFirstTimestamp = agg1.firstTimestamp.isBefore(agg2.firstTimestamp) ? agg1.firstTimestamp : agg2.firstTimestamp;
+        } else if (agg1.firstTimestamp != null) {
+            newFirstTimestamp = agg1.firstTimestamp;
+        } else {
+            newFirstTimestamp = agg2.firstTimestamp;
+        }
+
+        if (agg1.lastTimestamp != null && agg2.lastTimestamp != null) {
+            newLastTimestamp = agg1.lastTimestamp.isAfter(agg2.lastTimestamp) ? agg1.lastTimestamp : agg2.lastTimestamp;
+        } else if (agg1.lastTimestamp != null) {
+            newLastTimestamp = agg1.lastTimestamp;
+        } else {
+            newLastTimestamp = agg2.lastTimestamp;
+        }
+
+        return new TimeDifferenceAggregation(newFirstTimestamp, newLastTimestamp);
+    }
+
+
 
     public long getTimeDifference() {
         if (firstTimestamp != null && lastTimestamp != null) {
