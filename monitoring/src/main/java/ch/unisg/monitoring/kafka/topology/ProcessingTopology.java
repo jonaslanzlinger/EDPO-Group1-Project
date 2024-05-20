@@ -20,6 +20,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.SessionStore;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 import static ch.unisg.monitoring.kafka.serialization.json.json.JsonSerdes.jsonSerde;
 
@@ -119,15 +120,19 @@ public class ProcessingTopology {
 
         /* JOINING VGR AND HBW STREAMS */
 
-        // Specify key by the timestamp of the event
-        KStream<String, VgrEvent> vgrTimestampKey = vgrTypedStream.map((key, value) ->
-                new KeyValue<>(value.getTime().toString(), value)
-        );
+        // Specify key by the timestamp of the event (rounded to the nearest 10 seconds)
+        KStream<String, VgrEvent> vgrTimestampKey = vgrTypedStream.map((key, value) -> {
+                long epochSecond = value.getTime().getEpochSecond();
+                long keySecond = epochSecond - epochSecond % 3;
+                return new KeyValue<>(Long.toString(keySecond), value);
+        });
 
-        // Specify key by the timestamp of the event
-        KStream<String, HbwEvent> hbwTimestampKey = hbwTypedStream.map((key, value) ->
-                new KeyValue<>(value.getTime().toString(), value)
-        );
+        // Specify key by the timestamp of the event (rounded to the nearest 10 seconds)
+        KStream<String, HbwEvent> hbwTimestampKey = hbwTypedStream.map((key, value) -> {
+            long epochSecond = value.getTime().getEpochSecond();
+            long keySecond = epochSecond - epochSecond % 3;
+            return new KeyValue<>(Long.toString(keySecond), value);
+        });
 
         // Specify how to join the two streams in terms of serde
         StreamJoined<String, VgrEvent, HbwEvent> joinParams =
