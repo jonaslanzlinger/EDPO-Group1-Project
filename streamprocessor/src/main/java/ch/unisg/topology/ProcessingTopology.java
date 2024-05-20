@@ -66,15 +66,16 @@ public class ProcessingTopology {
             v.getData().toString().contains("VGR_1") || v.getData().toString().contains("HBW_1")
         );
 
-        // branch the stream
-        KStream<byte[], FactoryEvent>[] branches = stream.branch(
-                (key, value) -> value.getData().toString().contains("VGR_1"),
-                (key, value) -> value.getData().toString().contains("HBW_1")
-        );
+        var branches = stream.split(Named.as("branch-"))
+                .branch((k, v) -> v.getData().toString().contains("VGR_1"),Branched.as("vgr1"))
+                .branch((k, v) -> v.getData().toString().contains("HBW_1"), Branched.as("hbw1"))
+                .defaultBranch(Branched.as("other"));
+
+
         // Adjusts keys so that they reflect the station
-        KStream<byte[], FactoryEvent> vgrEventRekeyedStream = branches[0].selectKey((oldKey, value) ->
+        KStream<byte[], FactoryEvent> vgrEventRekeyedStream = branches.get("branch-vgr1").selectKey((oldKey, value) ->
                 "VGR_1".getBytes(StandardCharsets.UTF_8));
-        KStream<byte[], FactoryEvent> hbwEventRekeyedStream = branches[1].selectKey((oldKey, value) ->
+        KStream<byte[], FactoryEvent> hbwEventRekeyedStream = branches.get("branch-hbw1").selectKey((oldKey, value) ->
                 "HBW_1".getBytes(StandardCharsets.UTF_8));
 
         // set correct typing
