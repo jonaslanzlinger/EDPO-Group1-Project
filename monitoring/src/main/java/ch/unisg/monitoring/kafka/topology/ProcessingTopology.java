@@ -123,14 +123,14 @@ public class ProcessingTopology {
         // Specify key by the timestamp of the event (rounded to the nearest 10 seconds)
         KStream<String, VgrEvent> vgrTimestampKey = vgrTypedStream.map((key, value) -> {
                 long epochSecond = value.getTime().getEpochSecond();
-                long keySecond = epochSecond - epochSecond % 3;
+                long keySecond = epochSecond - epochSecond % 10;
                 return new KeyValue<>(Long.toString(keySecond), value);
         });
 
         // Specify key by the timestamp of the event (rounded to the nearest 10 seconds)
         KStream<String, HbwEvent> hbwTimestampKey = hbwTypedStream.map((key, value) -> {
             long epochSecond = value.getTime().getEpochSecond();
-            long keySecond = epochSecond - epochSecond % 3;
+            long keySecond = epochSecond - epochSecond % 10;
             return new KeyValue<>(Long.toString(keySecond), value);
         });
 
