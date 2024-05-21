@@ -1,6 +1,7 @@
 package ch.unisg;
 
 
+import ch.unisg.serialization.timestampExtractors.CustomTimestampExtractor;
 import ch.unisg.topology.ProcessingTopology;
 import ch.unisg.topology.util.KafkaTopicHelper;
 import org.apache.kafka.streams.KafkaStreams;
@@ -20,6 +21,7 @@ public class StreamProcessorApplication {
         Properties config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "streamprocessor");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        config.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, CustomTimestampExtractor.class.getName());
 
         String[] topics = {"VGR_1", "HBW_1", "factory-all", "monitoring-all"};
 
