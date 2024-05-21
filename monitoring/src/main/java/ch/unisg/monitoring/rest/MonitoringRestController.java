@@ -103,7 +103,7 @@ public class MonitoringRestController {
         return emitter;
     }
 
-    @GetMapping("/test/{sensor}")
+    @GetMapping("/api/monitoring/hbw/{sensor}")
     public String getTest(@PathVariable String sensor) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
                 .withZone(ZoneId.systemDefault());
@@ -135,6 +135,16 @@ public class MonitoringRestController {
         }
     }
 
+    /**
+     * Because there is some unique kafka related issue, where it takes a long time for the iterator to
+     * find the end of the iteration, we force quit the iteration once were at that point.
+     * -> All actual sessions have been iterated over at that point
+     *
+     * @param iterator the iterator over the sessionStore
+     * @param executorService the executor service
+     * @return either null or the TimeDifferenceAggregation
+     * @param <T> Generic -> could just be TimeDifferenceAggregation in this case
+     */
     private static <T> T fetchNextWithTimeout(Iterator<T> iterator, ScheduledExecutorService executorService) {
         Future<T> future = executorService.submit(() -> {
             if (iterator.hasNext()) {
@@ -143,7 +153,6 @@ public class MonitoringRestController {
                 return null;
             }
         });
-
         try {
             return future.get(50L, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
@@ -155,35 +164,15 @@ public class MonitoringRestController {
         }
     }
 
+    /**
+     *  Because of some kafka related issue the executor service might not shutdown as wanted
+     *  To prevent longer wait periods at the endpoint force shutdown
+     *
+     * @param executorService the executor Service
+     */
     private void shutdownExecutorService(ScheduledExecutorService executorService) {
         executorService.shutdownNow();
         Thread.currentThread().interrupt();
-    }
-
-    @GetMapping("/lightSensor")
-    public SseEmitter getLightSensor() {
-        SseEmitter emitter = new SseEmitter(100L);
-
-        Map<String, ColorStats> mapColors = new HashMap<>();
-
-
-        var range = lightSensorStore.fetch("i4_light_sensor");
-
-        while (range.hasNext()) {
-            var next = range.next();
-            System.out.println(next.key.key());
-            System.out.println(next.value.getFirstTimestamp());
-            System.out.println(next.value.getLastTimestamp());
-        }
-        range.close();
-
-        try {
-            emitter.send(SseEmitter.event().name("message").data(mapColors));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        emitter.complete();
-        return emitter;
     }
 
     @GetMapping("/factoryStats")
