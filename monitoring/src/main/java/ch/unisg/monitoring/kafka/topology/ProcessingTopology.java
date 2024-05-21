@@ -82,7 +82,7 @@ public class ProcessingTopology {
                     } else if (!v.getData().isI1_light_barrier()) {
                         sensorKey = "i1_light_sensor";
                     }
-                    System.out.println("GroupBy: " + k + " -> " + sensorKey);
+                    System.out.println("LightSensor broken: " + sensorKey);
                     return sensorKey;
                 }, Grouped.with(Serdes.String(), hbwEventSerdes))
                 .windowedBy(SessionWindows.ofInactivityGapAndGrace(Duration.ofSeconds(2),Duration.ofMillis(500)));
