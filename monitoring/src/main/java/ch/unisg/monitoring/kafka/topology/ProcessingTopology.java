@@ -1,5 +1,6 @@
 package ch.unisg.monitoring.kafka.topology;
 
+import ch.unisg.monitoring.kafka.serialization.json.UniversalEventSerdes;
 import ch.unisg.monitoring.kafka.topology.aggregations.FactoryStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import org.apache.kafka.common.serialization.Serde;
@@ -33,11 +34,12 @@ public class ProcessingTopology {
 
         Serde<ColorStats> colorStatsSerde = jsonSerde(ColorStats.class);
         Serde<TimeDifferenceAggregation> timeDifferenceAggregationSerde = jsonSerde(TimeDifferenceAggregation.class);
+        UniversalEventSerdes universalEventDeserializer = new UniversalEventSerdes();
         HbwEventSerdes hbwEventSerdes = new HbwEventSerdes();
-        VgrEventSerdes vgrEventSerdes = new VgrEventSerdes();
         Serde<FactoryStats> factoryStatsSerde = jsonSerde(FactoryStats.class);
 
-        KStream<String, byte[]> stream = builder.stream("monitoring-all", Consumed.with(Serdes.String(), Serdes.ByteArray()));
+        KStream<String, Object> stream = builder.stream("monitoring-all", Consumed.with(Serdes.String(),
+                universalEventDeserializer));
 
         var branches = stream.split(Named.as("branch-"))
                 .branch((k, v) -> k.equals("VGR_1"),Branched.as("vgr1"))
@@ -45,12 +47,16 @@ public class ProcessingTopology {
                 .defaultBranch(Branched.as("other"));
 
         KStream<String, VgrEvent> vgrTypedStream = branches.get("branch-vgr1").mapValues(v ->
-                vgrEventSerdes.deserializer().deserialize("VGR_1",v)
+                (VgrEvent) v
         );
 
         KStream<String, HbwEvent> hbwTypedStream =  branches.get("branch-hbw1").mapValues(v ->
-                hbwEventSerdes.deserializer().deserialize("HBW_1",v)
+                (HbwEvent) v
         );
+
+        // DEBUG - print the events of both streams
+        vgrTypedStream.foreach((k, v) -> System.out.println("VGR: " + v));
+        hbwTypedStream.foreach((k, v) -> System.out.println("HBW: " + v));
 
         // Create Stream of Color, ColorValues
         KStream<String, Double> colorSensorStream = vgrTypedStream.map((key, vgrEvent) ->

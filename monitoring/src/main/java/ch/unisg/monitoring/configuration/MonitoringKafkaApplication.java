@@ -1,5 +1,6 @@
 package ch.unisg.monitoring.configuration;
 
+import ch.unisg.monitoring.kafka.serialization.timestampExtractors.CustomTimestampExtractor;
 import ch.unisg.monitoring.kafka.topology.aggregations.FactoryStats;
 import ch.unisg.monitoring.kafka.topology.ProcessingTopology;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
@@ -28,6 +29,7 @@ public class MonitoringKafkaApplication {
         Properties config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "monitoring");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        config.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, CustomTimestampExtractor.class.getName());
 
         String[] topics = {"VGR_1", "HBW_1", "factory-all", "monitoring-all"};
 
