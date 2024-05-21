@@ -6,6 +6,7 @@ import ch.unisg.monitoring.kafka.topology.ProcessingTopology;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import ch.unisg.monitoring.utils.KafkaTopicHelper;
+import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsConfig;
@@ -30,6 +31,8 @@ public class MonitoringKafkaApplication {
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "monitoring");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         config.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, CustomTimestampExtractor.class.getName());
+        config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
         String[] topics = {"VGR_1", "HBW_1", "factory-all", "monitoring-all"};
 

@@ -147,11 +147,11 @@ public class ProcessingTopology {
                         FactoryStats::new,
                         joinWindows,
                         joinParams
-                );
+                ).selectKey((k, v) -> "factoryStats");
 
         // Create a KTable that stores the latest FactoryStats for each key
         factoryStatsStream
-                .groupByKey()
+                .groupByKey(Grouped.with(Serdes.String(), factoryStatsSerde))
                 .reduce((aggValue, newValue) -> newValue,
                         Materialized.<String, FactoryStats, KeyValueStore<Bytes, byte[]>>
                                 as("factoryStats")
