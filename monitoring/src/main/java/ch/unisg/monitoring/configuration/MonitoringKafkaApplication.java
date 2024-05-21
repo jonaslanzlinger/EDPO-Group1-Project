@@ -4,6 +4,7 @@ import ch.unisg.monitoring.kafka.topology.aggregations.FactoryStats;
 import ch.unisg.monitoring.kafka.topology.ProcessingTopology;
 import ch.unisg.monitoring.kafka.topology.aggregations.ColorStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
+import ch.unisg.monitoring.utils.KafkaTopicHelper;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsConfig;
@@ -27,6 +28,12 @@ public class MonitoringKafkaApplication {
         Properties config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "monitoring");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+
+        String[] topics = {"VGR_1", "HBW_1", "factory-all", "monitoring-all"};
+
+        for (String station : topics) {
+            KafkaTopicHelper.createTopicIfNotExists(config, station, 1, (short) 1);
+        }
 
         KafkaStreams streams = new KafkaStreams(topology, config);
 
