@@ -25,8 +25,8 @@ public class TimeDifferenceAggregation {
         this.lastTimestamp = lastTimestamp;
     }
 
-    public static TimeDifferenceAggregation add(String Key, HbwEvent event, TimeDifferenceAggregation agg) {
-        Instant newTime = event.getTime();
+    public static TimeDifferenceAggregation add(String ignoredKey, HbwEvent event, TimeDifferenceAggregation agg) {
+        Instant newTime = event.getData().getTimestamp();
 
         Instant newFirstTimestamp = (agg.firstTimestamp == null || newTime.isBefore(agg.firstTimestamp)) ? newTime : agg.firstTimestamp;
         Instant newLastTimestamp = (agg.lastTimestamp == null || newTime.isAfter(agg.lastTimestamp)) ? newTime : agg.lastTimestamp;
@@ -34,7 +34,7 @@ public class TimeDifferenceAggregation {
         return new TimeDifferenceAggregation(newFirstTimestamp, newLastTimestamp);
     }
 
-    public static TimeDifferenceAggregation merge(String Key, TimeDifferenceAggregation agg1, TimeDifferenceAggregation agg2) {
+    public static TimeDifferenceAggregation merge(String ignoredKey, TimeDifferenceAggregation agg1, TimeDifferenceAggregation agg2) {
         Instant newFirstTimestamp;
         Instant newLastTimestamp;
 

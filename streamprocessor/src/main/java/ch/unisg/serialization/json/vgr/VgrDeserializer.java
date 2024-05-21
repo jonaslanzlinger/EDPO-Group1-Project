@@ -4,6 +4,10 @@ import ch.unisg.domain.stations.VGR_1;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class VgrDeserializer implements JsonDeserializer<VGR_1> {
     @Override
@@ -11,7 +15,15 @@ public class VgrDeserializer implements JsonDeserializer<VGR_1> {
         JsonObject jsonObject = json.getAsJsonObject();
         VGR_1 vgr = new VGR_1();
 
-        vgr.setTimestamp(jsonObject.get("timestamp").getAsString());
+        vgr.setId(jsonObject.get("id").getAsString());
+        vgr.setStation(jsonObject.get("station").getAsString());
+
+        String timeStamp = jsonObject.get("timestamp").getAsString();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SS");
+        LocalDateTime dateTime = LocalDateTime.parse(timeStamp, formatter);
+        Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+        vgr.setTimestamp(instant);
+
         vgr.setI1_pos_switch(jsonObject.get("i1_pos_switch").getAsDouble() == 1.0);
         vgr.setI2_pos_switch(jsonObject.get("i2_pos_switch").getAsDouble() == 1.0);
         vgr.setI3_pos_switch(jsonObject.get("i3_pos_switch").getAsDouble() == 1.0);

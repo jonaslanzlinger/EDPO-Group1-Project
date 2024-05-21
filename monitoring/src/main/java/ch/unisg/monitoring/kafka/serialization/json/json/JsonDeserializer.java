@@ -2,7 +2,6 @@ package ch.unisg.monitoring.kafka.serialization.json.json;
 
 
 import ch.unisg.monitoring.kafka.serialization.InstantTypeAdapter;
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -16,7 +15,6 @@ public class JsonDeserializer<T> implements Deserializer<T> {
   private final Gson gson =
       new GsonBuilder()
               .registerTypeAdapter(Instant.class,new InstantTypeAdapter())
-              .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
               .create();
 
   private Class<T> destinationClass;

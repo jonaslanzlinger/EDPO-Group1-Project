@@ -4,6 +4,10 @@ import ch.unisg.domain.stations.HBW_1;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +17,15 @@ public class HbwDeserializer implements JsonDeserializer<HBW_1> {
         JsonObject jsonObject = json.getAsJsonObject();
         HBW_1 hbw = new HBW_1();
 
+        hbw.setId(jsonObject.get("id").getAsString());
+        hbw.setStation(jsonObject.get("station").getAsString());
+
+        String timeStamp = jsonObject.get("timestamp").getAsString();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SS");
+        LocalDateTime dateTime = LocalDateTime.parse(timeStamp, formatter);
+        Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+        hbw.setTimestamp(instant);
         hbw.setI1_light_barrier(jsonObject.get("i1_light_barrier").getAsDouble() == 1.0);
         hbw.setI2_light_barrier(jsonObject.get("i2_light_barrier").getAsDouble() == 1.0);
         hbw.setI3_light_barrier(jsonObject.get("i3_light_barrier").getAsDouble() == 1.0);

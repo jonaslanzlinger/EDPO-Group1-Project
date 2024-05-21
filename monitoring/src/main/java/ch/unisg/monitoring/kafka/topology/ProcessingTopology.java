@@ -44,7 +44,6 @@ public class ProcessingTopology {
                 .branch((k, v) -> k.equals("HBW_1"), Branched.as("hbw1"))
                 .defaultBranch(Branched.as("other"));
 
-
         KStream<String, VgrEvent> vgrTypedStream = branches.get("branch-vgr1").mapValues(v ->
                 vgrEventSerdes.deserializer().deserialize("VGR_1",v)
         );
@@ -88,6 +87,9 @@ public class ProcessingTopology {
                 }, Grouped.with(Serdes.String(), hbwEventSerdes))
                 .windowedBy(SessionWindows.ofInactivityGapAndGrace(Duration.ofSeconds(2),Duration.ofMillis(500)));
 
+
+
+
         // aggregated by timedifference of each session
         sessionizedHbwEvent.aggregate(
                 TimeDifferenceAggregation::new,
@@ -100,18 +102,19 @@ public class ProcessingTopology {
                 ).suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
 
 
+
         /* JOINING VGR AND HBW STREAMS */
 
         // Specify key by the timestamp of the event (rounded to the nearest 10 seconds)
         KStream<String, VgrEvent> vgrTimestampKey = vgrTypedStream.map((key, value) -> {
-                long epochSecond = value.getTime().getEpochSecond();
+                long epochSecond = value.getData().getTimestamp().getEpochSecond();
                 long keySecond = epochSecond - epochSecond % 10;
                 return new KeyValue<>(Long.toString(keySecond), value);
         });
 
         // Specify key by the timestamp of the event (rounded to the nearest 10 seconds)
         KStream<String, HbwEvent> hbwTimestampKey = hbwTypedStream.map((key, value) -> {
-            long epochSecond = value.getTime().getEpochSecond();
+            long epochSecond = value.getData().getTimestamp().getEpochSecond();
             long keySecond = epochSecond - epochSecond % 10;
             return new KeyValue<>(Long.toString(keySecond), value);
         });
