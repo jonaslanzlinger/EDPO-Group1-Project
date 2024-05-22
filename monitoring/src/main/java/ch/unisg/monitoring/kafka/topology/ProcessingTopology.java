@@ -54,9 +54,6 @@ public class ProcessingTopology {
                 (HbwEvent) v
         );
 
-        // DEBUG - print the events of both streams
-        vgrTypedStream.foreach((k, v) -> System.out.println("VGR: " + v));
-        hbwTypedStream.foreach((k, v) -> System.out.println("HBW: " + v));
 
         // Create Stream of Color, ColorValues
         KStream<String, Double> colorSensorStream = vgrTypedStream.map((key, vgrEvent) ->
@@ -65,13 +62,19 @@ public class ProcessingTopology {
 
         // KTable that exposes the ColorStats for each color
         colorSensorStream
-                .groupBy((key, value) -> key, Grouped.with(Serdes.String(), Serdes.Double()))
+                .groupBy((key, value) -> {
+                    if (!key.equals("none")) {
+                        System.out.println("Color detected: " + key + " Value: " + value);
+                    }
+                    return key;
+                }, Grouped.with(Serdes.String(), Serdes.Double()))
                 .aggregate(
                         ColorStats::new,
                         ColorStats::aggregate,
                         Materialized.<String, ColorStats, KeyValueStore<Bytes,byte[]>>
                                         as("colorStats")
                                 .withKeySerde(Serdes.String())
+                                .withRetention(Duration.ofMinutes(30))
                                 .withValueSerde(colorStatsSerde));
 
 
@@ -88,10 +91,10 @@ public class ProcessingTopology {
                     } else if (!v.getData().isI1_light_barrier()) {
                         sensorKey = "i1_light_sensor";
                     }
-                    System.out.println("LightSensor broken: " + sensorKey);
+                    System.out.println("LightSensor broken: " + sensorKey + " at " + v.getData().getTimestamp());
                     return sensorKey;
                 }, Grouped.with(Serdes.String(), hbwEventSerdes))
-                .windowedBy(SessionWindows.ofInactivityGapAndGrace(Duration.ofSeconds(2),Duration.ofMillis(500)));
+                .windowedBy(SessionWindows.ofInactivityGapAndGrace(Duration.ofSeconds(1),Duration.ofMillis(500)));
 
 
 
@@ -104,6 +107,7 @@ public class ProcessingTopology {
                 Materialized.<String, TimeDifferenceAggregation, SessionStore<Bytes, byte[]>>as("lightSensor")
                         .withKeySerde(Serdes.String())
                         .withValueSerde(timeDifferenceAggregationSerde)
+                        .withRetention(Duration.ofMinutes(30))
                         .withCachingEnabled()
                 ).suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
 
@@ -156,6 +160,7 @@ public class ProcessingTopology {
                         Materialized.<String, FactoryStats, KeyValueStore<Bytes, byte[]>>
                                 as("factoryStats")
                                 .withKeySerde(Serdes.String())
+                                .withRetention(Duration.ofMinutes(30))
                                 .withValueSerde(factoryStatsSerde));
 
         return builder.build();

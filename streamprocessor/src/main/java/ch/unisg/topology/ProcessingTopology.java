@@ -114,6 +114,8 @@ public class ProcessingTopology {
         KStream<byte[], HbwEvent>  hbwTypedFilteredStream =  hbwTypedStream
                 .transform(PreviousEventFilterHBW::new, "previous-event-store-hbw");
 
+        vgrTypedFilteredStream.print(Printed.<byte[], VgrEvent>toSysOut().withLabel("VGR_1-processed"));
+        hbwTypedFilteredStream.print(Printed.<byte[], HbwEvent>toSysOut().withLabel("HBW_1-processed"));
 
         // Write to the output topic
         vgrTypedFilteredStream.to("VGR_1-processed",
@@ -136,9 +138,9 @@ public class ProcessingTopology {
 
         // DEBUG
         // Print both streams to the console
-        vgrTypedStream.mapValues(FactoryEvent::toFactory)
-                .merge(hbwTypedStream.mapValues(FactoryEvent::toFactory))
-                .print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
+        //vgrTypedStream.mapValues(FactoryEvent::toFactory)
+        //        .merge(hbwTypedStream.mapValues(FactoryEvent::toFactory))
+        //        .print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
 
 
         return builder.build();
