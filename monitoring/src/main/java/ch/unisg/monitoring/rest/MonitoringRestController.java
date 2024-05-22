@@ -35,6 +35,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 @AllArgsConstructor
 @Slf4j
+@CrossOrigin
 public class MonitoringRestController {
 
     private final MonitoringStore monitoringStore;
@@ -79,7 +80,7 @@ public class MonitoringRestController {
         return emitter;
     }
 
-    @GetMapping("/colorStats")
+    @GetMapping("/api/monitoring/colors")
     public ResponseEntity<String> getColorStats() {
         Map<String, ColorStats> mapColors = new HashMap<>();
 

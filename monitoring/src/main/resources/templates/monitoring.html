@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <title>Auto-updating Frontend</title>
+    <title>Factory Statistics</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 <h1>Color Data Updates</h1>
 <div id="updates-container">
-    <!-- Initial static content rendered by Thymeleaf -->
     <div id="red-data">
         <h2>Red</h2>
         <p>Total Readings: <span id="red-total-readings">0</span></p>
@@ -20,6 +19,12 @@
         <p>Total Color Values: <span id="blue-total-color-values">0.0</span></p>
         <p>Average Color Value: <span id="blue-average-color-value">0.0</span></p>
     </div>
+    <div id="white-data">
+        <h2>White</h2>
+        <p>Total Readings: <span id="white-total-readings">0</span></p>
+        <p>Total Color Values: <span id="white-total-color-values">0.0</span></p>
+        <p>Average Color Value: <span id="white-average-color-value">0.0</span></p>
+    </div>
     <div id="none-data">
         <h2>None</h2>
         <p>Total Readings: <span id="none-total-readings">0</span></p>
@@ -31,20 +36,31 @@
 <script>
     function fetchUpdates() {
         $.ajax({
-            url: '/colorStats',
+            url: '/api/monitoring/colors',
             method: 'GET',
             success: function(data) {
-                $('#red-total-readings').text(data.red.totalReadings);
-                $('#red-total-color-values').text(data.red.totalColorValues);
-                $('#red-average-color-value').text(data.red.averageColorValue.toFixed(2));
-
+                data = JSON.parse(data)
+                if (data.red) {
+                    $('#red-total-readings').text(data.red.totalReadings);
+                    $('#red-total-color-values').text(data.red.totalColorValues);
+                    $('#red-average-color-value').text(data.red.averageColorValue.toFixed(2));
+                }
+                if (data.blue) {
                 $('#blue-total-readings').text(data.blue.totalReadings);
                 $('#blue-total-color-values').text(data.blue.totalColorValues);
                 $('#blue-average-color-value').text(data.blue.averageColorValue.toFixed(2));
+                }
+                if (data.white) {
+                    $('#white-total-readings').text(data.white.totalReadings);
+                    $('#white-total-color-values').text(data.white.totalColorValues);
+                    $('#white-average-color-value').text(data.white.averageColorValue.toFixed(2));
+                }
 
-                $('#none-total-readings').text(data.none.totalReadings);
-                $('#none-total-color-values').text(data.none.totalColorValues);
-                $('#none-average-color-value').text(data.none.averageColorValue.toFixed(2));
+                if (data.none) {
+                    $('#none-total-readings').text(data.none.totalReadings);
+                    $('#none-total-color-values').text(data.none.totalColorValues);
+                    $('#none-average-color-value').text(data.none.averageColorValue.toFixed(2));
+                }
             },
             error: function(error) {
                 console.log('Error fetching updates:', error);
@@ -53,7 +69,7 @@
     }
 
     // Fetch updates every 5 seconds
-    setInterval(fetchUpdates, 5000);
+    setInterval(fetchUpdates, 1000);
 </script>
 </body>
 </html>
