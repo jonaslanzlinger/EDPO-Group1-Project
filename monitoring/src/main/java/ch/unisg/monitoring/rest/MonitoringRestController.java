@@ -14,6 +14,7 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlySessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -34,6 +35,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 @AllArgsConstructor
 @Slf4j
+@CrossOrigin
 public class MonitoringRestController {
 
     private final MonitoringStore monitoringStore;
@@ -78,10 +80,8 @@ public class MonitoringRestController {
         return emitter;
     }
 
-    @GetMapping("/colorStats")
-    public SseEmitter getColorStats() {
-        SseEmitter emitter = new SseEmitter(100L);
-
+    @GetMapping("/api/monitoring/colors")
+    public ResponseEntity<String> getColorStats() {
         Map<String, ColorStats> mapColors = new HashMap<>();
 
         var range = colorStatsStore.all();
@@ -92,22 +92,20 @@ public class MonitoringRestController {
             var colorStats = next.value;
             mapColors.put(color, colorStats);
         }
-
         range.close();
         try {
-            emitter.send(SseEmitter.event().name("message").data(mapColors));
+            ObjectMapper mapper = new ObjectMapper();
+            return ResponseEntity.ok(mapper.writeValueAsString(mapColors));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        emitter.complete();
-        return emitter;
     }
 
     @GetMapping("/api/monitoring/hbw/{sensor}")
     public String getTest(@PathVariable String sensor) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
                 .withZone(ZoneId.systemDefault());
-        List<String> timestamps = new ArrayList<>();
+        List<List<String>> timestamps = new ArrayList<>();
 
 
         var range = lightSensorStore.backwardFetch(sensor);
@@ -127,8 +125,10 @@ public class MonitoringRestController {
                     }
                     return jsonArray;
                 }
-                timestamps.add(formatter.format(n.value.getFirstTimestamp()));
-                timestamps.add(formatter.format(n.value.getLastTimestamp()));
+                List<String> currentTimeFrame = new ArrayList<>();
+                currentTimeFrame.add(formatter.format(n.value.getFirstTimestamp()));
+                currentTimeFrame.add(formatter.format(n.value.getLastTimestamp()));
+                timestamps.add(currentTimeFrame);
             }
         } finally {
             shutdownExecutorService(executorService);

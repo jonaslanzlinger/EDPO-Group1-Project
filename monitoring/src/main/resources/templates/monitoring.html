@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Factory Statistics</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #updates-container {
+            display: flex;
+            justify-content: center;
+            max-width: 80vw;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        #updates-container > div {
+            margin: 0 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 250px;
+        }
+        #red-data {
+            background-color: #ffcccc;
+        }
+
+        #blue-data {
+            background-color: #ccccff;
+        }
+
+        #white-data {
+            background-color: #ffffff;
+        }
+
+        #none-data {
+            background-color: #f0f0f0;
+        }
+
+        #sensor-readings-container {
+            display: flex;
+            justify-content: center;
+            max-width: 80vw;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+
+
+    </style>
+</head>
+<body>
+<h2>Color Data Updates</h2>
+<div id="updates-container">
+    <div id="red-data">
+        <h3>Red</h3>
+        <p>Total Readings: <span id="red-total-readings">0</span></p>
+        <p>Total Color Values: <span id="red-total-color-values">0.0</span></p>
+        <p>Average Color Value: <span id="red-average-color-value">0.0</span></p>
+    </div>
+    <div id="blue-data">
+        <h3>Blue</h3>
+        <p>Total Readings: <span id="blue-total-readings">0</span></p>
+        <p>Total Color Values: <span id="blue-total-color-values">0.0</span></p>
+        <p>Average Color Value: <span id="blue-average-color-value">0.0</span></p>
+    </div>
+    <div id="white-data">
+        <h3>White</h3>
+        <p>Total Readings: <span id="white-total-readings">0</span></p>
+        <p>Total Color Values: <span id="white-total-color-values">0.0</span></p>
+        <p>Average Color Value: <span id="white-average-color-value">0.0</span></p>
+    </div>
+    <div id="none-data">
+        <h3>None</h3>
+        <p>Total Readings: <span id="none-total-readings">0</span></p>
+        <p>Total Color Values: <span id="none-total-color-values">0.0</span></p>
+        <p>Average Color Value: <span id="none-average-color-value">0.0</span></p>
+    </div>
+</div>
+<h2>Light Sensor Readings</h2>
+<div id="sensor-readings-container">
+    <table id="sensor-readings-table" border="1">
+        <thead>
+        <tr>
+            <th>Start Time</th>
+            <th>End Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Sensor readings will be dynamically inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function fetchUpdatesColors() {
+        $.ajax({
+            url: '/api/monitoring/colors',
+            method: 'GET',
+            success: function(data) {
+                data = JSON.parse(data)
+                if (data.red) {
+                    $('#red-total-readings').text(data.red.totalReadings);
+                    $('#red-total-color-values').text(data.red.totalColorValues);
+                    $('#red-average-color-value').text(data.red.averageColorValue.toFixed(2));
+                }
+                if (data.blue) {
+                $('#blue-total-readings').text(data.blue.totalReadings);
+                $('#blue-total-color-values').text(data.blue.totalColorValues);
+                $('#blue-average-color-value').text(data.blue.averageColorValue.toFixed(2));
+                }
+                if (data.white) {
+                    $('#white-total-readings').text(data.white.totalReadings);
+                    $('#white-total-color-values').text(data.white.totalColorValues);
+                    $('#white-average-color-value').text(data.white.averageColorValue.toFixed(2));
+                }
+
+                if (data.none) {
+                    $('#none-total-readings').text(data.none.totalReadings);
+                    $('#none-total-color-values').text(data.none.totalColorValues);
+                    $('#none-average-color-value').text(data.none.averageColorValue.toFixed(2));
+                }
+            },
+            error: function(error) {
+                console.log('Error fetching updates:', error);
+            }
+        });
+    }
+
+    var prevReadings = [];
+
+    function fetchUpdatesSensor() {
+        $.ajax({
+            url: '/api/monitoring/hbw/i4_light_sensor',
+            method: 'GET',
+            success: function(data) {
+                data = JSON.parse(data)
+                if (prevReadings.length >= data.length) return;
+                var tableBody = $('#sensor-readings-table tbody');
+                tableBody.empty(); // Clear existing rows
+                data.forEach(function(reading) {
+                    var row = '<tr><td>' + reading[0] + '</td><td>' + reading[1] + '</td></tr>';
+                    tableBody.append(row);
+                });
+                prevReadings = data;
+            },
+            error: function(error) {
+                console.log('Error fetching updates:', error);
+
+            }
+        });
+    }
+
+    // Fetch updates every 5 seconds
+    setInterval(fetchUpdatesColors, 1000);
+    setInterval(fetchUpdatesSensor, 1000);
+</script>
+</body>
+</html>
