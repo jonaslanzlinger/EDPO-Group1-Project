@@ -16,7 +16,7 @@ public class MonitoringController {
     }
 
 
-    @GetMapping("/updates-page")
+    @GetMapping("/factory")
     public String updatesPage() {
         return "monitoring";
     }

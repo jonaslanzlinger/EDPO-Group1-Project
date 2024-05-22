@@ -105,7 +105,7 @@ public class MonitoringRestController {
     public String getTest(@PathVariable String sensor) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
                 .withZone(ZoneId.systemDefault());
-        List<String> timestamps = new ArrayList<>();
+        List<List<String>> timestamps = new ArrayList<>();
 
 
         var range = lightSensorStore.backwardFetch(sensor);
@@ -125,8 +125,10 @@ public class MonitoringRestController {
                     }
                     return jsonArray;
                 }
-                timestamps.add(formatter.format(n.value.getFirstTimestamp()));
-                timestamps.add(formatter.format(n.value.getLastTimestamp()));
+                List<String> currentTimeFrame = new ArrayList<>();
+                currentTimeFrame.add(formatter.format(n.value.getFirstTimestamp()));
+                currentTimeFrame.add(formatter.format(n.value.getLastTimestamp()));
+                timestamps.add(currentTimeFrame);
             }
         } finally {
             shutdownExecutorService(executorService);
