@@ -110,11 +110,32 @@
         </tbody>
     </table>
 </div>
+<h2>Factory Stats</h2>
+<div id="factory-stats-container">
+    <div id="vgr-event">
+        <h3>VGR Station</h3>
+        <p>Current pos x: <span id="vgr-current-x"></span></p>
+        <p>Current pos y: <span id="vgr-current-y"></span></p>
+        <p>Current pos z: <span id="vgr-current-z"></span></p>
+        <p>Current color reading: <span id="vgr-current-color-reading"></span></p>
+        <p>Current color: <span id="vgr-current-color"></span></p>
+        <p>Current State: <span id="vgr-current-state"></span></p>
+        <p>Current Task: <span id="vgr-current-task"></span></p>
+        <!-- Add more fields as needed -->
+    </div>
+    <div id="hbw-event">
+        <h3>HBW Station</h3>
+        <p>Current pos x: <span id="hbw-station"></span></p>
+        <p>Current State: <span id="hbw-current-state"></span></p>
+        <p>Current Task: <span id="hbw-current-task"></span></p>
+        <!-- Add more fields as needed -->
+    </div>
+</div>
 
 <script>
     function fetchUpdatesColors() {
         $.ajax({
-            url: '/api/monitoring/colors',
+            url: 'http://localhost:8086/api/monitoring/colors',
             method: 'GET',
             success: function(data) {
                 data = JSON.parse(data)
@@ -150,7 +171,7 @@
 
     function fetchUpdatesSensor() {
         $.ajax({
-            url: '/api/monitoring/hbw/i4_light_sensor',
+            url: 'http://localhost:8086/api/monitoring/hbw/i4_light_sensor',
             method: 'GET',
             success: function(data) {
                 data = JSON.parse(data)
@@ -170,9 +191,40 @@
         });
     }
 
+    function fetchUpdatesFactory() {
+        $.ajax({
+            url: 'http://localhost:8086/api/monitoring/factory',
+            method: 'GET',
+            success: function(data) {
+                data = JSON.parse(data)
+                console.log(data)
+                var vgrEvent = data.factoryStats.vgrEvent.data;
+                var hbwEvent = data.factoryStats.hbwEvent.data;
+
+                $('#vgr-station').text(vgrEvent.station);
+                $('#vgr-current-x').text(vgrEvent.current_pos_x);
+                $('#vgr-current-y').text(vgrEvent.current_pos_y);
+                $('#vgr-current-z').text(vgrEvent.current_pos_z);
+                $('#vgr-current-color-reading').text(vgrEvent.i8_color_sensor);
+                $('#vgr-current-color').text(vgrEvent.color);
+
+                $('#hbw-station').text(hbwEvent.station);
+                $('#hbw-current-state').text(hbwEvent.current_state);
+                $('#hbw-current-task').text(hbwEvent.current_task);
+            },
+            error: function(error) {
+                console.log('Error fetching updates:', error);
+
+            }
+        });
+    }
+
+
+
     // Fetch updates every 5 seconds
-    setInterval(fetchUpdatesColors, 1000);
-    setInterval(fetchUpdatesSensor, 1000);
+    setInterval(fetchUpdatesColors, 1000)
+    setInterval(fetchUpdatesSensor, 1000)
+    setInterval(fetchUpdatesFactory, 1000)
 </script>
 </body>
 </html>

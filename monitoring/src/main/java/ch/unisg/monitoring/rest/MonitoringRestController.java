@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -110,6 +110,7 @@ public class MonitoringRestController {
 
         var range = lightSensorStore.backwardFetch(sensor);
 
+
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         try {
             while (true) {
@@ -124,6 +125,9 @@ public class MonitoringRestController {
                         throw new RuntimeException(e);
                     }
                     return jsonArray;
+                }
+                if (n.value == null || n.value.getFirstTimestamp() == null || n.value.getLastTimestamp() == null) {
+                    continue;
                 }
                 List<String> currentTimeFrame = new ArrayList<>();
                 currentTimeFrame.add(formatter.format(n.value.getFirstTimestamp()));
@@ -175,10 +179,8 @@ public class MonitoringRestController {
         Thread.currentThread().interrupt();
     }
 
-    @GetMapping("/factoryStats")
-    public SseEmitter getFactoryStats() {
-        SseEmitter emitter = new SseEmitter(100L);
-
+    @GetMapping("/api/monitoring/factory")
+    public String getFactoryStats() {
         Map<String, FactoryStats> mapFactory = new HashMap<>();
 
         var range = factoryStatsStore.all();
@@ -190,12 +192,17 @@ public class MonitoringRestController {
             mapFactory.put(factory, factoryStats);
         }
         range.close();
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+
+        String jsonArray;
         try {
-            emitter.send(SseEmitter.event().name("message").data(mapFactory));
-        } catch (IOException e) {
+            jsonArray = mapper.writeValueAsString(mapFactory);
+        } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        emitter.complete();
-        return emitter;
+        return jsonArray;
+
     }
 }
