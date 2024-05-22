@@ -27,13 +27,10 @@ import java.nio.charset.StandardCharsets;
 
 
 public class ProcessingTopology {
-    private static final Gson gsonHBW = new GsonBuilder()
+    private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(HBW_1.class, new HbwDeserializer())
-            .create();
-    private static final Gson gsonVGR = new GsonBuilder()
             .registerTypeAdapter(VGR_1.class, new VgrDeserializer())
             .create();
-
 
     public static Topology build() {
 
@@ -87,8 +84,8 @@ public class ProcessingTopology {
             vgrEvent.setDatacontenttype(v.getDatacontenttype());
             vgrEvent.setSpecversion(v.getSpecversion());
             // Deserialize the data field to VGR_1
-            String jsonData = gsonVGR.toJson(v.getData());
-            VGR_1 vgrData = gsonVGR.fromJson(jsonData, VGR_1.class);
+            String jsonData = gson.toJson(v.getData());
+            VGR_1 vgrData = gson.fromJson(jsonData, VGR_1.class);
             vgrEvent.setData(vgrData);
             return vgrEvent;
         });
@@ -104,8 +101,8 @@ public class ProcessingTopology {
             hbwEvent.setSource(v.getSource());
             hbwEvent.setDatacontenttype(v.getDatacontenttype());
             // Deserialize the data field to HBW_1
-            String jsonData = gsonHBW.toJson(v.getData());
-            HBW_1 hbwData = gsonHBW.fromJson(jsonData, HBW_1.class);
+            String jsonData = gson.toJson(v.getData());
+            HBW_1 hbwData = gson.fromJson(jsonData, HBW_1.class);
             hbwEvent.setData(hbwData);
             return hbwEvent;
         });
