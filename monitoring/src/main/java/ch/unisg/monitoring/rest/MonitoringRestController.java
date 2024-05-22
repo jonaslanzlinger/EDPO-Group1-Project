@@ -14,6 +14,7 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.ReadOnlySessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -79,9 +80,7 @@ public class MonitoringRestController {
     }
 
     @GetMapping("/colorStats")
-    public SseEmitter getColorStats() {
-        SseEmitter emitter = new SseEmitter(100L);
-
+    public ResponseEntity<String> getColorStats() {
         Map<String, ColorStats> mapColors = new HashMap<>();
 
         var range = colorStatsStore.all();
@@ -92,15 +91,13 @@ public class MonitoringRestController {
             var colorStats = next.value;
             mapColors.put(color, colorStats);
         }
-
         range.close();
         try {
-            emitter.send(SseEmitter.event().name("message").data(mapColors));
+            ObjectMapper mapper = new ObjectMapper();
+            return ResponseEntity.ok(mapper.writeValueAsString(mapColors));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        emitter.complete();
-        return emitter;
     }
 
     @GetMapping("/api/monitoring/hbw/{sensor}")

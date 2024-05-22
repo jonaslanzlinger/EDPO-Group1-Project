@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Auto-updating Frontend</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>Color Data Updates</h1>
+<div id="updates-container">
+    <!-- Initial static content rendered by Thymeleaf -->
+    <div id="red-data">
+        <h2>Red</h2>
+        <p>Total Readings: <span id="red-total-readings">0</span></p>
+        <p>Total Color Values: <span id="red-total-color-values">0.0</span></p>
+        <p>Average Color Value: <span id="red-average-color-value">0.0</span></p>
+    </div>
+    <div id="blue-data">
+        <h2>Blue</h2>
+        <p>Total Readings: <span id="blue-total-readings">0</span></p>
+        <p>Total Color Values: <span id="blue-total-color-values">0.0</span></p>
+        <p>Average Color Value: <span id="blue-average-color-value">0.0</span></p>
+    </div>
+    <div id="none-data">
+        <h2>None</h2>
+        <p>Total Readings: <span id="none-total-readings">0</span></p>
+        <p>Total Color Values: <span id="none-total-color-values">0.0</span></p>
+        <p>Average Color Value: <span id="none-average-color-value">0.0</span></p>
+    </div>
+</div>
+
+<script>
+    function fetchUpdates() {
+        $.ajax({
+            url: '/colorStats',
+            method: 'GET',
+            success: function(data) {
+                $('#red-total-readings').text(data.red.totalReadings);
+                $('#red-total-color-values').text(data.red.totalColorValues);
+                $('#red-average-color-value').text(data.red.averageColorValue.toFixed(2));
+
+                $('#blue-total-readings').text(data.blue.totalReadings);
+                $('#blue-total-color-values').text(data.blue.totalColorValues);
+                $('#blue-average-color-value').text(data.blue.averageColorValue.toFixed(2));
+
+                $('#none-total-readings').text(data.none.totalReadings);
+                $('#none-total-color-values').text(data.none.totalColorValues);
+                $('#none-average-color-value').text(data.none.averageColorValue.toFixed(2));
+            },
+            error: function(error) {
+                console.log('Error fetching updates:', error);
+            }
+        });
+    }
+
+    // Fetch updates every 5 seconds
+    setInterval(fetchUpdates, 5000);
+</script>
+</body>
+</html>
