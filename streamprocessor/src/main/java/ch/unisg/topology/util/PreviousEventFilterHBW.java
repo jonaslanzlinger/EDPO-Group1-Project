@@ -1,7 +1,6 @@
 package ch.unisg.topology.util;
 
 import ch.unisg.serialization.HbwEvent;
-import ch.unisg.serialization.VgrEvent;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -44,7 +43,8 @@ public class PreviousEventFilterHBW implements Transformer<byte[], HbwEvent, Key
 
     private boolean shouldFilter(HbwEvent previousEvent, HbwEvent currentEvent) {
         var noChangeInStock = previousEvent.getData().getCurrent_stock().equals(currentEvent.getData().getCurrent_stock());
-        var noChangeInSensors = previousEvent.getData().isI4_light_barrier() == currentEvent.getData().isI4_light_barrier();
+        var noChangeInSensors = previousEvent.getData().isI4_light_barrier() == currentEvent.getData().isI4_light_barrier() &&
+                previousEvent.getData().isI1_light_barrier() == currentEvent.getData().isI1_light_barrier();
         return noChangeInSensors && noChangeInStock;
     }
 }
