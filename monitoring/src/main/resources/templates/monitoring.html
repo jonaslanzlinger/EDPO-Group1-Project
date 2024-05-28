@@ -141,7 +141,7 @@
     </div>
     <div id="hbw-event">
         <h3>HBW Station</h3>
-        <p>Current pos x: <span id="hbw-station"></span></p>
+        <p>i4 Light barrier: <span id="hbw-i4"></span></p>
         <p>Current State: <span id="hbw-current-state"></span></p>
         <p>Current Task: <span id="hbw-current-task"></span></p>
         <!-- Add more fields as needed -->
@@ -224,7 +224,7 @@
                 $('#vgr-current-color-reading').text(vgrEvent.i8_color_sensor);
                 $('#vgr-current-color').text(vgrEvent.color);
 
-                $('#hbw-station').text(hbwEvent.station);
+                $('#hbw-i4').text(hbwEvent.i4_light_barrier);
                 $('#hbw-current-state').text(hbwEvent.current_state);
                 $('#hbw-current-task').text(hbwEvent.current_task);
             },
