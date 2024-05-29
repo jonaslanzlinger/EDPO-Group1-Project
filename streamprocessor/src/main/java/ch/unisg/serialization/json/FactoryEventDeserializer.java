@@ -10,6 +10,11 @@ import org.apache.kafka.common.serialization.Deserializer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
+/**
+ * Deserializer for FactoryEvent objects. It uses the Gson library to convert JSON strings into
+ * FactoryEvent objects.
+ * Special TypesAdapters need to be registered.
+ */
 public class FactoryEventDeserializer implements Deserializer<FactoryEvent> {
     private final Gson gson =new GsonBuilder()
             .registerTypeAdapter(Instant.class, new InstantTypeAdapter())

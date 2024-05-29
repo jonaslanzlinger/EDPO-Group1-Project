@@ -1,10 +1,8 @@
 package ch.unisg.domain.stations;
 
-
 import lombok.*;
 
 import java.time.Instant;
-
 
 @Data
 @AllArgsConstructor

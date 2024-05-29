@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 
+/**
+ * This class is used to create a Kafka topic if it does not exist.
+ */
 public class KafkaTopicHelper {
 
     public static void createTopicIfNotExists(Properties config, String topicName, int numPartitions, short replicationFactor) {

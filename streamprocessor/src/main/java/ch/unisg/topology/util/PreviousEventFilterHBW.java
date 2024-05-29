@@ -6,7 +6,9 @@ import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.state.KeyValueStore;
 
-
+/**
+ * This class is used to filter out events that are the same as the previous event.
+ */
 public class PreviousEventFilterHBW implements Transformer<byte[], HbwEvent, KeyValue<byte[], HbwEvent>> {
 
     private KeyValueStore<byte[], HbwEvent> stateStore;

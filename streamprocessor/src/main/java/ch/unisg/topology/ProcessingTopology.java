@@ -25,8 +25,13 @@ import org.springframework.kafka.support.serializer.JsonSerde;
 
 import java.nio.charset.StandardCharsets;
 
-
+/**
+ * This class defines the processing topology of the Kafka Streams application.
+ * It reads from the input topic "factory-all" and writes to the output topics "VGR_1-processed" and "HBW_1-processed".
+ */
 public class ProcessingTopology {
+
+    // Register custom deserializers for the VGR_1 and HBW_1 classes
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(HBW_1.class, new HbwDeserializer())
             .registerTypeAdapter(VGR_1.class, new VgrDeserializer())
@@ -36,6 +41,7 @@ public class ProcessingTopology {
 
         StreamsBuilder builder = new StreamsBuilder();
 
+        // Create state stores to keep track of the previous event
         StoreBuilder<KeyValueStore<byte[], VgrEvent>> storeBuilderVGR =
                 Stores.keyValueStoreBuilder(
                         Stores.persistentKeyValueStore("previous-event-store-vgr"),
@@ -53,16 +59,18 @@ public class ProcessingTopology {
         builder.addStateStore(storeBuilderVGR);
         builder.addStateStore(storeBuilderHBW);
 
+        // Read from the input topic
         KStream<byte[], FactoryEvent> stream =
                 builder.stream("factory-all", Consumed.with(Serdes.ByteArray(), new FactoryEventSerdes()));
 
-        //stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("factory-all"));
+        // stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("factory-all"));
 
         // filter out unused stations
         stream.filter((k, v) ->
             v.getData().toString().contains("VGR_1") || v.getData().toString().contains("HBW_1")
         );
 
+        // Branch the stream based on the station
         var branches = stream.split(Named.as("branch-"))
                 .branch((k, v) -> v.getData().toString().contains("VGR_1"),Branched.as("vgr1"))
                 .branch((k, v) -> v.getData().toString().contains("HBW_1"), Branched.as("hbw1"))
@@ -114,6 +122,7 @@ public class ProcessingTopology {
         KStream<byte[], HbwEvent>  hbwTypedFilteredStream =  hbwTypedStream
                 .transform(PreviousEventFilterHBW::new, "previous-event-store-hbw");
 
+        // DEBUG
         vgrTypedFilteredStream.print(Printed.<byte[], VgrEvent>toSysOut().withLabel("VGR_1-processed"));
         hbwTypedFilteredStream.print(Printed.<byte[], HbwEvent>toSysOut().withLabel("HBW_1-processed"));
 
@@ -130,6 +139,7 @@ public class ProcessingTopology {
                         new HbwEventSerdes()
                 ));
 
+        // Merge the two streams and write to the output topic
         vgrTypedStream.mapValues(FactoryEvent::toFactory)
                 .merge(hbwTypedStream.mapValues(FactoryEvent::toFactory))
                 .to("monitoring-all",
@@ -138,13 +148,10 @@ public class ProcessingTopology {
 
         // DEBUG
         // Print both streams to the console
-        //vgrTypedStream.mapValues(FactoryEvent::toFactory)
+        // vgrTypedStream.mapValues(FactoryEvent::toFactory)
         //        .merge(hbwTypedStream.mapValues(FactoryEvent::toFactory))
         //        .print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("monitoring-all"));
 
-
         return builder.build();
     }
-
-
 }

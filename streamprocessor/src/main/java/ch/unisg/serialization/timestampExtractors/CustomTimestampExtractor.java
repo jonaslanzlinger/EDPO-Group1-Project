@@ -1,7 +1,5 @@
 package ch.unisg.serialization.timestampExtractors;
 
-import ch.unisg.serialization.HbwEvent;
-import ch.unisg.serialization.VgrEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.streams.processor.TimestampExtractor;
 
@@ -12,6 +10,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Custom timestamp extractor that extracts the timestamp from the value of the record.
+ * Done by utilizing a regular expression to extract the timestamp from the value.
+ */
 public class CustomTimestampExtractor implements TimestampExtractor {
 
     @Override

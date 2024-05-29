@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Deserializer for VGR_1 objects.
+ */
 public class VgrDeserializer implements JsonDeserializer<VGR_1> {
     @Override
     public VGR_1 deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {

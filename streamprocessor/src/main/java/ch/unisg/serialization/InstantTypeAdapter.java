@@ -8,6 +8,9 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.time.Instant;
 
+/**
+ * This class is used to serialize and deserialize the Instant class to and from JSON format.
+ */
 public class InstantTypeAdapter extends TypeAdapter<Instant> {
 
     @Override

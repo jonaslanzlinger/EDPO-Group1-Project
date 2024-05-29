@@ -9,6 +9,10 @@ import org.apache.kafka.common.serialization.Serializer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
+/**
+ * This class is responsible for serializing FactoryEvent objects into JSON strings.
+ * Special TypeAdapters need to be registered.
+ */
 public class FactoryEventSerializer implements Serializer<FactoryEvent> {
 
     private final Gson gson = new GsonBuilder()
@@ -20,5 +24,4 @@ public class FactoryEventSerializer implements Serializer<FactoryEvent> {
         if (factoryEvent == null) return null;
         return gson.toJson(factoryEvent).getBytes(StandardCharsets.UTF_8);
     }
-
 }

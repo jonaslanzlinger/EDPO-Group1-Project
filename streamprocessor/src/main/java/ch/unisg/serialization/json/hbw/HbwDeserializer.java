@@ -11,6 +11,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This is a deserializer class for the HBW_1 class.
+ */
 public class HbwDeserializer implements JsonDeserializer<HBW_1> {
     @Override
     public HBW_1 deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {

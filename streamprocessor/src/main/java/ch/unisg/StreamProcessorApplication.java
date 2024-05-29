@@ -1,6 +1,5 @@
 package ch.unisg;
 
-
 import ch.unisg.serialization.timestampExtractors.CustomTimestampExtractor;
 import ch.unisg.topology.ProcessingTopology;
 import ch.unisg.topology.util.KafkaTopicHelper;
@@ -35,7 +34,6 @@ public class StreamProcessorApplication {
 
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
 
-        System.out.println("Starting streams...");
         streams.start();
     }
 }
