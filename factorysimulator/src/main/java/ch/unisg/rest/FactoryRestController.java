@@ -47,21 +47,14 @@ public class FactoryRestController {
         return "Done";
     }
 
-    /**
-     * This method returns the current color detected at the VGR light sensor.
-     * @return The current color detected at the VGR light sensor.
-     * For now, it always returns "white".
-     */
-    @GetMapping(path = "/vgr/read_color")
-    public String vgrReadColor() {
-
-        double randomSleepDuration = Math.random() * 4000;
+    @GetMapping(path = "/vgr/transport")
+    public String vgrPickUpAndTransport() {
         try {
-            Thread.sleep((long) randomSleepDuration);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return "white";
+        return "Done";
     }
 
 

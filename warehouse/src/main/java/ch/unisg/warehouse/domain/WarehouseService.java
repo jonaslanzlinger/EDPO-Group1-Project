@@ -172,7 +172,6 @@ public class WarehouseService {
         warehouseStatusService.addToQueue(processInstanceId);
     }
 
-    // TODO: ADD call to the rest service to move HBW and actually reset
     public void adjustStock(String color, String productSlot) {
         HBW_1 hbw_1 = warehouseStatusService.getLatestStatus();
         hbw_1.getCurrent_stock().put(productSlot, color);
@@ -190,11 +189,21 @@ public class WarehouseService {
                 .uri(new URI(url))
                 .GET()
                 .build();
+        HttpResponse<String> response = null;
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            log.info("Response from calibration: " + response.body());
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
-            log.error("Error while calibrating HBW: " + e.getMessage());
+            url = "http://host.docker.internal:8085/hbw/calibrate";
+            request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .GET()
+                    .build();
+            try {
+                response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (IOException | InterruptedException ex) {
+                log.error("Error while calibrating HBW: " + e.getMessage());
+            }
         }
+        log.info("Response from calibration: " + response.body());
     }
 }

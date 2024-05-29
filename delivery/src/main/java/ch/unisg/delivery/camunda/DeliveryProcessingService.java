@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -115,7 +116,7 @@ public class DeliveryProcessingService {
      * @param order The order that has been matched.
      */
     @JobWorker(type = "orderMatched", name = "orderMatchedProcessor")
-    public void orderMatched(@Variable Order order) throws URISyntaxException, IOException, InterruptedException {
+    public void orderMatched(@Variable Order order) throws URISyntaxException {
         WorkflowLogger.info(log, "orderMatched","Order matched: " + order.getOrderId() + " - " + order.getOrderColor());
 
 
@@ -125,9 +126,20 @@ public class DeliveryProcessingService {
                 .uri(new URI(url))
                 .GET()
                 .build();
-        client.send(request, HttpResponse.BodyHandlers.ofString());
-
-
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            url = "http://host.docker.internal:8085/vgr/pick_up_and_transport";
+            request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .GET()
+                    .build();
+            try {
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (IOException | InterruptedException ex) {
+                log.error("Error while picking up and transporting order: " + e.getMessage());
+            }
+        }
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "orderMatched", success.name());
     }
 }
