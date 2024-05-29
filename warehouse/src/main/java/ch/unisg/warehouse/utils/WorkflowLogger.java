@@ -1,6 +1,5 @@
 package ch.unisg.warehouse.utils;
 
-
 import org.slf4j.Logger;
 
 import java.time.Instant;
@@ -11,8 +10,6 @@ import java.time.format.DateTimeFormatter;
  * @implSpec Logger to trace the flow using keyword workflow-service-info
  */
 public final class WorkflowLogger {
-
-
 
     private static final String INFO_LOGGER = "{} - warehouse-info: {} - {}";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
@@ -35,7 +32,6 @@ public final class WorkflowLogger {
         logger.info(INFO_LOGGER, formattedTimestamp,method, message);
     }
 
-
     /**
      * ERROR log statement with exception trace
      *
@@ -47,7 +43,6 @@ public final class WorkflowLogger {
     public static void error(Logger logger, String method, String message, Exception exception) {
         logger.error(ERROR_LOGGER, System.currentTimeMillis(), method, message, exception);
     }
-
 
     /**
      * ERROR log statement

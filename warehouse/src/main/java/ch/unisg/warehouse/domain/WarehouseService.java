@@ -78,8 +78,8 @@ public class WarehouseService {
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
             // Check response status code or handle response
-            System.out.println("Response status code: " + response.statusCode());
-            System.out.println("Response body: " + response.body());
+            logInfo("freeHBW", "Response status code: " + response.statusCode());
+            logInfo("freeHBW", "Response body: " + response.body());
             // Call releaseHBW on successful completion of request
             String nextProcess = warehouseStatusService.releaseHBW();
             if (nextProcess != null) {
@@ -92,7 +92,7 @@ public class WarehouseService {
             }
         }).exceptionally(ex -> {
             // Handle any exceptions here
-            System.err.println("Request failed: " + ex.getMessage());
+            logInfo("freeHBW", "Request failed: " + ex.getMessage());
             return null;
         });
         // onComplete -> HBW release
@@ -183,6 +183,7 @@ public class WarehouseService {
      * Once we receive an answer we know it has been calibrated.
      */
     public void positionHBW() throws URISyntaxException {
+        // Send a request to the REAL factory
         String url = "http://host.docker.internal:5001/hbw/calibrate?machine=hbw_1";
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -193,6 +194,7 @@ public class WarehouseService {
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
+            // If the request fails, try to send the request to the SIMULATED factory
             url = "http://host.docker.internal:8085/hbw/calibrate";
             request = HttpRequest.newBuilder()
                     .uri(new URI(url))

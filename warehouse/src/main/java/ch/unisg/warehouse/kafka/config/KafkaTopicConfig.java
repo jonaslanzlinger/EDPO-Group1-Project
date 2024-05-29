@@ -31,13 +31,4 @@ public class KafkaTopicConfig {
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         return new KafkaAdmin(configs);
     }
-
-    /*
-    // This method creates a NewTopic bean that represents a Kafka topic.
-    // It is currently commented out.
-    @Bean
-    public NewTopic startProcessMessageTopic() {
-        return new NewTopic("start-process-message-topic", 1, (short) 1);
-    }
-     */
 }

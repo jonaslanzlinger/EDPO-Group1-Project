@@ -10,7 +10,6 @@ import io.camunda.zeebe.spring.client.annotation.Variable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -73,7 +72,6 @@ public class WarehouseProcessingService {
             monitorSuccessMessage(orderId, "checkGoods");
         }
     }
-
 
     /**
      * This method checks if the goods are available in the warehouse.
@@ -144,9 +142,6 @@ public class WarehouseProcessingService {
     public void lockHBW(final ActivatedJob job, @Variable Order order) {
         String orderId = order.getOrderId();
 
-        // to force a path in the camunda process
-        // sleep((int) (Math.random() * (5000 - 1000) + 1000));
-
         boolean success = warehouseService.setInUse();
 
         logInfo("lockHBW", "Locking HBW");
@@ -175,7 +170,6 @@ public class WarehouseProcessingService {
         logInfo("freeHBW", "Freeing HBW");
         String nextProcess = warehouseService.releaseHBW();
         logInfo("freeHBW", "HBW freed");
-
 
         camundaMessageSenderService.sendCompleteCommand(job.getKey(), "{\"available\":\"true\"}");
         monitorSuccessMessage(order.getOrderId(), "freeHBW");
@@ -246,5 +240,4 @@ public class WarehouseProcessingService {
                         .service(serviceName)
                         .build());
     }
-
 }

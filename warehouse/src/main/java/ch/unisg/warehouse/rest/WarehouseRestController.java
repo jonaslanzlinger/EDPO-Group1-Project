@@ -1,6 +1,5 @@
 package ch.unisg.warehouse.rest;
 
-
 import ch.unisg.warehouse.domain.HBW_1;
 import ch.unisg.warehouse.domain.WarehouseService;
 import ch.unisg.warehouse.kafka.dto.WarehouseUpdateDto;
@@ -28,7 +27,9 @@ public class WarehouseRestController {
     @GetMapping("/setStatus")
     public String setStatus() {
 
-        //"current_stock": {"0": "", "1": "", "2": "", "3": "", "4": "", "5": "", "6": "", "7": "", "8": ""}
+        // This is deprecated and not needed anymore, because we get the current stock from Kafka by the
+        // factory
+        // "current_stock": {"0": "", "1": "", "2": "", "3": "", "4": "", "5": "", "6": "", "7": "", "8": ""}
 
         HBW_1 hbw_1 = HBW_1.builder()
                 .current_stock(new HashMap<>(){
@@ -45,7 +46,6 @@ public class WarehouseRestController {
                     }
                 })
                 .build();
-
 
         WarehouseUpdateDto dto = WarehouseUpdateDto.builder()
                 .type("update")
@@ -70,5 +70,4 @@ public class WarehouseRestController {
     public String getStock() {
         return warehouseService.getStock();
     }
-
 }

@@ -78,5 +78,4 @@ public class WarehouseStatusService {
     public synchronized void addToQueue(String processInstanceId) {
         waitingProcesses.add(processInstanceId);
     }
-
 }
