@@ -46,13 +46,10 @@ public class ShopRestController {
      */
     @RequestMapping(path = "/api/order/{color}/{deliveryMethod}", method = PUT)
     public String placeOrder(@PathVariable String color, @PathVariable String deliveryMethod) {
-
-
         // Check if the color is in stock
         if (!stockService.checkStock(color)) {
             return "{\"error\": \"Color not in stock\"}";
         }
-
 
         Order order = new Order(color, deliveryMethod);
         OrderRegistry.addOrder(order);
@@ -97,6 +94,10 @@ public class ShopRestController {
         return emitter;
     }
 
+    /**
+     * This method persists the current stock of colors and sends an SseEmitter
+     * to the front end with the current stock.
+     */
     @ResponseBody
     @GetMapping("/api/currentStock")
     public SseEmitter sendCurrentStock() {

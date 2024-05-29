@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * This is a domain class for Stock.
+ * It is a singleton class that stores the latest status of the warehouse.
+ */
 @Service
 public class Stock {
 

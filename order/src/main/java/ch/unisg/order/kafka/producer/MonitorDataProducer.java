@@ -1,11 +1,13 @@
 package ch.unisg.order.kafka.producer;
 
-
 import ch.unisg.order.kafka.dto.MonitorUpdateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class is responsible for sending monitoring updates to the Kafka topic "monitoring".
+ */
 @Service
 public class MonitorDataProducer {
 
@@ -34,5 +36,4 @@ public class MonitorDataProducer {
                 .build();
         sendMessage(monitorUpdateDto);
     }
-
 }

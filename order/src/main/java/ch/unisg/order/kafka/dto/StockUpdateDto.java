@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * This is a Data Transfer Object (DTO) class for Stock updates.
+ */
 @Data
 @Builder
 @AllArgsConstructor
