@@ -9,8 +9,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Map;
 
-class
-JsonSerializer<T> implements Serializer<T> {
+/**
+ * A Kafka serializer that uses JSON to serialize objects.
+ * @param <T>
+ */
+class JsonSerializer<T> implements Serializer<T> {
   private final Gson gson =
       new GsonBuilder()
               .registerTypeAdapter(Instant.class, new InstantTypeAdapter())

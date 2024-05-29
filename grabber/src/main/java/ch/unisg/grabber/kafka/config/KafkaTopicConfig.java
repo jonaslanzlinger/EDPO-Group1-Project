@@ -16,7 +16,6 @@ import java.util.Map;
 @Configuration
 public class KafkaTopicConfig {
 
-    // The address of the Kafka bootstrap server
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
@@ -31,23 +30,4 @@ public class KafkaTopicConfig {
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         return new KafkaAdmin(configs);
     }
-
-    // The following beans are commented out, but they would create new Kafka topics if uncommented.
-
-    /*
-    @Bean
-    public NewTopic startProcessMessageTopic() {
-        return new NewTopic("start-process-message-topic", 1, (short) 1);
-    }
-
-    @Bean
-    public NewTopic intermediateMessageTopic() {
-        return new NewTopic("intermediate-message-topic", 1, (short) 1);
-    }
-
-    @Bean
-    public NewTopic serviceTaskMessageTopic() {
-        return new NewTopic("service-task-message-topic", 1, (short) 1);
-    }
-    */
 }

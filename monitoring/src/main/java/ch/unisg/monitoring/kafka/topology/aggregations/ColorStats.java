@@ -4,8 +4,9 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.awt.*;
-
+/**
+ * Class to store the aggregated statistics for a color.
+ */
 @Setter
 @Getter
 public class ColorStats {
@@ -35,7 +36,6 @@ public class ColorStats {
         double newAverageColorVal = newTotalOccurrences / newTotalCount;
         return new ColorStats(newTotalCount,newTotalOccurrences,newAverageColorVal);
     }
-
 
     @Override
     public String toString() {

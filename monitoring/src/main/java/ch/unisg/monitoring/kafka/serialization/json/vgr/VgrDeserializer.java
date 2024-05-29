@@ -6,6 +6,10 @@ import com.google.gson.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
 
+/**
+ * Deserializer for VGR_1 objects.
+ * Special deserializer is needed because the VGR_1 class has a custom deserializer for Instant objects.
+ */
 public class VgrDeserializer implements JsonDeserializer<VGR_1> {
     private static final Gson gsonVGR = new GsonBuilder()
             .registerTypeAdapter(Instant.class, new InstantTypeAdapter())

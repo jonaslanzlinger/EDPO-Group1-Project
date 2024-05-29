@@ -5,7 +5,6 @@ import ch.unisg.monitoring.kafka.topology.aggregations.FactoryStats;
 import ch.unisg.monitoring.kafka.topology.aggregations.TimeDifferenceAggregation;
 import org.apache.kafka.common.serialization.Serde;
 
-
 import ch.unisg.monitoring.kafka.serialization.HbwEvent;
 import ch.unisg.monitoring.kafka.serialization.VgrEvent;
 import ch.unisg.monitoring.kafka.serialization.json.hbw.HbwEventSerdes;
@@ -22,10 +21,11 @@ import org.apache.kafka.streams.state.SessionStore;
 
 import java.time.Duration;
 
-
 import static ch.unisg.monitoring.kafka.serialization.json.json.JsonSerdes.jsonSerde;
 
-
+/**
+ * Kafka Streams topology for processing the incoming events.
+ */
 public class ProcessingTopology {
 
     public static Topology build() {
@@ -53,7 +53,6 @@ public class ProcessingTopology {
         KStream<String, HbwEvent> hbwTypedStream =  branches.get("branch-hbw1").mapValues(v ->
                 (HbwEvent) v
         );
-
 
         // Create Stream of Color, ColorValues
         KStream<String, Double> colorSensorStream = vgrTypedStream.map((key, vgrEvent) ->
@@ -96,9 +95,6 @@ public class ProcessingTopology {
                 }, Grouped.with(Serdes.String(), hbwEventSerdes))
                 .windowedBy(SessionWindows.ofInactivityGapAndGrace(Duration.ofSeconds(1),Duration.ofMillis(500)));
 
-
-
-
         // aggregated by timedifference of each session
         sessionizedHbwEvent.aggregate(
                 TimeDifferenceAggregation::new,
@@ -110,8 +106,6 @@ public class ProcessingTopology {
                         .withRetention(Duration.ofMinutes(30))
                         .withCachingEnabled()
                 ).suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded().shutDownWhenFull()));
-
-
 
         /* JOINING VGR AND HBW STREAMS */
 

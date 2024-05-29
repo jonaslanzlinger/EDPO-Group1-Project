@@ -18,7 +18,6 @@ public class MonitoringProcessingService {
     // The CamundaService instance used to send commands to the Camunda engine
     private final CamundaService camundaMessageSenderService;
 
-
     /**
      * Constructor for the MonitoringProcessingService class.
      *

@@ -7,6 +7,9 @@ import lombok.Setter;
 
 import java.time.Instant;
 
+/**
+ * Class to store the aggregated statistics for time differences in light barrier events.
+ */
 @Setter
 @Getter
 public class TimeDifferenceAggregation {
@@ -57,14 +60,12 @@ public class TimeDifferenceAggregation {
         return new TimeDifferenceAggregation(newFirstTimestamp, newLastTimestamp);
     }
 
-
-
     public long getTimeDifference() {
         if (firstTimestamp != null && lastTimestamp != null) {
             return lastTimestamp.toEpochMilli() - firstTimestamp.toEpochMilli();
         }
         return 0;
-        }
+    }
 
     @Override
     public String toString() {

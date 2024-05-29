@@ -5,6 +5,9 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;
 
+/**
+ * Serdes class for VgrEvent objects.
+ */
 public class VgrEventSerdes implements Serde<VgrEvent> {
 
     @Override

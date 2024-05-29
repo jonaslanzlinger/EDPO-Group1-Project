@@ -20,6 +20,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Properties;
 
+/**
+ * This class is responsible for configuring the Kafka Streams application.
+ */
 @Configuration
 public class MonitoringKafkaApplication {
 
@@ -44,11 +47,14 @@ public class MonitoringKafkaApplication {
 
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
 
-        System.out.println("Starting streams...");
         streams.start();
 
         return streams;
     }
+
+    /**
+     * The following beans are used to query the state stores from the REST API.
+     */
 
     @Bean
     public ReadOnlyKeyValueStore<String, ColorStats> colorStatsStore(KafkaStreams streams) {

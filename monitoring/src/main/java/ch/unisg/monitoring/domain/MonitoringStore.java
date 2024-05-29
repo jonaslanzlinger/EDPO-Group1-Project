@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 public class MonitoringStore {
 
-    private final AtomicReference<Map<String, List<MonitorUpdateDto>>> messageList = new AtomicReference<>(new HashMap<>() {
-    });
+    private final AtomicReference<Map<String, List<MonitorUpdateDto>>> messageList =
+            new AtomicReference<>(new HashMap<>() {});
 
     /**
      * Add a message to the MonitoringStore.

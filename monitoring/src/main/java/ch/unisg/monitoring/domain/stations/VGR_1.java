@@ -1,6 +1,5 @@
 package ch.unisg.monitoring.domain.stations;
 
-
 import lombok.*;
 
 import java.time.Instant;

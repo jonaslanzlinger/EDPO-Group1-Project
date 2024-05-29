@@ -9,6 +9,10 @@ import com.google.gson.GsonBuilder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
+/**
+ * Serializer for VgrEvent objects.
+ * Special serializer is needed because the VgrEvent class has a custom serializer for Instant objects.
+ */
 public class VgrEventSerializer implements Serializer<VgrEvent> {
 
     private final Gson gson = new GsonBuilder()
@@ -20,5 +24,4 @@ public class VgrEventSerializer implements Serializer<VgrEvent> {
         if (factoryEvent == null) return null;
         return gson.toJson(factoryEvent).getBytes(StandardCharsets.UTF_8);
     }
-
 }

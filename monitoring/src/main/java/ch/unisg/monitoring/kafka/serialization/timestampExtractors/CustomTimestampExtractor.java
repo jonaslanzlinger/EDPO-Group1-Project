@@ -5,6 +5,10 @@ import ch.unisg.monitoring.kafka.serialization.VgrEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.streams.processor.TimestampExtractor;
 
+/**
+ * Custom timestamp extractor for VgrEvent and HbwEvent objects.
+ * This custom timestamp extractor is used to extract the timestamp from events of both types
+ */
 public class CustomTimestampExtractor implements TimestampExtractor {
 
     @Override

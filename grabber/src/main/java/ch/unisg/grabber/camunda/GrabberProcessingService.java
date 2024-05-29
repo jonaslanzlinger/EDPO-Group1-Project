@@ -65,8 +65,14 @@ public class GrabberProcessingService {
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "grabGoods", success.name());
     }
 
-
+    /**
+     * This method invokes the pickUpProduct API to pick up the product from the light barrier and
+     * transport it to the color detection delivery pick up station.
+     *
+     * @throws URISyntaxException
+     */
     private void pickUpProduct() throws URISyntaxException {
+        // TODO
         String url = "http://host.docker.internal:5001/vgr/pick_up_and_transport?machine=vgr_1&start=high_bay_warehouse&end=color_detection_delivery_pick_up_station";
         try (HttpClient client = HttpClient.newHttpClient()) {
             HttpRequest request = HttpRequest.newBuilder()

@@ -29,11 +29,9 @@ public class VgrEvent {
     @SerializedName("specversion")
     String specversion;
 
-
     @Override
     public String toString() {
         return "VgrEvent [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", " +
                 "datacontenttype=" + datacontenttype + ", specversion=" + specversion + "]";
     }
-
 }

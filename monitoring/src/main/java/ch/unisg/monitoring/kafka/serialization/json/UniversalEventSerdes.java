@@ -6,7 +6,10 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;
 
-
+/**
+ * Serdes class for VgrEvent and HbwEvent objects.
+ * This universal serdes class is used to deserialize events of both types
+ */
 public class UniversalEventSerdes implements Serde<Object> {
 
     private final VgrEventDeserializer vgrEventDeserializer;

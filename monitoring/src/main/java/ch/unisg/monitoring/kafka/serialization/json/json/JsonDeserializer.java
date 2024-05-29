@@ -1,6 +1,5 @@
 package ch.unisg.monitoring.kafka.serialization.json.json;
 
-
 import ch.unisg.monitoring.kafka.serialization.InstantTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,6 +10,10 @@ import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.Map;
 
+/**
+ * This is a deserializer class for the HBW_1 class.
+ * Special TypeAdapters need to be registered for deserialization.
+ */
 public class JsonDeserializer<T> implements Deserializer<T> {
   private final Gson gson =
       new GsonBuilder()
@@ -44,8 +47,7 @@ public class JsonDeserializer<T> implements Deserializer<T> {
       throw new CustomDeserializationException("Failed to deserialize data for topic: " + topic, e);
     }
   }
-
-
+  
   @Override
   public void close() {}
 }

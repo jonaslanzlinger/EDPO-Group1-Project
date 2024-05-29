@@ -46,7 +46,13 @@ public class MonitoringRestController {
     private final ReadOnlyKeyValueStore<String, FactoryStats> factoryStatsStore;
     private static final Logger logger = LoggerFactory.getLogger(MonitoringRestController.class);
 
-    //TODO: Status codes
+    /**
+     * This method is used to get the status of a specific order.
+     * It returns a JSON object with the status of the order.
+     *
+     * @param orderId the ID of the order
+     * @return a JSON object with the status of the order
+     */
     @RequestMapping(path = "/api/monitoring/{orderId}", method = GET, produces = "application/json")
     public String getOrderId(@PathVariable String orderId) {
 
@@ -58,6 +64,12 @@ public class MonitoringRestController {
 
     }
 
+    /**
+     * This method is used to get all the orders.
+     * It returns a JSON array with all the orders.
+     *
+     * @return a JSON array with all the orders
+     */
     @RequestMapping(path = "/api/monitoring/orders", method = GET, produces = "application/json")
     public String getOrders() {
         if (monitoringStore.isEmpty()) {
@@ -67,6 +79,12 @@ public class MonitoringRestController {
         return "[" + monitoringStore.getAllMessages().values().stream().flatMap(l -> l.stream().map(MonitorUpdateDto::toJson)).collect(Collectors.joining(",")) + "]";
     }
 
+    /**
+     * This method is used to get all the updates.
+     * It returns a JSON array with all the updates.
+     *
+     * @return a JSON array with all the updates
+     */
     @GetMapping("/api/updates")
     public SseEmitter sendUpdates() {
         SseEmitter emitter = new SseEmitter(100L);
@@ -82,6 +100,12 @@ public class MonitoringRestController {
         return emitter;
     }
 
+    /**
+     * This method is used to retrieve the statistics of the colors store
+     * that has been built by the Kafka Streams application.
+     *
+     * @return a JSON object with the statistics of the colors store
+     */
     @GetMapping("/api/monitoring/colors")
     public ResponseEntity<String> getColorStats() {
         Map<String, ColorStats> mapColors = new HashMap<>();
@@ -103,6 +127,13 @@ public class MonitoringRestController {
         }
     }
 
+    /**
+     * This method is used to retrieve the statistics of the light barrier sensor store
+     * that has been built by the Kafka Streams application.
+     *
+     * @param sensor the ID of the sensor
+     * @return a JSON object with the statistics of the light barrier sensor store
+     */
     @GetMapping("/api/monitoring/hbw/{sensor}")
     public String getSensorReadings(@PathVariable String sensor) {
         var range = lightSensorStore.fetch(sensor);
@@ -129,15 +160,14 @@ public class MonitoringRestController {
         return jsonArray;
     }
 
+    // deprecated endpoint
     @GetMapping("/depreciated/api/monitoring/hbw/{sensor}")
     public String getTest(@PathVariable String sensor) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
                 .withZone(ZoneId.systemDefault());
         List<List<String>> timestamps = new ArrayList<>();
 
-
         var range = lightSensorStore.backwardFindSessions(sensor, Instant.now(), Instant.now().minus( Duration.ofHours(1)));
-
 
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         try {
@@ -207,6 +237,11 @@ public class MonitoringRestController {
         Thread.currentThread().interrupt();
     }
 
+    /**
+     * This method is used to retrieve the current contents of the factory store
+     *
+     * @return a JSON object with the current factory store
+     */
     @GetMapping("/api/monitoring/factory")
     public String getFactoryStats() {
         Map<String, FactoryStats> mapFactory = new HashMap<>();

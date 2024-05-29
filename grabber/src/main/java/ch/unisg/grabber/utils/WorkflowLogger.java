@@ -32,7 +32,6 @@ public final class WorkflowLogger {
         logger.info(INFO_LOGGER, formattedTimestamp,method, message);
     }
 
-
     /**
      * ERROR log statement with exception trace
      *
@@ -44,7 +43,6 @@ public final class WorkflowLogger {
     public static void error(Logger logger, String method, String message, Exception exception) {
         logger.error(ERROR_LOGGER, System.currentTimeMillis(), method, message, exception);
     }
-
 
     /**
      * ERROR log statement

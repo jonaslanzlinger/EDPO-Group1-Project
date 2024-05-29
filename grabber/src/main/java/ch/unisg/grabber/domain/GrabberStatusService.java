@@ -1,9 +1,11 @@
 package ch.unisg.grabber.domain;
 
 import org.springframework.stereotype.Service;
-
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * This class is a service that provides the latest status of the Grabber.
+ */
 @Service
 public class GrabberStatusService {
 
@@ -17,5 +19,4 @@ public class GrabberStatusService {
     public HBW_1 getLatestStatus() {
         return latestStatus.get();
     }
-
 }

@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * This is a producer class for Kafka messages that sends monitoring updates.
+ */
 @Service
 public class MonitorDataProducer {
 

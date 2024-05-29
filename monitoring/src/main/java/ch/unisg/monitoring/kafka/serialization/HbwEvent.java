@@ -29,7 +29,6 @@ public class HbwEvent {
     @SerializedName("specversion")
     String specversion;
 
-
     @Override
     public String toString() {
         return "HbwEvent [id=" + id + ", source=" + source + ", time=" + time + ", data=" + data + ", " +

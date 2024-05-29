@@ -9,6 +9,10 @@ import org.apache.kafka.common.serialization.Serializer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
+/**
+ * This is a serializer class for the HbwEvent class.
+ * Special TypeAdapters need to be registered for serialization.
+ */
 public class HbwEventSerializer implements Serializer<HbwEvent> {
 
     private final Gson gson = new GsonBuilder()

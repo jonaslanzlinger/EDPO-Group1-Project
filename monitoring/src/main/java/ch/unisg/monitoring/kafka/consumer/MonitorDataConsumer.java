@@ -34,5 +34,4 @@ public class MonitorDataConsumer {
         info(log, "MonitorDataConsumer", "OrderId: " + monitorUpdateDto.getOrderId() + " Type: " + monitorUpdateDto.getType() + " Service: " + monitorUpdateDto.getService() + " Method: " + monitorUpdateDto.getMethod() + " Status: " + monitorUpdateDto.getStatus());
         monitoringStore.addMessage(monitorUpdateDto);
     }
-
 }
