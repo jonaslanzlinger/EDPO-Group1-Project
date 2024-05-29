@@ -14,7 +14,7 @@ We can choose one of the following four Event-driven architecture (EDA) patterns
 * Event Notification
 * Event-carried State Transfer
 * Event Sourcing
-* Command Qu ery Responsibility Segregation (CQRS)
+* Command Query Responsibility Segregation (CQRS)
 
 ## Decision
 We have decided to make use of the Event Notification pattern in most cases. Whenever there is a MQTT message

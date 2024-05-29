@@ -1,6 +1,6 @@
 # 4. Services
 
-Updated: 2024-04-15
+Updated: 2024-05-29
 
 ## Status
 
@@ -17,6 +17,8 @@ following services with the corresponding functionalities:
 * FactorySimulator: This service will be responsible for simulating the factory's behavior.
 * FactoryListener: This service will be responsible for listening to the factory's events and forwarding 
   them to the respective services via Kafka.
+* StreamProcessor: This service will be responsible for processing the events that are emitted by the 
+  FactoryListener.
 * Order: This service will be responsible for managing the orders.
 * Warehouse: This service will be responsible for managing the High-bay Warehouse (HBW).
 * Gripper: This service will be responsible for managing the Vacuum Gripper (VGR).
