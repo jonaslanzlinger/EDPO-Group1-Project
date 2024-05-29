@@ -14,20 +14,25 @@ import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-
-
+/**
+ * This class is a REST controller that provides an endpoint to start sending orders to the factory.
+ */
 @RestController
 public class FactoryRestController {
 
     @Autowired
     private FactoryService factoryService;
 
+    /**
+     * This method is called when the /send endpoint is accessed. It reads the orders from a file and
+     * sends them to the factory.
+     *
+     * @throws MqttException
+     */
     @RequestMapping(path = "/send", method = GET)
     public String startSending() throws MqttException {
 
         List<Station> stations = factoryService.readFile("src/main/resources/data.txt");
-
-        // List<String> lines = factoryService.simpleRead("src/main/resources/data.txt");
 
         MqttClient mqttClient = MqttClient.getInstance(URI.create("tcp://mqtt:1883"));
         try {
@@ -46,16 +51,4 @@ public class FactoryRestController {
         // but we return an own correlationId which can be used in the UI to show status maybe later
         return "Done";
     }
-
-    @GetMapping(path = "/vgr/transport")
-    public String vgrPickUpAndTransport() {
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        return "Done";
-    }
-
-
 }

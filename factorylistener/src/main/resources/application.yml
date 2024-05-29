@@ -8,7 +8,6 @@ spring:
     consumer:
       auto-offset-reset: earliest
 
-
 mqtt:
   broker: tcp://mqtt:1883
   topics:

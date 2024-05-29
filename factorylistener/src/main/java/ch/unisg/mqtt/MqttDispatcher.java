@@ -7,6 +7,10 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The {@link MqttDispatcher} is responsible for dispatching MQTT messages to the appropriate
+ * {@link MqttListener} based on the topic of the message.
+ */
 @Component
 public class MqttDispatcher {
 
@@ -23,7 +27,6 @@ public class MqttDispatcher {
     }
 
     private void initRouter() {
-        // TODO: mqtt topic
         router.put("factory",eventListenerMqttAdapter);
         router.put("FTFactory/HBW_1",eventListenerMqttAdapter);
         router.put("FTFactory/VGR_1",eventListenerMqttAdapter);

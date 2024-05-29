@@ -1,4 +1,4 @@
-package ch.unisg.domain.util;
+package ch.unisg.utils;
 
 import org.slf4j.Logger;
 
@@ -11,10 +11,9 @@ import java.time.format.DateTimeFormatter;
  */
 public final class WorkflowLogger {
 
-    private static final String INFO_LOGGER = "{} - factorysimulator-info: {} - {}";
+    private static final String INFO_LOGGER = "{} - factorylistener-info: {} - {}";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
-
     private static final String ERROR_LOGGER = "Timestamp:{}:workflow-service-error:{}:{}";
 
     private WorkflowLogger() {
@@ -30,8 +29,9 @@ public final class WorkflowLogger {
      */
     public static void info(Logger logger, String method, String message) {
         String formattedTimestamp = DATE_TIME_FORMATTER.format(Instant.now());
-        logger.info(INFO_LOGGER, formattedTimestamp, method, message);
+        logger.info(INFO_LOGGER, formattedTimestamp,method, message);
     }
+
 
     /**
      * ERROR log statement with exception trace
@@ -44,6 +44,7 @@ public final class WorkflowLogger {
     public static void error(Logger logger, String method, String message, Exception exception) {
         logger.error(ERROR_LOGGER, System.currentTimeMillis(), method, message, exception);
     }
+
 
     /**
      * ERROR log statement

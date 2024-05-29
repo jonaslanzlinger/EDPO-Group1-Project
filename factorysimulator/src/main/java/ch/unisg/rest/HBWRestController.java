@@ -7,14 +7,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static ch.unisg.domain.util.Utility.logInfo;
 
-
-
-
+/**
+ * This is the simulated REST controller for the HBW station.
+ */
 @RestController
 @RequestMapping(path = "/hbw")
 public class HBWRestController {
-
-
 
     @GetMapping(path = "/calibrate")
     public ResponseEntity<Void> hbwCalibrate() {

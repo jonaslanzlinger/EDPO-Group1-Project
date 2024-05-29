@@ -7,7 +7,9 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-
+/**
+ * MqttClient is a class that provides MQTT client standard functionality.
+ */
 public class MqttClient {
 
     private static MqttClient factoryClient = null;
@@ -35,8 +37,6 @@ public class MqttClient {
 
         if (factoryClient == null) {
             factoryClient = new MqttClient(brokerAddress, dispatcher);
-
-
         }
         return factoryClient;
     }
@@ -80,7 +80,6 @@ public class MqttClient {
         if (mqttClient == null) {
             connect();
         }
-
         mqttClient.subscribe(topic);
     }
 

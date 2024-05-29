@@ -10,6 +10,7 @@ public class TomcatConfiguration {
 
     @Bean
     public WebMvcConfigurer forwardToIndex() {
+        // TODO remove?
         return new WebMvcConfigurer() {
             @Override
             public void addViewControllers(ViewControllerRegistry registry) {

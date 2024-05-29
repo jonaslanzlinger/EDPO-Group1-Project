@@ -1,6 +1,5 @@
 package ch.unisg.domain.stations;
 
-
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +8,6 @@ import lombok.Setter;
 @Setter
 @Data
 public class OV_1 extends Station {
-
 
     private String timestamp;
     private double i1_pos_switch;

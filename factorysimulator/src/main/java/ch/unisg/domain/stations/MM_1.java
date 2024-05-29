@@ -1,6 +1,5 @@
 package ch.unisg.domain.stations;
 
-
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;

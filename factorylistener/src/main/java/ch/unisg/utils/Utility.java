@@ -1,4 +1,4 @@
-package ch.unisg.domain.util;
+package ch.unisg.utils;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,4 +1,5 @@
 package ch.unisg.domain.util;
+
 import com.google.gson.*;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
@@ -8,6 +9,11 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * RuntimeTypeAdapterFactory is a class that provides a factory for handling runtime type adaption for Gson.
+ * It allows for the registration and handling of different subclasses of a base type during serialization and deserialization.
+ * @param <T> the base type
+ */
 public class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
     private final Class<?> baseType;
     private final String typeFieldName;
