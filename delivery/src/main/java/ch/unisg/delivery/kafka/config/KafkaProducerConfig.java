@@ -13,12 +13,21 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * KafkaProducerConfig is a configuration class for Kafka producer.
+ * It is annotated with @Configuration to indicate that it is a configuration class.
+ */
 @Configuration
 public class KafkaProducerConfig {
 
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
+    /**
+     * This method creates a ProducerFactory for Kafka.
+     * It sets up the necessary configurations such as bootstrap servers, key serializer, value serializer, etc.
+     * @return a ProducerFactory for Kafka
+     */
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -34,6 +43,11 @@ public class KafkaProducerConfig {
         return new DefaultKafkaProducerFactory<>(props);
     }
 
+    /**
+     * This method creates a KafkaTemplate for Kafka.
+     * It sets up the necessary configurations such as producer factory.
+     * @return a KafkaTemplate for Kafka
+     */
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());

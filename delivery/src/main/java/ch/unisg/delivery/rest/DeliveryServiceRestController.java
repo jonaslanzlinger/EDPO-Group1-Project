@@ -49,6 +49,10 @@ public class DeliveryServiceRestController {
     /**
      * This method triggers the light sensor in the delivery station.
      * It pops an order from the order registry and sends a message to the Camunda engine.
+     *
+     * Note: This method is not needed if the system is tested with the simulator factory.
+     * The simulator factory will automatically trigger the light sensor.
+     *
      * @return A message indicating that the light sensor has been triggered.
      */
     @GetMapping("/triggerLightSensor")

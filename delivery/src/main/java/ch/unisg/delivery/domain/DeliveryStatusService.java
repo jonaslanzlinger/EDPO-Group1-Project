@@ -32,6 +32,7 @@ public class DeliveryStatusService {
      */
     public void updateDeliveryStatus(VGR_1 vgr_1) {
         latestStatus.set(vgr_1);
+        // TODO
         if (vgr_1.getI8_color_sensor() <= 1550) {
             try {
                 String orderId = OrderRegistry.pop().getOrderId();

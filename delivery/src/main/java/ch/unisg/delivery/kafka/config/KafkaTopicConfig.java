@@ -9,33 +9,25 @@ import org.springframework.kafka.core.KafkaAdmin;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * KafkaTopicConfig is a configuration class for Kafka topics.
+ * It is annotated with @Configuration to indicate that it is a configuration class.
+ */
 @Configuration
 public class KafkaTopicConfig {
 
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
 
+    /**
+     * The kafkaAdmin() method creates a KafkaAdmin bean that is used to create topics in Kafka.
+     * The method is annotated with @Bean to indicate that it is a bean configuration method.
+     * @return KafkaAdmin
+     */
     @Bean
     public KafkaAdmin kafkaAdmin() {
         Map<String, Object> configs = new HashMap<>();
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         return new KafkaAdmin(configs);
     }
-    /*
-    @Bean
-    public NewTopic startProcessMessageTopic() {
-        return new NewTopic("start-process-message-topic", 1, (short) 1);
-    }
-
-    @Bean
-    public NewTopic intermediateMessageTopic() {
-        return new NewTopic("intermediate-message-topic", 1, (short) 1);
-    }
-
-    @Bean
-    public NewTopic serviceTaskMessageTopic() {
-        return new NewTopic("service-task-message-topic", 1, (short) 1);
-    }
-
-     */
 }

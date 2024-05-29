@@ -15,6 +15,10 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * KafkaConsumerConfig is a configuration class for Kafka consumer.
+ * It is annotated with @EnableKafka and @Configuration to indicate that it is a configuration class and to enable Kafka.
+ */
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
@@ -28,6 +32,11 @@ public class KafkaConsumerConfig {
     @Value(value = "${kafka.trusted-packages}")
     private String trustedPackage;
 
+    /**
+     * This method creates a ConsumerFactory for Kafka.
+     * It sets up the necessary configurations such as bootstrap servers, group id, key deserializer, value deserializer, etc.
+     * @return a ConsumerFactory for Kafka
+     */
     @Bean
     public ConsumerFactory<String, DeliveryUpdateDto> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -48,6 +57,11 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
+    /**
+     * This method creates a ConcurrentKafkaListenerContainerFactory for Kafka.
+     * It sets the ConsumerFactory created by the consumerFactory() method.
+     * @return a ConcurrentKafkaListenerContainerFactory for Kafka
+     */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, DeliveryUpdateDto>
     kafkaListenerContainerFactory() {

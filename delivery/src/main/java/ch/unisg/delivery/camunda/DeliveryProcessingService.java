@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -75,9 +74,7 @@ public class DeliveryProcessingService {
 
         WorkflowLogger.info(log, "retrieveColor","Retrieving color at light sensor...");
 
-
         String variables = "{ \"retrievedColor\": \"" + deliveryStatusService.getLatestStatus().getColor() + "\"}";
-
 
         camundaMessageSenderService.sendCompleteCommand(job.getKey(),variables);
         monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "retrieveColor", success.name());
@@ -107,7 +104,6 @@ public class DeliveryProcessingService {
             camundaMessageSenderService.throwErrorCommand("ColorMismatchError",
                     "Color mismatch between order and detected color at light sensor.", job.getKey());
             monitorDataProducer.sendMonitorUpdate(order.getOrderId(), "checkColor", failed.name());
-
         }
     }
 
@@ -119,7 +115,7 @@ public class DeliveryProcessingService {
     public void orderMatched(@Variable Order order) throws URISyntaxException {
         WorkflowLogger.info(log, "orderMatched","Order matched: " + order.getOrderId() + " - " + order.getOrderColor());
 
-
+        // Request for the REAL factory
         String url = "http://host.docker.internal:5001/vgr/pick_up_and_transport?machine=vgr_1&start=color_detection_delivery_pick_up_station&end=high_bay_warehouse_delivery_station";
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -129,6 +125,8 @@ public class DeliveryProcessingService {
         try {
             client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
+
+            // If the request fails, send the request to the SIMULATED factory
             url = "http://host.docker.internal:8085/vgr/pick_up_and_transport";
             request = HttpRequest.newBuilder()
                     .uri(new URI(url))
