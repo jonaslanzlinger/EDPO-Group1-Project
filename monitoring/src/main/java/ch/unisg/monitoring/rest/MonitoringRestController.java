@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -102,13 +104,39 @@ public class MonitoringRestController {
     }
 
     @GetMapping("/api/monitoring/hbw/{sensor}")
+    public String getSensorReadings(@PathVariable String sensor) {
+        var range = lightSensorStore.fetch(sensor);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+                .withZone(ZoneId.systemDefault());
+        TimeDifferenceAggregation timeDifferenceAggregation;
+        List<List<String>> timestamps = new ArrayList<>();
+
+        while(range.hasNext()) {
+            timeDifferenceAggregation = range.next().value;
+            List<String> currentTimeFrame = new ArrayList<>();
+            currentTimeFrame.add(formatter.format(timeDifferenceAggregation.getFirstTimestamp()));
+            currentTimeFrame.add(formatter.format(timeDifferenceAggregation.getLastTimestamp()));
+            timestamps.add(currentTimeFrame);
+        }
+        range.close();
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonArray;
+        try {
+            jsonArray = mapper.writeValueAsString(timestamps);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return jsonArray;
+    }
+
+    @GetMapping("/depreciated/api/monitoring/hbw/{sensor}")
     public String getTest(@PathVariable String sensor) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
                 .withZone(ZoneId.systemDefault());
         List<List<String>> timestamps = new ArrayList<>();
 
 
-        var range = lightSensorStore.backwardFetch(sensor);
+        var range = lightSensorStore.backwardFindSessions(sensor, Instant.now(), Instant.now().minus( Duration.ofHours(1)));
 
 
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
