@@ -161,6 +161,7 @@ public class MonitoringRestController {
     }
 
     // deprecated endpoint
+    // https://forum.confluent.io/t/sessionstore-fetch-somekey-is-very-slow/10723
     @GetMapping("/depreciated/api/monitoring/hbw/{sensor}")
     public String getTest(@PathVariable String sensor) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
