@@ -168,7 +168,7 @@ public class MonitoringRestController {
                 .withZone(ZoneId.systemDefault());
         List<List<String>> timestamps = new ArrayList<>();
 
-        var range = lightSensorStore.backwardFindSessions(sensor, Instant.now(), Instant.now().minus( Duration.ofHours(1)));
+        var range = lightSensorStore.backwardFetch(sensor);
 
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         try {
