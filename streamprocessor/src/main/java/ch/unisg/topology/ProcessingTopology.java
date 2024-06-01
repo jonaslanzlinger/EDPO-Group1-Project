@@ -73,8 +73,8 @@ public class ProcessingTopology {
 
         // Branch the stream based on the station
         var branches = stream.split(Named.as("branch-"))
-                .branch((k, v) -> v.getData().toString().contains("VGR_1"),Branched.as("vgr1"))
-                .branch((k, v) -> v.getData().toString().contains("HBW_1"), Branched.as("hbw1"))
+                .branch((k, v) -> v.getData().toString().contains("station=VGR_1"),Branched.as("vgr1"))
+                .branch((k, v) -> v.getData().toString().contains("station=HBW_1"), Branched.as("hbw1"))
                 .defaultBranch(Branched.as("other"));
 
         // Adjusts keys so that they reflect the station
