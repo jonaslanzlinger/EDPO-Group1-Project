@@ -66,8 +66,9 @@ public class ProcessingTopology {
         // stream.print(Printed.<byte[], FactoryEvent>toSysOut().withLabel("factory-all"));
 
         // filter out unused stations
-        stream.filter((k, v) ->
-            v.getData().toString().contains("VGR_1") || v.getData().toString().contains("HBW_1")
+        stream = stream.filter((k, v) ->
+            v.getData().toString().contains("station=VGR_1") || v.getData().toString().contains(
+                    "station=HBW_1")
         );
 
         // Branch the stream based on the station
@@ -75,7 +76,6 @@ public class ProcessingTopology {
                 .branch((k, v) -> v.getData().toString().contains("VGR_1"),Branched.as("vgr1"))
                 .branch((k, v) -> v.getData().toString().contains("HBW_1"), Branched.as("hbw1"))
                 .defaultBranch(Branched.as("other"));
-
 
         // Adjusts keys so that they reflect the station
         KStream<byte[], FactoryEvent> vgrEventRekeyedStream = branches.get("branch-vgr1").selectKey((oldKey, value) ->
