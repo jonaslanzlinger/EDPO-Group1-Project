@@ -59,7 +59,7 @@ git clone https://github.com/jonaslanzlinger/EDPO-Group1-Project.git
 
 > NOTE: In case you run the project with the simulated factory it is crucial to do steps 3-6 in a timely manner (about 30 seconds) because
 > the factory simulator emits MQTT messages with the content of the data dump of a live factory recording. Therefore, you will also need
-> to test with the exact same order as we did in the live factory recording (blue, red, white - 3 orders).
+> to test with the exact same order as we did in the live factory recording (blue, red - 2 orders).
 > In case you run the project with the real factory, step 3 is skipped. (Please get in touch with one of us. We would setup everything for you in this case.)
 
 3. (only Simulated Factory) Open the browser and go to `http://localhost:8085/send` to start the factory simulator.
@@ -70,7 +70,7 @@ git clone https://github.com/jonaslanzlinger/EDPO-Group1-Project.git
 
 5. Open another browser tab and go to `http://localhost:8080/order.html`
 
-6. Issue 3 orders in that sequence: Blue, Red, White (This is necessary because the simulated data is for those 3 order types)
+6. Issue 3 orders in that sequence: Blue, Red (This is necessary because the simulated data is for those 2 order types)
 
 7. The order should be processed automatically through the warehouse and the grabber.
 
