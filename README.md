@@ -25,6 +25,7 @@ The services are (click on the links for their respective READMEs):
 * [Factory Simulator](factorysimulator/README.md)
 * [Factory Listener](factorylistener/README.md)
 * [Monitoring Service](monitoring/README.md)
+* [Streamprocessor Service](streamprocessor/)
 
 ## Demo Instructions
 1. Clone the repository
