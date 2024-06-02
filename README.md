@@ -57,8 +57,9 @@ git clone https://github.com/jonaslanzlinger/EDPO-Group1-Project.git
         * monitoring
         * streamprocessor
 
-> NOTE: In case you run the project with the simulated factory it is crucial to do steps 3-6 in about 30 seconds since
-> the factory simulator will emit messages directly to the warehouse and grabber.   
+> NOTE: In case you run the project with the simulated factory it is crucial to do steps 3-6 in a timely manner (about 30 seconds) because
+> the factory simulator emits MQTT messages with the content of the data dump of a live factory recording. Therefore, you will also need
+> to test with the exact same order as we did in the live factory recording (blue, red, white - 3 orders).
 > In case you run the project with the real factory, step 3 is skipped.
 
 3. (only Simulated Factory) Open the browser and go to `http://localhost:8085/send` to start the factory simulator.
