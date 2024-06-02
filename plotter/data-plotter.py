@@ -1,13 +1,11 @@
 import json
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 # Path to your file
 file_path = './data/unload-blue_log_20240425-155908.txt'
-
-MM_1_data = {'timestamp': [], 'i1_pos_switch': [], 'i2_pos_switch': [], 'i3_pos_switch': [],
-             'i4_light_barrier': [], 'm1_speed': [], 'm2_speed': [], 'm3_speed': [],
-             'o7_valve': [], 'o8_compressor': [], 'current_task_duration': []}
 
 HBW_1_data = {
     'timestamp': [], 'i1_light_barrier': [], 'i2_light_barrier': [], 'i3_light_barrier': [],
@@ -25,25 +23,14 @@ VGR_1_data = {'timestamp': [],
               'current_sub_task': [], 'current_pos_x': [], 'current_pos_y': [], 'current_pos_z': [],
               'target_pos_x': [], 'target_pos_y': [], 'target_pos_z': []}
 
-SM_1_data = {'timestamp': [],
-             'i1_light_barrier': [], 'i2_color_sensor': [], 'i3_light_barrier': [], 'i6_light_barrier': [],
-             'i7_light_barrier': [], 'i8_light_barrier': [], 'm1_speed': [], 'o5_valve': [], 'o6_valve': [],
-             'o7_valve': [], 'o8_compressor': [], 'current_state': [], 'current_task': [], 'current_task_duration': [],
-             'current_sub_task': []}
-
-WT_1_data = {'timestamp': [], 'i3_pos_switch': [], 'i4_pos_switch': [], 'm2_speed': [],
-             'o5_valve': [], 'o6_valve': [], 'o8_compressor': [], 'current_state': [], 'current_task': [],
-             'current_task_duration': [], 'current_sub_task': []}
-
-OV_1_data = {'timestamp': [], 'i1_pos_switch': [], 'i2_pos_switch': [], 'i5_light_barrier': [], 'm1_speed': [],
-             'o7_valve': [], 'o8_compressor': [], 'current_state': [], 'current_task': [], 'current_task_duration': [],
-             'current_sub_task': []}
-
-
 def fill(data, json):
     for key in data:
         if key in json:
-            data[key].append(json[key])
+            if key == 'timestamp':
+                # Convert the timestamp string to a datetime object
+                data[key].append(datetime.strptime(json[key], '%Y-%m-%d %H:%M:%S.%f'))
+            else:
+                data[key].append(json[key])
 
 
 def create_plots(data):
@@ -62,9 +49,11 @@ def create_plots(data):
         ax.legend()
         ax.grid(True)
 
-        # Set the format of the timestamp in the x-axis
+        # Set the format of the timestamp in the x-axisfrom datetime import datetime
+
+        # "2024-04-25 15:59:10.58"
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M:%S'))
-        ax.xaxis.set_major_locator(mdates.AutoDateLocator())  # Improve formatting of timestamp labels
+        ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=15))  # Improve formatting of timestamp labels
 
     plt.tight_layout()  # Adjust subplots to fit into the figure area
     plt.show()
@@ -79,13 +68,9 @@ with open(file_path, 'r') as file:
             station = json_data['station']
 
             action = {
-                'MM_1': lambda x: fill(MM_1_data, json_data),
                 'HBW_1': lambda x: fill(HBW_1_data, json_data),
                 'VGR_1': lambda x: fill(VGR_1_data, json_data),
-                'SM_1': lambda x: fill(SM_1_data, json_data),
-                'WT_1': lambda x: fill(WT_1_data, json_data),
-                'OV_1': lambda x: fill(OV_1_data, json_data)
-            }.get(station, lambda x: print('Station not found'))
+            }.get(station, lambda x: print('Station not found/omitted'))
 
             action(json_data)
         except json.JSONDecodeError:
@@ -94,7 +79,3 @@ with open(file_path, 'r') as file:
 # Plot the data for each station
 create_plots(HBW_1_data)
 create_plots(VGR_1_data)
-create_plots(MM_1_data)
-create_plots(SM_1_data)
-create_plots(WT_1_data)
-create_plots(OV_1_data)
