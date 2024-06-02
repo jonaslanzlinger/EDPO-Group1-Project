@@ -13,8 +13,10 @@ then to the Delivery Station and finally delivered to the user.
 * Architectual Decision Records (ADRs): [adrs](docs/adrs)
 * BMPN Diagrams: [bmpns](docs/images/bmpns)
 * Sequence Diagram: [sequence_diagram.pdf](docs/sequence_diagram/sequence_diagram.drawio.pdf)
-* Presentation PDF: [intermediate_presentation.pdf](docs/intermediate_presentation.pdf)
+* Intermediate Presentation PDF: [intermediate_presentation.pdf](docs/intermediate_presentation.pdf)
+* Final Presentation PDF: [intermediate_presentation.pdf](docs/final_presentation.pdf)
 * Word Document, hand-in for Assignment 1: [intermediate_report.pdf](docs/intermediate_report.pdf)
+* Word Document, hand-in for Assignment 2: [intermediate_report.pdf](docs/report.pdf)
 * Demo Instructions: See below
 * Previous hand-ins, Exercises 1-4: [https://github.com/KaiTries/EDPO-Group1](https://github.com/KaiTries/EDPO-Group1)
 
@@ -56,27 +58,29 @@ git clone https://github.com/jonaslanzlinger/EDPO-Group1-Project.git
         * streamprocessor
 
 > NOTE: In case you run the project with the simulated factory it is crucial to do steps 3-6 in about 30 seconds since
-> the factory simulator will emitt messages directly to the warehouse and grabber.   
+> the factory simulator will emit messages directly to the warehouse and grabber.   
 > In case you run the project with the real factory, step 3 is skipped.
 
 3. (only Simulated Factory) Open the browser and go to `http://localhost:8085/send` to start the factory simulator.
-   MQTT messages will be produced each second from now.
+   MQTT messages will be produced each tenth of a second from now.
 
 4. Open another browser tab and go to `http://localhost:8084/send` to start the factory listener.
    The MQTT messages from the factory will now get relayed to the other services via Kafka.
 
 5. Open another browser tab and go to `http://localhost:8080/order.html`
 
-6. The order should be processed automatically through the warehouse and the grabber.
+6. Issue 3 orders in that sequence: Blue, Red, White (This is necessary because the simulated data is for those 3 order types)
 
-7. Depending on whether the delivery was successful or not, you will need to complete a user task within
+7. The order should be processed automatically through the warehouse and the grabber.
+
+8. Depending on whether the delivery was successful or not, you will need to complete a user task within
    the camunda tasklist.
 
-8. Hint: Check the logs of the services to see the messages being processed.
+9. Hint: Check the logs of the services to see the messages being processed.
 
-9. Hint: Check online through camunda the process instances and tasks.
+10. Hint: Check online through camunda the process instances and tasks.
 
-10. Hint: Check the monitoring service to see the metrics of the factory.
+11. Hint: Check the monitoring service to see the metrics of the factory.
 
 * Go to `http://localhost:8086/` to see the monitoring of the single camunda tasks (grouped by id) that are propagated trough kafka. 
 * Go to `http://localhost:8086/factory` to see the monitoring of the factory (e.g color stats, average values) that come from streamprocessing.
