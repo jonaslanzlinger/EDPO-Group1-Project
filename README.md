@@ -1,4 +1,4 @@
-![banner.png](docs/images/banner.png)
+https://github.com/user-attachments/assets/260f1df5-cf23-4c22-ad27-e0b087420400
 
 # EDPO - Group 1
 
@@ -6,6 +6,8 @@ Our Project for the Event-Driven and Process-Oriented Architecture course at the
 We are building an Application, that interacts with the Smart Factory and simulates a process of ordering a product.
 A user can order a product, which will be removed from the HighBay Warehouse (HBW_1), transported to the Grabber (VGR_1),
 then to the Delivery Station and finally delivered to the user.
+
+![banner.png](docs/images/banner.png)
 
 ## Documents
 
